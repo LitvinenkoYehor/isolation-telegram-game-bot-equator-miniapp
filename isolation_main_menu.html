@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ISOLATION — Equator Station</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -444,6 +445,17 @@
   }
   tick();
   setInterval(tick, 15000);
+
+  // --- Telegram Mini App init ---
+  // Работает только внутри Telegram; при обычном открытии в браузере
+  // просто ничего не делает (проверка window.Telegram.WebApp).
+  if (window.Telegram && window.Telegram.WebApp) {
+    const tg = window.Telegram.WebApp;
+    tg.ready();     // сообщаем клиенту Telegram, что страница готова
+    tg.expand();    // разворачиваем на весь экран
+    // при желании подхватить тему Telegram:
+    // document.body.style.backgroundColor = tg.themeParams.bg_color || '#050607';
+  }
 </script>
 
 </body>
