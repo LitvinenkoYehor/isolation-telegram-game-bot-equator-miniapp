@@ -406,12 +406,16 @@
         step (8 leaves/side total, mirrored pairs share the same delay so both sides
         grow together), then a 0.5s pause, then the compass star + text pop in as one --- */
   .league-layer{
-    gap:2.2cqw;
-    padding:3.5cqw;
+    justify-content:flex-start;
+    padding-top:6cqw;
+    gap:1.8cqw;
+    padding-left:3.5cqw;
+    padding-right:3.5cqw;
+    padding-bottom:3.5cqw;
   }
   .league-svg{
-    width:74cqw; height:74cqw;
-    max-width:330px; max-height:330px;
+    width:62cqw; height:62cqw;
+    max-width:270px; max-height:270px;
     overflow:visible;
     color:var(--scr-cyan);
     filter:drop-shadow(0 0 0.6cqw rgba(143,214,255,0.45));
@@ -469,7 +473,7 @@
   .league-loading{
     width:100%;
     max-width:230px;
-    margin-top:2.6cqw;
+    margin-top:1cqw;
     display:flex; flex-direction:column; gap:0.9cqw;
     opacity:0;
     animation:leagueIn 0.01s steps(1) forwards;
