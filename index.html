@@ -21,8 +21,11 @@
     --phosphor:0 0 6px rgba(159,216,255,0.35);
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{
-    margin:0; padding:0; min-height:100%;
+  html{ height:100%; }
+  body{
+    margin:0; padding:0;
+    min-height:100vh;
+    min-height:calc(var(--tg-vh, 1vh) * 100);
     background:#050607;
     display:flex; align-items:center; justify-content:center;
     font-family:'Rajdhani',sans-serif;
@@ -449,10 +452,20 @@
   // --- Telegram Mini App init ---
   // Работает только внутри Telegram; при обычном открытии в браузере
   // просто ничего не делает (проверка window.Telegram.WebApp).
+  function setTgVh(){
+    // 1% реальной высоты viewport, полученной от Telegram (или window, как фолбэк)
+    const h = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.viewportStableHeight)
+      || window.innerHeight;
+    document.documentElement.style.setProperty('--tg-vh', (h / 100) + 'px');
+  }
+  setTgVh();
+  window.addEventListener('resize', setTgVh);
+
   if (window.Telegram && window.Telegram.WebApp) {
     const tg = window.Telegram.WebApp;
     tg.ready();     // сообщаем клиенту Telegram, что страница готова
     tg.expand();    // разворачиваем на весь экран
+    tg.onEvent('viewportChanged', setTgVh); // пересчитать реальную высоту, когда Telegram её пришлёт
     // при желании подхватить тему Telegram:
     // document.body.style.backgroundColor = tg.themeParams.bg_color || '#050607';
   }
