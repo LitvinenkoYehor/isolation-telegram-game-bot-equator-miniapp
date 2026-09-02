@@ -1717,7 +1717,7 @@
       games_played_staff: 76, games_won_staff: 41,
       games_played_liquidator: 52, games_won_liquidator: 29,
       kills: 37, deaths: 54, tasks_completed: 212,
-      rename_cooldown_seconds: 0, name_min_length: 2, name_max_length: 20,
+      rename_cooldown_seconds: 0, name_min_length: 4, name_max_length: 20,
       name_change_cooldown_seconds: 172800
     };
   }
@@ -1846,6 +1846,12 @@
       return;
     }
     currentProfile = profile;
+    // Реальные цифры (даже нулевые — level 1, 0 опыта и т.д. для только что
+    // созданного профиля) подставляются сразу, а не только после успешной
+    // отправки имени: иначе, например, при пустом имени на гейте ввода
+    // (см. submitCallsign) в меню оставались бы захардкоженные плейсхолдеры
+    // из вёрстки ("07 уровень" и т.п.), а не настоящий профиль игрока.
+    populateProfileUI(profile);
 
     if (profile.is_new) {
       // Первый вход — экран "ВОЙТИ В СИСТЕМУ" и дальше работает как обычно,
@@ -1857,7 +1863,6 @@
     // загрузки/лого пропускаются целиком, независимо от настройки
     // "Выключить начальное интро" (та настройка касается только первого
     // входа) — сразу открываем меню.
-    populateProfileUI(profile);
     gateLocked.hidden = true;
     revealMenu();
   })();
@@ -1907,7 +1912,7 @@
       return;
     }
 
-    const minLen = (currentProfile && currentProfile.name_min_length) || 2;
+    const minLen = (currentProfile && currentProfile.name_min_length) || 4;
     const maxLen = (currentProfile && currentProfile.name_max_length) || 20;
     if (raw.length < minLen || raw.length > maxLen) {
       loginError.textContent = 'Имя должно быть от ' + minLen + ' до ' + maxLen + ' символов.';
