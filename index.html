@@ -1710,8 +1710,24 @@
   // первый вход (гейт "ВВЕДИТЕ ИМЯ").
   function offlineDemoProfile(){
     const isNew = location.search.includes('demo=new');
+    if (isNew) {
+      // Свежий профиль — ровно такие же нули/единицы, какие реальный
+      // бэкенд (players_db.get_or_create_profile) отдаёт для только что
+      // созданной записи. Никакой ветеранской статистики — иначе гейт
+      // ввода имени в предпросмотре путает с уже игравшим "Н. АЛЬТМАН".
+      return {
+        name: '', is_new: true,
+        level: 1, xp: 0, xp_prev: 0, xp_next: 100,
+        games_played: 0, games_won: 0,
+        games_played_staff: 0, games_won_staff: 0,
+        games_played_liquidator: 0, games_won_liquidator: 0,
+        kills: 0, deaths: 0, tasks_completed: 0,
+        rename_cooldown_seconds: 0, name_min_length: 4, name_max_length: 20,
+        name_change_cooldown_seconds: 172800
+      };
+    }
     return {
-      name: isNew ? '' : 'Н. АЛЬТМАН', is_new: isNew,
+      name: 'Н. АЛЬТМАН', is_new: false,
       level: 7, xp: 2140, xp_prev: 1800, xp_next: 3000,
       games_played: 128, games_won: 94,
       games_played_staff: 76, games_won_staff: 41,
@@ -1903,19 +1919,17 @@
     const raw = (callsignInput.value || '').trim();
     loginError.hidden = true;
 
-    if (!raw) {
-      // Пустое имя — используем "ОПЕРАТОР" только косметически для этого
-      // сеанса, серверу ничего не отправляем: раз имя не выбрано, в
-      // следующий раз гейт ввода имени покажется снова (name_is_custom
-      // остаётся false в game/players_db.py).
-      proceedFromLogin('ОПЕРАТОР');
-      return;
-    }
-
+    // Пустое (или состоящее только из пробелов) имя больше никогда не
+    // проходит дальше гейта — никакого косметического "ОПЕРАТОРА" и
+    // подстановки вместо реального позывного. Пустая строка просто не
+    // проходит проверку длины ниже (0 < minLen), и игрок увидит тот же
+    // текст ошибки, что и при слишком коротком имени.
     const minLen = (currentProfile && currentProfile.name_min_length) || 4;
     const maxLen = (currentProfile && currentProfile.name_max_length) || 20;
     if (raw.length < minLen || raw.length > maxLen) {
-      loginError.textContent = 'Имя должно быть от ' + minLen + ' до ' + maxLen + ' символов.';
+      loginError.textContent = raw.length === 0
+        ? 'Введите позывной — от ' + minLen + ' до ' + maxLen + ' символов.'
+        : 'Имя должно быть от ' + minLen + ' до ' + maxLen + ' символов.';
       loginError.hidden = false;
       return;
     }
