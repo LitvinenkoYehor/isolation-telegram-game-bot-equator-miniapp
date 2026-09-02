@@ -1041,44 +1041,19 @@
     letter-spacing:0.02em;
     color:var(--scr-text);
   }
-  .rename-field-label{
-    font-family:'IBM VGA 8x16',monospace;
-    font-size:1.8cqw; letter-spacing:0.2em;
-    color:var(--scr-text-dim);
-    margin-bottom:1.4cqw;
-  }
-  .rename-input{
-    width:100%;
-    font-family:'IBM VGA 8x16',monospace;
-    font-size:2.6cqw;
-    letter-spacing:0.04em;
-    text-transform:uppercase;
-    color:var(--scr-cyan);
-    background:rgba(0,0,0,0.28);
-    border:1px solid var(--scr-line-strong);
-    border-radius:0.6cqw;
-    padding:2cqw 2.2cqw;
-    outline:none;
-    box-sizing:border-box;
-  }
-  .rename-input:focus{
-    border-color:var(--scr-cyan);
-    box-shadow:0 0 1.2cqw rgba(143,214,255,0.35);
-  }
-  .rename-input:disabled{ opacity:0.5; }
   .rename-hint{
     font-family:'IBM VGA 8x16',monospace;
     font-size:1.7cqw; letter-spacing:0.04em;
     color:var(--scr-text-dim);
     margin-top:1.4cqw; min-height:1.4em;
   }
-  .rename-error, .gate-error{
+  .gate-error{
     font-family:'IBM VGA 8x16',monospace;
     font-size:1.8cqw; letter-spacing:0.03em;
     color:#ff9a8a;
     margin-top:1.2cqw;
   }
-  .rename-error[hidden], .gate-error[hidden]{ display:none; }
+  .gate-error[hidden]{ display:none; }
 
   .rename-actions{
     display:flex; gap:2cqw;
@@ -1102,6 +1077,14 @@
     border-color:var(--scr-amber);
   }
   .rename-btn:disabled{ opacity:0.45; cursor:default; }
+
+  /* full blackout during the "restart" sequence — sits above absolutely
+     everything, including the rename overlay itself and the CRT filters */
+  .terminal-off{
+    position:absolute; inset:0; z-index:80;
+    background:#000;
+  }
+  .terminal-off[hidden]{ display:none; }
 
   /* short "reboot" boot-log replay after a successful rename — reuses the
      same #gateBoot layer/markup as the very first login, just retriggered */
@@ -1636,17 +1619,17 @@
             <span class="rename-warn-icon">⚠</span>
             <p class="rename-warn-text">Изменение имени пользователя вызовет перезапуск терминала. Текущий сеанс будет прерван.</p>
           </div>
-          <div class="rename-field-label">НОВОЕ ИМЯ:</div>
-          <input class="rename-input" id="renameInput" type="text" maxlength="20" placeholder="ВВЕДИТЕ ИМЯ" autocomplete="off">
           <div class="rename-hint" id="renameHint"></div>
-          <div class="rename-error" id="renameError" hidden></div>
         </div>
         <div class="rename-actions">
           <button class="rename-btn" id="renameCancel" type="button">ОТМЕНА</button>
-          <button class="rename-btn primary" id="renameConfirm" type="button">ПОДТВЕРДИТЬ</button>
+          <button class="rename-btn primary" id="renameConfirm" type="button">ПЕРЕЗАПУСК</button>
         </div>
       </div>
     </div>
+
+    <!-- ================= TERMINAL OFF — экран "гаснет" во время перезапуска ================= -->
+    <div class="terminal-off" id="terminalOff" hidden></div>
   </div>
 </div>
 
@@ -1713,7 +1696,7 @@
 
   // !!! ЗАМЕНИТЕ на реальный публичный адрес вашего бота на Render,
   // например 'https://station-game.onrender.com' — БЕЗ слэша на конце.
-  const API_BASE = 'https://isolation-telegram-game-bot.onrender.com';
+  const API_BASE = 'https://YOUR-RENDER-APP.onrender.com';
 
   function apiUrl(path){
     return API_BASE.replace(/\/$/, '') + path;
@@ -1847,12 +1830,13 @@
   }
 
   // =========================================================
-  //  СЕССИЯ: первый вход просит позывной (гейт "ВОЙТИ В СИСТЕМУ" остаётся
-  //  как раньше), при повторном — оба гейта (locked + ввод имени)
-  //  пропускаются целиком, сразу переходим к загрузке терминала под уже
-  //  известным именем. Источник истины — то же поле name_is_custom,
-  //  которым уже пользуется бот (game/players_db.py): пока игрок ни разу
-  //  не задал себе имя сам, is_new остаётся true.
+  //  СЕССИЯ: боевой прогон с текстом загрузки + лого лиги — это ТОЛЬКО
+  //  для первого входа (кнопка "ВОЙТИ В СИСТЕМУ" -> ввод позывного ->
+  //  intro). Если игрок уже когда-то задавал себе имя, вся эта сцена
+  //  больше никогда не показывается — сразу открывается меню. Источник
+  //  истины — то же поле name_is_custom, которым уже пользуется бот
+  //  (game/players_db.py): пока игрок ни разу не задал себе имя сам,
+  //  is_new остаётся true.
   // =========================================================
   (async function initSession(){
     const profile = await fetchProfile();
@@ -1869,14 +1853,13 @@
       return;
     }
 
+    // Не первый вход — гейты "ВОЙТИ В СИСТЕМУ", ввод имени и вся сцена
+    // загрузки/лого пропускаются целиком, независимо от настройки
+    // "Выключить начальное интро" (та настройка касается только первого
+    // входа) — сразу открываем меню.
     populateProfileUI(profile);
     gateLocked.hidden = true;
-    if (appSettings.skipIntro) {
-      revealMenu();
-    } else {
-      gateBoot.hidden = false;
-      runBootSequence(profile.name.toUpperCase());
-    }
+    revealMenu();
   })();
 
   function switchGate(from, to, delay){
@@ -2158,39 +2141,30 @@
 
   // =========================================================
   //  ИЗМЕНЕНИЕ ИМЕНИ — "системное окно предупреждения" поверх экрана,
-  //  открывается из настроек. Предупреждает, что терминал перезапустится,
-  //  затем реально дёргает POST /api/profile/name (game/webapp_api.py) и
-  //  проигрывает короткую "перезагрузку" (см. runRebootSequence ниже).
+  //  открывается из настроек. Тут нет поля ввода: только предупреждение
+  //  о перезапуске терминала и выбор "Отмена"/"Перезапуск". Реальный ввод
+  //  нового имени происходит там же, где и при первом входе — на экране
+  //  "ВОЙТИ В СИСТЕМУ", куда "Перезапуск" и возвращает игрока (со всеми
+  //  теми же проверками длины/кулдауна на стороне сервера, что и раньше,
+  //  см. submitCallsign/postNewName выше).
   // =========================================================
   const renameOverlay = document.getElementById('renameOverlay');
-  const renameInput   = document.getElementById('renameInput');
   const renameHint    = document.getElementById('renameHint');
-  const renameError   = document.getElementById('renameError');
   const renameConfirm = document.getElementById('renameConfirm');
   const renameCancel  = document.getElementById('renameCancel');
   const renameClose   = document.getElementById('renameClose');
+  const terminalOff   = document.getElementById('terminalOff');
 
   function openRenameOverlay(){
-    renameError.hidden = true;
-    renameInput.value = '';
-
     const cooldown = (currentProfile && currentProfile.rename_cooldown_seconds) || 0;
-    const minLen = (currentProfile && currentProfile.name_min_length) || 2;
-    const maxLen = (currentProfile && currentProfile.name_max_length) || 20;
-
-    if (cooldown > 0) {
-      renameInput.disabled = true;
-      renameConfirm.disabled = true;
-      renameHint.textContent = 'Следующая смена имени будет доступна через ' + fmtDuration(cooldown) + '.';
-    } else {
-      renameInput.disabled = false;
-      renameConfirm.disabled = false;
-      renameHint.textContent = 'От ' + minLen + ' до ' + maxLen + ' символов.';
-    }
+    renameHint.textContent = cooldown > 0
+      ? 'Сервер разрешает менять имя не чаще раза в ' + fmtDuration(
+          (currentProfile && currentProfile.name_change_cooldown_seconds) || 172800
+        ) + ' — следующая попытка будет доступна через ' + fmtDuration(cooldown) + '.'
+      : '';
 
     renameOverlay.hidden = false;
     requestAnimationFrame(() => renameOverlay.classList.add('shown'));
-    if (cooldown <= 0) setTimeout(() => renameInput.focus(), 150);
   }
 
   function closeRenameOverlay(){
@@ -2201,50 +2175,27 @@
   document.getElementById('btnChangeName').addEventListener('click', openRenameOverlay);
   renameCancel.addEventListener('click', closeRenameOverlay);
   renameClose.addEventListener('click', closeRenameOverlay);
-  renameInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') renameConfirm.click();
-  });
 
-  renameConfirm.addEventListener('click', async () => {
-    const raw = (renameInput.value || '').trim();
-    renameError.hidden = true;
-
-    const minLen = (currentProfile && currentProfile.name_min_length) || 2;
-    const maxLen = (currentProfile && currentProfile.name_max_length) || 20;
-    if (raw.length < minLen || raw.length > maxLen) {
-      renameError.textContent = 'Имя должно быть от ' + minLen + ' до ' + maxLen + ' символов.';
-      renameError.hidden = false;
-      return;
-    }
-
-    renameConfirm.disabled = true;
-    renameCancel.disabled = true;
-    const prevLabel = renameConfirm.textContent;
-    renameConfirm.textContent = 'СОХРАНЕНИЕ...';
-
-    const result = await postNewName(raw);
-
-    renameConfirm.disabled = false;
-    renameCancel.disabled = false;
-    renameConfirm.textContent = prevLabel;
-
-    if (!result.ok) {
-      renameError.textContent = result.message;
-      renameError.hidden = false;
-      return;
-    }
-
-    currentProfile = result.profile;
+  renameConfirm.addEventListener('click', () => {
     closeRenameOverlay();
-    setTimeout(() => runRebootSequence(currentProfile.name.toUpperCase()), 260);
+    setTimeout(performTerminalReset, 260);
   });
 
-  // Короткая "перезагрузка терминала" после смены имени — отдельный,
-  // более короткий прогон gateBoot (без гейта лиги/загрузки, это не первый
-  // вход), возвращает прямо в главное меню с уже обновлённым именем.
-  function runRebootSequence(name){
-    populateProfileUI(currentProfile);
+  // "Перезапуск" — гасит экран на 3с, затем 2с он "включён", но пуст, и
+  // только потом снова показывается самый первый экран ("ВОЙТИ В СИСТЕМУ"),
+  // как будто игрок открыл терминал в первый раз. Если "Выключить
+  // начальное интро" было включено — сбрасываем эту настройку, чтобы после
+  // ввода нового имени снова проигралась полная сцена загрузки/лого:
+  // весь смысл перезапуска в том, чтобы показать её заново.
+  function performTerminalReset(){
+    if (appSettings.skipIntro) {
+      appSettings.skipIntro = false;
+      toggleIntro.checked = false;
+      saveSettings();
+    }
 
+    // Прячем всё как есть, независимо от того, что было открыто —
+    // настройки (единственное место, откуда сюда попадают), меню и т.д.
     settingsScreen.classList.remove('reveal');
     settingsScreen.hidden = true;
     profileScreen.classList.remove('reveal');
@@ -2252,39 +2203,24 @@
     mainMenu.classList.remove('reveal');
     mainMenu.querySelectorAll('.shown').forEach(el => el.classList.remove('shown'));
     mainMenu.querySelectorAll('.wp-shown').forEach(el => el.classList.remove('wp-shown'));
+    mainMenu.hidden = true;
+    [gateLogin, gateBoot, gateLeague].forEach(g => {
+      g.classList.remove('out');
+      g.hidden = true;
+    });
+    gateLocked.hidden = true;
+    callsignInput.value = '';
+    loginError.hidden = true;
+    if (currentProfile) currentProfile.is_new = true;
 
-    gateBoot.hidden = false;
-    bootLog.innerHTML = '';
+    terminalOff.hidden = false; // экран гаснет
 
-    function addLine(text, ok){
-      const div = document.createElement('div');
-      div.className = 'ln' + (ok ? ' ok' : '');
-      div.textContent = text;
-      bootLog.appendChild(div);
-      while (bootLog.children.length > BOOT_MAX_LINES) bootLog.removeChild(bootLog.firstChild);
-    }
-
-    const stages = [
-      { text: 'ЗАВЕРШЕНИЕ ПРОЦЕССОВ...',              pause: 420 },
-      { text: 'ОБНОВЛЕНИЕ УЧЁТНЫХ ДАННЫХ...',          pause: 420 },
-      { text: 'НОВОЕ ИМЯ ПРИНЯТО: ' + name, ok: true,  pause: 600 },
-      { text: 'ПЕРЕЗАГРУЗКА ТЕРМИНАЛА...',             pause: 900 }
-    ];
-
-    function runStage(idx){
-      if (idx >= stages.length) {
-        gateBoot.hidden = true;
-        mainMenu.hidden = false;
-        revealMenu();
-        return;
-      }
-      const s = stages[idx];
+    setTimeout(() => {
+      terminalOff.hidden = true; // "включается", но пока пусто
       setTimeout(() => {
-        addLine(s.text, s.ok);
-        setTimeout(() => runStage(idx + 1), s.pause);
-      }, 90);
-    }
-    runStage(0);
+        gateLocked.hidden = false; // экран первого входа
+      }, 2000);
+    }, 3000);
   }
 
   // =========================================================
