@@ -967,6 +967,144 @@
     background:var(--scr-cyan);
     box-shadow:0 0 1cqw rgba(143,214,255,0.6);
   }
+  /* ================= RENAME OVERLAY — "system warning window" ================= */
+  /* Modal dialog stacked above everything (menu/settings included), styled like
+     an in-universe OS pop-up: title bar + close button + warning icon + body.
+     z-index above .gate-layer (20) and the CRT effect layers so it always
+     reads as "on top of" whatever screen was open underneath. */
+  .rename-overlay{
+    position:absolute; inset:0; z-index:60;
+    display:flex; align-items:center; justify-content:center;
+    padding:6cqw;
+    background:rgba(8,12,16,0.55);
+    backdrop-filter:blur(1.5px);
+    opacity:0;
+    transition:opacity .25s ease;
+  }
+  .rename-overlay[hidden]{ display:none; }
+  .rename-overlay.shown{ opacity:1; }
+
+  .rename-window{
+    width:100%; max-width:340px;
+    background:linear-gradient(180deg, var(--scr-bg-1), var(--scr-bg-2));
+    border:1.4px solid var(--scr-line-strong);
+    border-radius:1.4cqw;
+    box-shadow:0 1cqw 4cqw rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.3);
+    overflow:hidden;
+    transform:translateY(6px) scale(0.98);
+    transition:transform .25s ease;
+  }
+  .rename-overlay.shown .rename-window{ transform:translateY(0) scale(1); }
+
+  .rename-titlebar{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:2cqw;
+    padding:2.4cqw 3cqw;
+    background:rgba(0,0,0,0.28);
+    border-bottom:1px solid var(--scr-line);
+  }
+  .rename-titlebar-text{
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:2.6cqw; letter-spacing:0.1em;
+    color:var(--scr-amber);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .rename-close{
+    flex:none;
+    width:6.4cqw; height:6.4cqw; min-width:22px; min-height:22px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'IBM VGA 8x16',monospace; font-size:2.6cqw;
+    color:var(--scr-text);
+    background:rgba(255,255,255,0.06);
+    border:1px solid var(--scr-line-strong);
+    border-radius:0.5cqw;
+    cursor:pointer;
+  }
+  .rename-close:active{ filter:brightness(0.8); }
+
+  .rename-body{ padding:3.6cqw 3.6cqw 1cqw; }
+  .rename-warn-row{
+    display:flex; gap:2.4cqw; align-items:flex-start;
+    margin-bottom:3.6cqw;
+  }
+  .rename-warn-icon{
+    flex:none;
+    font-size:6cqw;
+    color:var(--scr-amber);
+    text-shadow:0 0 1cqw rgba(232,181,106,0.5);
+    line-height:1;
+  }
+  .rename-warn-text{
+    margin:0;
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:2.1cqw; line-height:1.5;
+    letter-spacing:0.02em;
+    color:var(--scr-text);
+  }
+  .rename-field-label{
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.8cqw; letter-spacing:0.2em;
+    color:var(--scr-text-dim);
+    margin-bottom:1.4cqw;
+  }
+  .rename-input{
+    width:100%;
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:2.6cqw;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--scr-cyan);
+    background:rgba(0,0,0,0.28);
+    border:1px solid var(--scr-line-strong);
+    border-radius:0.6cqw;
+    padding:2cqw 2.2cqw;
+    outline:none;
+    box-sizing:border-box;
+  }
+  .rename-input:focus{
+    border-color:var(--scr-cyan);
+    box-shadow:0 0 1.2cqw rgba(143,214,255,0.35);
+  }
+  .rename-input:disabled{ opacity:0.5; }
+  .rename-hint{
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.7cqw; letter-spacing:0.04em;
+    color:var(--scr-text-dim);
+    margin-top:1.4cqw; min-height:1.4em;
+  }
+  .rename-error, .gate-error{
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.8cqw; letter-spacing:0.03em;
+    color:#ff9a8a;
+    margin-top:1.2cqw;
+  }
+  .rename-error[hidden], .gate-error[hidden]{ display:none; }
+
+  .rename-actions{
+    display:flex; gap:2cqw;
+    padding:3cqw 3.6cqw 3.6cqw;
+  }
+  .rename-btn{
+    flex:1;
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.9cqw; font-weight:700; letter-spacing:0.06em;
+    color:var(--scr-text);
+    background:rgba(255,255,255,0.05);
+    border:1.2px solid var(--scr-line-strong);
+    border-radius:0.8cqw;
+    padding:2.2cqw 1.6cqw;
+    cursor:pointer;
+  }
+  .rename-btn:active{ filter:brightness(0.85); }
+  .rename-btn.primary{
+    color:#eaf5ff;
+    background:linear-gradient(135deg, rgba(232,181,106,0.28), rgba(232,181,106,0.08));
+    border-color:var(--scr-amber);
+  }
+  .rename-btn:disabled{ opacity:0.45; cursor:default; }
+
+  /* short "reboot" boot-log replay after a successful rename — reuses the
+     same #gateBoot layer/markup as the very first login, just retriggered */
 </style>
 </head>
 <body>
@@ -1035,15 +1173,15 @@
 
       <button class="hud" type="button" id="hudButton" title="Инструктаж">
         <div class="hud-level">
-          <div class="lv-num">07</div>
+          <div class="lv-num" id="hudLevelNum">07</div>
           <div class="lv-lbl">LVL</div>
         </div>
         <div class="hud-mid">
           <div class="hud-name-row">
             <div class="hud-name" id="hudName">Н. АЛЬТМАН</div>
-            <div class="hud-xp-label">2 140&nbsp;/&nbsp;3 000</div>
+            <div class="hud-xp-label" id="hudXpLabel">2 140&nbsp;/&nbsp;3 000</div>
           </div>
-          <div class="hud-bar"><div class="hud-bar-fill"></div></div>
+          <div class="hud-bar"><div class="hud-bar-fill" id="hudBarFill"></div></div>
         </div>
         <div class="hud-status"><span class="dot"></span>ОНЛАЙН</div>
         <svg class="hud-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6"/></svg>
@@ -1200,25 +1338,25 @@
             <div class="profile-name" id="profileName">Н. АЛЬТМАН</div>
           </div>
           <div class="profile-level">
-            <div class="lv-num">07</div>
+            <div class="lv-num" id="profileLevelNum">07</div>
             <div class="lv-lbl">LVL</div>
           </div>
         </div>
 
         <div class="profile-xp-row">
-          <span>ОПЫТ</span><span>2 140&nbsp;/&nbsp;3 000</span>
+          <span>ОПЫТ</span><span id="profileXpLabel">2 140&nbsp;/&nbsp;3 000</span>
         </div>
-        <div class="hud-bar profile-bar"><div class="hud-bar-fill"></div></div>
+        <div class="hud-bar profile-bar"><div class="hud-bar-fill" id="profileBarFill"></div></div>
 
         <div class="profile-section-label">СМЕНЫ</div>
         <div class="profile-stats">
           <div class="stat-row">
             <span class="stat-label">СМЕН ЗАВЕРШЕНО</span>
-            <span class="stat-value">128</span>
+            <span class="stat-value" data-stat="games_played">128</span>
           </div>
           <div class="stat-row">
             <span class="stat-label">ЗАВЕРШЕНО УСПЕШНО</span>
-            <span class="stat-value">94</span>
+            <span class="stat-value" data-stat="games_won">94</span>
           </div>
         </div>
 
@@ -1226,19 +1364,19 @@
         <div class="profile-stats">
           <div class="stat-row">
             <span class="stat-label">ЗА ПЕРСОНАЛ СЫГРАНО</span>
-            <span class="stat-value">76</span>
+            <span class="stat-value" data-stat="games_played_staff">76</span>
           </div>
           <div class="stat-row">
             <span class="stat-label">ЗА ПЕРСОНАЛ ВЫИГРАНО</span>
-            <span class="stat-value">41</span>
+            <span class="stat-value" data-stat="games_won_staff">41</span>
           </div>
           <div class="stat-row">
             <span class="stat-label">ЗА ЛИКВИДАТОРА СЫГРАНО</span>
-            <span class="stat-value">52</span>
+            <span class="stat-value" data-stat="games_played_liquidator">52</span>
           </div>
           <div class="stat-row">
             <span class="stat-label">ЗА ЛИКВИДАТОРА ВЫИГРАНО</span>
-            <span class="stat-value">29</span>
+            <span class="stat-value" data-stat="games_won_liquidator">29</span>
           </div>
         </div>
 
@@ -1246,15 +1384,15 @@
         <div class="profile-stats">
           <div class="stat-row">
             <span class="stat-label">УБИЙСТВ</span>
-            <span class="stat-value">37</span>
+            <span class="stat-value" data-stat="kills">37</span>
           </div>
           <div class="stat-row">
             <span class="stat-label">СМЕРТЕЙ</span>
-            <span class="stat-value">54</span>
+            <span class="stat-value" data-stat="deaths">54</span>
           </div>
           <div class="stat-row">
             <span class="stat-label">ВЫПОЛНЕННЫХ ЗАДАНИЙ</span>
-            <span class="stat-value">212</span>
+            <span class="stat-value" data-stat="tasks_completed">212</span>
           </div>
         </div>
       </div>
@@ -1340,7 +1478,7 @@
       <div class="profile-scroll">
         <div class="profile-section-label" style="margin-top:0;">УЧЁТНАЯ ЗАПИСЬ</div>
         <div class="settings-list">
-          <button class="settings-row-link" type="button">
+          <button class="settings-row-link" type="button" id="btnChangeName">
             <span class="settings-label">ИЗМЕНИТЬ ИМЯ ПОЛЬЗОВАТЕЛЯ</span>
             <svg class="settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6"/></svg>
           </button>
@@ -1414,7 +1552,8 @@
         <div class="equator-mark"></div>
       </div>
       <div class="gate-field-label">ИДЕНТИФИКАЦИЯ ОПЕРАТОРА</div>
-      <input class="gate-input" id="callsignInput" type="text" maxlength="18" placeholder="ИМЯ ПОЛЬЗОВАТЕЛЯ:" autocomplete="off">
+      <input class="gate-input" id="callsignInput" type="text" maxlength="20" placeholder="ИМЯ ПОЛЬЗОВАТЕЛЯ:" autocomplete="off">
+      <div class="gate-error" id="loginError" hidden></div>
       <button class="gate-btn" id="btnSubmit" type="button">ПОДТВЕРДИТЬ</button>
     </div>
 
@@ -1484,6 +1623,30 @@
     <!-- ambient interference: random screen-tear bars + static noise, toggled by JS -->
     <div class="glitch-bars" id="glitchBars"><span></span><span></span><span></span></div>
     <div class="glitch-noise" id="glitchNoise"></div>
+
+    <!-- ================= RENAME OVERLAY — "система предупредит о перезапуске" ================= -->
+    <div class="rename-overlay" id="renameOverlay" hidden>
+      <div class="rename-window">
+        <div class="rename-titlebar">
+          <span class="rename-titlebar-text">⚠ СИСТЕМНОЕ ПРЕДУПРЕЖДЕНИЕ</span>
+          <button class="rename-close" id="renameClose" type="button" aria-label="Закрыть">✕</button>
+        </div>
+        <div class="rename-body">
+          <div class="rename-warn-row">
+            <span class="rename-warn-icon">⚠</span>
+            <p class="rename-warn-text">Изменение имени пользователя вызовет перезапуск терминала. Текущий сеанс будет прерван.</p>
+          </div>
+          <div class="rename-field-label">НОВОЕ ИМЯ:</div>
+          <input class="rename-input" id="renameInput" type="text" maxlength="20" placeholder="ВВЕДИТЕ ИМЯ" autocomplete="off">
+          <div class="rename-hint" id="renameHint"></div>
+          <div class="rename-error" id="renameError" hidden></div>
+        </div>
+        <div class="rename-actions">
+          <button class="rename-btn" id="renameCancel" type="button">ОТМЕНА</button>
+          <button class="rename-btn primary" id="renameConfirm" type="button">ПОДТВЕРДИТЬ</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1503,16 +1666,16 @@
   setInterval(tick, 15000);
 
   // --- Telegram Mini App init ---
+  let tg = null;
   function setTgVh(){
-    const h = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.viewportStableHeight)
-      || window.innerHeight;
+    const h = (tg && tg.viewportStableHeight) || window.innerHeight;
     document.documentElement.style.setProperty('--tg-vh', (h / 100) + 'px');
   }
   setTgVh();
   window.addEventListener('resize', setTgVh);
 
   if (window.Telegram && window.Telegram.WebApp) {
-    const tg = window.Telegram.WebApp;
+    tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
     tg.onEvent('viewportChanged', setTgVh);
@@ -1538,6 +1701,183 @@
   const hudName    = document.getElementById('hudName');
   const leagueLoadingFill = document.getElementById('leagueLoadingFill');
   const leagueLoadingPct  = document.getElementById('leagueLoadingPct');
+  const loginError = document.getElementById('loginError');
+
+  // =========================================================
+  //  BACKEND API — Mini App сама не хранит ничего, кроме косметических
+  //  настроек экрана (localStorage ниже). Имя, уровень, статистика
+  //  живут в SQLite бота (game/players_db.py) и приходят через
+  //  HTTP API, который добавляет game/webapp_api.py поверх уже
+  //  существующего у бота aiohttp-сервера.
+  // =========================================================
+
+  // !!! ЗАМЕНИТЕ на реальный публичный адрес вашего бота на Render,
+  // например 'https://station-game.onrender.com' — БЕЗ слэша на конце.
+  const API_BASE = 'https://isolation-telegram-game-bot.onrender.com';
+
+  function apiUrl(path){
+    return API_BASE.replace(/\/$/, '') + path;
+  }
+
+  // Профиль по умолчанию для предпросмотра вне Telegram (например, открыли
+  // index.html в обычном браузере, а не через кнопку "Играть" в боте) —
+  // initData в этом случае пустая, серверу нечего проверять, поэтому
+  // подставляем те же цифры, что раньше были захардкожены в вёрстке.
+  // Добавьте ?demo=new к адресу страницы, чтобы посмотреть, как выглядит
+  // первый вход (гейт "ВВЕДИТЕ ИМЯ").
+  function offlineDemoProfile(){
+    const isNew = location.search.includes('demo=new');
+    return {
+      name: isNew ? '' : 'Н. АЛЬТМАН', is_new: isNew,
+      level: 7, xp: 2140, xp_prev: 1800, xp_next: 3000,
+      games_played: 128, games_won: 94,
+      games_played_staff: 76, games_won_staff: 41,
+      games_played_liquidator: 52, games_won_liquidator: 29,
+      kills: 37, deaths: 54, tasks_completed: 212,
+      rename_cooldown_seconds: 0, name_min_length: 2, name_max_length: 20,
+      name_change_cooldown_seconds: 172800
+    };
+  }
+
+  let currentProfile = null;
+
+  async function fetchProfile(){
+    const initData = tg && tg.initData ? tg.initData : '';
+    if (!initData) return offlineDemoProfile();
+    try {
+      const res = await fetch(apiUrl('/api/profile?initData=' + encodeURIComponent(initData)));
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return await res.json();
+    } catch (e) {
+      console.error('Не удалось получить профиль с сервера:', e);
+      return null;
+    }
+  }
+
+  // Разбирает ответ POST /api/profile/name (см. game/webapp_api.py:set_name)
+  // в человекочитаемое сообщение — коды ошибок совпадают с той же проверкой,
+  // что и в текстовой команде "Изменить имя" (handlers/options.py).
+  function renameErrorMessage(status, data){
+    if (status === 429) {
+      return 'Менять имя можно не чаще раза в ' + fmtDuration(
+        (currentProfile && currentProfile.name_change_cooldown_seconds) || 172800
+      ) + '. Следующая попытка — через ' + fmtDuration((data && data.remaining_seconds) || 0) + '.';
+    }
+    if (data && data.error === 'bad_length') {
+      return 'Имя должно быть от ' + data.name_min_length + ' до ' + data.name_max_length + ' символов.';
+    }
+    if (data && data.error === 'multiline') {
+      return 'Имя должно быть одной строкой, без переносов.';
+    }
+    if (status === 401) {
+      return 'Не удалось подтвердить сеанс Telegram. Закройте и снова откройте Mini App.';
+    }
+    return 'Не удалось сохранить имя. Проверьте соединение и попробуйте ещё раз.';
+  }
+
+  async function postNewName(name){
+    const initData = tg && tg.initData ? tg.initData : '';
+    if (!initData) {
+      // Предпросмотр вне Telegram: бэкенду нечего проверять, подтверждаем
+      // локально, чтобы вёрстку можно было смотреть в обычном браузере.
+      return { ok: true, profile: Object.assign({}, offlineDemoProfile(), { name, is_new: false }) };
+    }
+    try {
+      const res = await fetch(apiUrl('/api/profile/name'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ initData, name })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) return { ok: true, profile: data };
+      return { ok: false, message: renameErrorMessage(res.status, data) };
+    } catch (e) {
+      return { ok: false, message: renameErrorMessage(0, null) };
+    }
+  }
+
+  // Разделитель разрядов узкой неразрывной шпацией — тем же символом, что
+  // уже использовался в вёрстке для "2 140 / 3 000".
+  function fmtNum(n){
+    return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0');
+  }
+
+  // Тот же формат длительности, что и в тексте бота при кулдауне смены
+  // имени ("N дн. N ч." / "N ч. N мин." / "N мин.") — см. handlers/options.py.
+  function fmtDuration(totalSeconds){
+    const sec = Math.max(0, Math.floor(totalSeconds));
+    const days = Math.floor(sec / 86400);
+    const hours = Math.floor((sec % 86400) / 3600);
+    const minutes = Math.floor((sec % 3600) / 60);
+    if (days > 0) return days + ' дн. ' + hours + ' ч.';
+    if (hours > 0) return hours + ' ч. ' + minutes + ' мин.';
+    return Math.max(1, minutes) + ' мин.';
+  }
+
+  // Разносит одни и те же данные профиля по HUD-полоске меню и по экрану
+  // "Личное дело" разом — оба места должны всегда показывать одно и то же.
+  function populateProfileUI(profile){
+    if (!profile) return;
+    hudName.textContent = (profile.name || 'ОПЕРАТОР').toUpperCase();
+
+    const level = profile.level || 1;
+    const xp = profile.xp || 0;
+    const xpPrev = profile.xp_prev || 0;
+    const xpNext = Math.max(profile.xp_next || (xpPrev + 1), xpPrev + 1);
+    const pct = Math.max(0, Math.min(100, ((xp - xpPrev) / (xpNext - xpPrev)) * 100));
+    const levelStr = String(level).padStart(2, '0');
+    const xpLabel = fmtNum(xp) + '\u00A0/\u00A0' + fmtNum(xpNext);
+
+    ['hudLevelNum', 'profileLevelNum'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = levelStr;
+    });
+    ['hudXpLabel', 'profileXpLabel'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = xpLabel;
+    });
+    ['hudBarFill', 'profileBarFill'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.width = pct + '%';
+    });
+    document.querySelectorAll('[data-stat]').forEach(el => {
+      const key = el.dataset.stat;
+      if (profile[key] !== undefined) el.textContent = fmtNum(profile[key]);
+    });
+  }
+
+  // =========================================================
+  //  СЕССИЯ: первый вход просит позывной (гейт "ВОЙТИ В СИСТЕМУ" остаётся
+  //  как раньше), при повторном — оба гейта (locked + ввод имени)
+  //  пропускаются целиком, сразу переходим к загрузке терминала под уже
+  //  известным именем. Источник истины — то же поле name_is_custom,
+  //  которым уже пользуется бот (game/players_db.py): пока игрок ни разу
+  //  не задал себе имя сам, is_new остаётся true.
+  // =========================================================
+  (async function initSession(){
+    const profile = await fetchProfile();
+    if (!profile) {
+      // Сервер недоступен — не блокируем совсем: даём войти как раньше,
+      // вручную, просто без реальных цифр прогресса (останутся плейсхолдеры).
+      return;
+    }
+    currentProfile = profile;
+
+    if (profile.is_new) {
+      // Первый вход — экран "ВОЙТИ В СИСТЕМУ" и дальше работает как обычно,
+      // ждём, пока человек сам введёт позывной (submitCallsign ниже).
+      return;
+    }
+
+    populateProfileUI(profile);
+    gateLocked.hidden = true;
+    if (appSettings.skipIntro) {
+      revealMenu();
+    } else {
+      gateBoot.hidden = false;
+      runBootSequence(profile.name.toUpperCase());
+    }
+  })();
 
   function switchGate(from, to, delay){
     from.classList.add('out');
@@ -1555,9 +1895,7 @@
     setTimeout(() => callsignInput.focus(), 450);
   });
 
-  function submitCallsign(){
-    let name = (callsignInput.value || '').trim();
-    if (!name) name = 'ОПЕРАТОР';
+  function proceedFromLogin(name){
     hudName.textContent = name.toUpperCase();
     if (appSettings.skipIntro) {
       // "Выключить начальное интро" — skip the boot log + league logo
@@ -1565,23 +1903,60 @@
       switchGate(gateLogin, null, 350);
       setTimeout(() => {
         mainMenu.hidden = false;
-        mainMenu.classList.add('reveal');
-        mainMenu.querySelectorAll(
-          '.topbar, .hud-level, .hud-name-row, .hud-bar, .hud-status, .tile-primary, .tile-grid .tile, .bottombar'
-        ).forEach(el => el.classList.add('shown'));
-        setTimeout(() => {
-          mainMenu.querySelectorAll('.screen-watermark').forEach(w => w.classList.add('wp-shown'));
-        }, 260);
+        revealMenu();
       }, 450);
       return;
     }
     switchGate(gateLogin, gateBoot, 350);
     setTimeout(() => runBootSequence(name), 450);
   }
+
+  async function submitCallsign(){
+    const raw = (callsignInput.value || '').trim();
+    loginError.hidden = true;
+
+    if (!raw) {
+      // Пустое имя — используем "ОПЕРАТОР" только косметически для этого
+      // сеанса, серверу ничего не отправляем: раз имя не выбрано, в
+      // следующий раз гейт ввода имени покажется снова (name_is_custom
+      // остаётся false в game/players_db.py).
+      proceedFromLogin('ОПЕРАТОР');
+      return;
+    }
+
+    const minLen = (currentProfile && currentProfile.name_min_length) || 2;
+    const maxLen = (currentProfile && currentProfile.name_max_length) || 20;
+    if (raw.length < minLen || raw.length > maxLen) {
+      loginError.textContent = 'Имя должно быть от ' + minLen + ' до ' + maxLen + ' символов.';
+      loginError.hidden = false;
+      return;
+    }
+
+    const btnSubmit = document.getElementById('btnSubmit');
+    const prevLabel = btnSubmit.textContent;
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = 'ПРОВЕРКА...';
+
+    const result = await postNewName(raw);
+
+    btnSubmit.disabled = false;
+    btnSubmit.textContent = prevLabel;
+
+    if (!result.ok) {
+      loginError.textContent = result.message;
+      loginError.hidden = false;
+      return;
+    }
+
+    currentProfile = result.profile;
+    populateProfileUI(currentProfile);
+    proceedFromLogin(currentProfile.name);
+  }
   document.getElementById('btnSubmit').addEventListener('click', submitCallsign);
   callsignInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') submitCallsign();
   });
+
 
   // --- random terminal "noise" lines: hex addresses, checksums, packet
   //     traffic, thread/proc chatter — purely decorative filler that
@@ -1780,6 +2155,137 @@
   }
   document.getElementById('tileSettings').addEventListener('click', openSettings);
   document.getElementById('settingsBack').addEventListener('click', closeSettings);
+
+  // =========================================================
+  //  ИЗМЕНЕНИЕ ИМЕНИ — "системное окно предупреждения" поверх экрана,
+  //  открывается из настроек. Предупреждает, что терминал перезапустится,
+  //  затем реально дёргает POST /api/profile/name (game/webapp_api.py) и
+  //  проигрывает короткую "перезагрузку" (см. runRebootSequence ниже).
+  // =========================================================
+  const renameOverlay = document.getElementById('renameOverlay');
+  const renameInput   = document.getElementById('renameInput');
+  const renameHint    = document.getElementById('renameHint');
+  const renameError   = document.getElementById('renameError');
+  const renameConfirm = document.getElementById('renameConfirm');
+  const renameCancel  = document.getElementById('renameCancel');
+  const renameClose   = document.getElementById('renameClose');
+
+  function openRenameOverlay(){
+    renameError.hidden = true;
+    renameInput.value = '';
+
+    const cooldown = (currentProfile && currentProfile.rename_cooldown_seconds) || 0;
+    const minLen = (currentProfile && currentProfile.name_min_length) || 2;
+    const maxLen = (currentProfile && currentProfile.name_max_length) || 20;
+
+    if (cooldown > 0) {
+      renameInput.disabled = true;
+      renameConfirm.disabled = true;
+      renameHint.textContent = 'Следующая смена имени будет доступна через ' + fmtDuration(cooldown) + '.';
+    } else {
+      renameInput.disabled = false;
+      renameConfirm.disabled = false;
+      renameHint.textContent = 'От ' + minLen + ' до ' + maxLen + ' символов.';
+    }
+
+    renameOverlay.hidden = false;
+    requestAnimationFrame(() => renameOverlay.classList.add('shown'));
+    if (cooldown <= 0) setTimeout(() => renameInput.focus(), 150);
+  }
+
+  function closeRenameOverlay(){
+    renameOverlay.classList.remove('shown');
+    setTimeout(() => { renameOverlay.hidden = true; }, 250);
+  }
+
+  document.getElementById('btnChangeName').addEventListener('click', openRenameOverlay);
+  renameCancel.addEventListener('click', closeRenameOverlay);
+  renameClose.addEventListener('click', closeRenameOverlay);
+  renameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') renameConfirm.click();
+  });
+
+  renameConfirm.addEventListener('click', async () => {
+    const raw = (renameInput.value || '').trim();
+    renameError.hidden = true;
+
+    const minLen = (currentProfile && currentProfile.name_min_length) || 2;
+    const maxLen = (currentProfile && currentProfile.name_max_length) || 20;
+    if (raw.length < minLen || raw.length > maxLen) {
+      renameError.textContent = 'Имя должно быть от ' + minLen + ' до ' + maxLen + ' символов.';
+      renameError.hidden = false;
+      return;
+    }
+
+    renameConfirm.disabled = true;
+    renameCancel.disabled = true;
+    const prevLabel = renameConfirm.textContent;
+    renameConfirm.textContent = 'СОХРАНЕНИЕ...';
+
+    const result = await postNewName(raw);
+
+    renameConfirm.disabled = false;
+    renameCancel.disabled = false;
+    renameConfirm.textContent = prevLabel;
+
+    if (!result.ok) {
+      renameError.textContent = result.message;
+      renameError.hidden = false;
+      return;
+    }
+
+    currentProfile = result.profile;
+    closeRenameOverlay();
+    setTimeout(() => runRebootSequence(currentProfile.name.toUpperCase()), 260);
+  });
+
+  // Короткая "перезагрузка терминала" после смены имени — отдельный,
+  // более короткий прогон gateBoot (без гейта лиги/загрузки, это не первый
+  // вход), возвращает прямо в главное меню с уже обновлённым именем.
+  function runRebootSequence(name){
+    populateProfileUI(currentProfile);
+
+    settingsScreen.classList.remove('reveal');
+    settingsScreen.hidden = true;
+    profileScreen.classList.remove('reveal');
+    profileScreen.hidden = true;
+    mainMenu.classList.remove('reveal');
+    mainMenu.querySelectorAll('.shown').forEach(el => el.classList.remove('shown'));
+    mainMenu.querySelectorAll('.wp-shown').forEach(el => el.classList.remove('wp-shown'));
+
+    gateBoot.hidden = false;
+    bootLog.innerHTML = '';
+
+    function addLine(text, ok){
+      const div = document.createElement('div');
+      div.className = 'ln' + (ok ? ' ok' : '');
+      div.textContent = text;
+      bootLog.appendChild(div);
+      while (bootLog.children.length > BOOT_MAX_LINES) bootLog.removeChild(bootLog.firstChild);
+    }
+
+    const stages = [
+      { text: 'ЗАВЕРШЕНИЕ ПРОЦЕССОВ...',              pause: 420 },
+      { text: 'ОБНОВЛЕНИЕ УЧЁТНЫХ ДАННЫХ...',          pause: 420 },
+      { text: 'НОВОЕ ИМЯ ПРИНЯТО: ' + name, ok: true,  pause: 600 },
+      { text: 'ПЕРЕЗАГРУЗКА ТЕРМИНАЛА...',             pause: 900 }
+    ];
+
+    function runStage(idx){
+      if (idx >= stages.length) {
+        gateBoot.hidden = true;
+        mainMenu.hidden = false;
+        revealMenu();
+        return;
+      }
+      const s = stages[idx];
+      setTimeout(() => {
+        addLine(s.text, s.ok);
+        setTimeout(() => runStage(idx + 1), s.pause);
+      }, 90);
+    }
+    runStage(0);
+  }
 
   // =========================================================
   //  SETTINGS: CRT filter / glitches / intro skip — persisted
