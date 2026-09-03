@@ -1212,6 +1212,24 @@
     outline:none;
   }
   .mail-compose-input:focus, .mail-compose-textarea:focus{ border-color:var(--scr-cyan); }
+  /* "КОМУ" в форме обычного игрока — то же самое поле визуально, что и
+     .mail-compose-input, но нередактируемое (получатель фиксирован,
+     см. game/webapp_api.py:mail_send — обычный игрок всегда пишет
+     администратору): текст чуть тусклее и курсор не text/pointer, чтобы
+     сразу читалось как "только для просмотра", а не как рабочее поле. */
+  .mail-compose-static{
+    width:100%;
+    padding:1.4cqw 1.6cqw;
+    background:rgba(255,255,255,0.02);
+    border:1px solid var(--scr-line);
+    border-radius:0.6cqw;
+    color:var(--scr-text-dim);
+    font-family:inherit;
+    font-size:1.8cqw;
+    letter-spacing:0.02em;
+    cursor:default;
+    user-select:none;
+  }
   .mail-compose-textarea{
     flex:1 1 auto;
     /* min-height:0 (а не фиксированный cqw-пол, как раньше) — без этого
@@ -1932,6 +1950,15 @@
                    Тема и Сообщение (получатель/отправитель к этому моменту
                    уже определён). -->
               <div class="mail-compose-fields mail-compose-body-step" id="mailComposeBodyStep">
+                <!-- "КОМУ" здесь показывается только обычному игроку — у
+                     него получатель всегда один и тот же и не выбирается
+                     (см. .mail-compose-static выше). Администратор сам
+                     указывает получателя на шаге 1 (mailToInput), поэтому
+                     это поле для него скрывается в JS (applyComposeMode). -->
+                <div class="mail-compose-field" id="mailToStaticField">
+                  <label class="mail-compose-label">КОМУ</label>
+                  <div class="mail-compose-static">ЦЕНТР УПРАВЛЕНИЯ ПРОЕКТОМ «ISOLATION»</div>
+                </div>
                 <div class="mail-compose-field">
                   <label class="mail-compose-label" for="mailSubjectInput">ТЕМА</label>
                   <input class="mail-compose-input" id="mailSubjectInput" type="text" maxlength="120" placeholder="КРАТКО О ЧЁМ ПИСЬМО" autocomplete="off">
@@ -2092,6 +2119,27 @@
         <div class="rename-actions">
           <button class="rename-btn" id="mailDeleteCancel" type="button">ОТМЕНА</button>
           <button class="rename-btn primary" id="mailDeleteConfirm" type="button">УДАЛИТЬ</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MAIL SEND INFO — разовая подсказка при первом
+         заходе в "Отправить" за сеанс (см. JS: showMailSendInfoOnce) —
+         закрыть можно только спустя 5 секунд после появления. ================= -->
+    <div class="rename-overlay" id="mailSendInfoOverlay" hidden>
+      <div class="rename-window">
+        <div class="rename-titlebar">
+          <span class="rename-titlebar-text">ℹ ИНФОРМАЦИЯ</span>
+          <button class="rename-close" id="mailSendInfoClose" type="button" aria-label="Закрыть" disabled>✕</button>
+        </div>
+        <div class="rename-body">
+          <div class="rename-warn-row">
+            <span class="rename-warn-icon">✉</span>
+            <p class="rename-warn-text">Раздел «Отправить» — прямая связь с ЦЕНТРОМ УПРАВЛЕНИЯ ПРОЕКТОМ «ISOLATION». Пишите сюда о найденных багах, вопросах по игре и любых предложениях — сообщение уходит администратору проекта.</p>
+          </div>
+        </div>
+        <div class="rename-actions">
+          <button class="rename-btn primary" id="mailSendInfoConfirm" type="button" disabled>ПОНЯТНО</button>
         </div>
       </div>
     </div>
@@ -2936,12 +2984,18 @@
   // на "начало" при каждой загрузке вкладки "Отправить" — см. loadMailSent.
   function applyComposeMode(){
     if (!mailComposeRecipientStep || !mailComposeBodyStep) return;
+    const toStaticField = document.getElementById('mailToStaticField');
     if (mailIsAdmin){
       mailComposeRecipientStep.hidden = false;
       mailComposeBodyStep.hidden = true;
+      // У администратора получатель уже выбран на шаге 1 (mailToInput) и
+      // может быть кем угодно (конкретный игрок / all / all-all /
+      // all-all-never) — статичное "ЦЕНТР УПРАВЛЕНИЯ" тут было бы неверным.
+      if (toStaticField) toStaticField.hidden = true;
     } else {
       mailComposeRecipientStep.hidden = true;
       mailComposeBodyStep.hidden = false;
+      if (toStaticField) toStaticField.hidden = false;
     }
   }
 
@@ -3204,6 +3258,55 @@
     closeMailDeleteConfirm();
   });
 
+  // "Разовая" подсказка при заходе в "Отправить" — не про самый первый
+  // визит в игру вообще (там отдельный экран с вводом позывного, gate-*),
+  // а про первый визит в этот конкретный раздел ЗА ТЕКУЩИЙ СЕАНС Mini
+  // App: mailSendInfoShown — обычная переменная в памяти, а не что-то
+  // персистентное (localStorage/сервер) — она обнуляется сама собой при
+  // каждой перезагрузке страницы, то есть ровно тогда, когда игрок
+  // закрывает и заново открывает Mini App, как и просили. Пока не истекли
+  // 5 секунд с показа, закрыть окно нельзя — ни крестиком, ни кнопкой
+  // (оба задизейблены, см. openMailSendInfo).
+  const mailSendInfoOverlay = document.getElementById('mailSendInfoOverlay');
+  const mailSendInfoClose = document.getElementById('mailSendInfoClose');
+  const mailSendInfoConfirm = document.getElementById('mailSendInfoConfirm');
+  let mailSendInfoShown = false;
+  let mailSendInfoTimer = null;
+
+  function openMailSendInfo(){
+    mailSendInfoOverlay.hidden = false;
+    requestAnimationFrame(() => mailSendInfoOverlay.classList.add('shown'));
+    let remaining = 5;
+    mailSendInfoClose.disabled = true;
+    mailSendInfoConfirm.disabled = true;
+    mailSendInfoConfirm.textContent = 'ПОНЯТНО (' + remaining + ')';
+    if (mailSendInfoTimer) clearInterval(mailSendInfoTimer);
+    mailSendInfoTimer = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0){
+        clearInterval(mailSendInfoTimer);
+        mailSendInfoTimer = null;
+        mailSendInfoClose.disabled = false;
+        mailSendInfoConfirm.disabled = false;
+        mailSendInfoConfirm.textContent = 'ПОНЯТНО';
+      } else {
+        mailSendInfoConfirm.textContent = 'ПОНЯТНО (' + remaining + ')';
+      }
+    }, 1000);
+  }
+  function closeMailSendInfo(){
+    if (mailSendInfoClose.disabled) return; // не закрывать до истечения таймера
+    mailSendInfoOverlay.classList.remove('shown');
+    setTimeout(() => { mailSendInfoOverlay.hidden = true; }, 250);
+  }
+  function showMailSendInfoOnce(){
+    if (mailSendInfoShown) return;
+    mailSendInfoShown = true;
+    openMailSendInfo();
+  }
+  mailSendInfoClose.addEventListener('click', closeMailSendInfo);
+  mailSendInfoConfirm.addEventListener('click', closeMailSendInfo);
+
   function openMailTab(tab){
     const inboxTab = document.getElementById('mailTabInbox');
     const sendTab = document.getElementById('mailTabSend');
@@ -3215,6 +3318,7 @@
       sendPanel.classList.add('active');
       inboxPanel.classList.remove('active');
       loadMailSent();
+      showMailSendInfoOnce();
     } else {
       inboxTab.classList.add('active');
       sendTab.classList.remove('active');
