@@ -2999,26 +2999,21 @@
   }
 
   function renderMailReader(mail){
-    let fieldsHtml;
-    if (mailIsAdmin){
-      // У администратора "ВХОДЯЩИЕ" показывают письма от игроков: имя и
-      // Telegram ID отдельными строками, как и просили — вместо
-      // "КОМУ"/"ОТ КОГО" обычного вида.
-      fieldsHtml =
-        '<div class="mail-field"><span class="mail-field-label">ОТ КОГО (ИМЯ):</span><span class="mail-field-value">' + mail.from + '</span></div>' +
-        '<div class="mail-field"><span class="mail-field-label">ОТ КОГО (TELEGRAM ID):</span><span class="mail-field-value">' + (mail.from_chat_id != null ? mail.from_chat_id : '—') + '</span></div>';
-    } else {
-      // Рассылки (kind === 'broadcast', категории ALL/ALL-ALL/ALL-ALL-NEVER
-      // — см. game/mailbox_db.py: AUDIENCE_*) адресованы не лично игроку,
-      // поэтому в "КОМУ" вместо его ника пишем "ВСЕМ"; для личного письма
-      // от администратора (from_admin) там по-прежнему собственное имя
-      // игрока.
-      const toValue = mail.kind === 'broadcast' ? 'ВСЕМ' : (hudName ? hudName.textContent : '');
-      fieldsHtml =
-        '<div class="mail-field"><span class="mail-field-label">КОМУ:</span><span class="mail-field-value">' + toValue + '</span></div>' +
-        '<div class="mail-field"><span class="mail-field-label">ОТ КОГО:</span><span class="mail-field-value">' + mail.from + '</span></div>' +
-        '<div class="mail-field"><span class="mail-field-label">ТЕМА:</span><span class="mail-field-value">' + mail.tag + '</span></div>';
-    }
+    // "ВХОДЯЩИЕ" — что для игрока, что для администратора (после того как
+    // его "ВХОДЯЩИЕ" объединили с "ПОЛУЧЕННЫМИ" от игроков, см.
+    // game/webapp_api.py:mail_inbox) — показывает только письма,
+    // адресованные лично текущему зрителю (плюс рассылки всем), поэтому
+    // "КОМУ" всегда либо "ВСЕМ" (рассылка), либо ник самого зрителя —
+    // никакого отдельного разбора по ролям тут не нужно. "ОТ КОГО" — это
+    // как раз то значение, которое отправитель указал в поле "От кого" на
+    // экране "Отправить" (mail.from); для писем от игроков администратору
+    // (kind === 'to_admin') это отображаемое имя игрока из Telegram — тоже
+    // не ID. Telegram ID нигде в читалке не показываем.
+    const toValue = mail.kind === 'broadcast' ? 'ВСЕМ' : (hudName ? hudName.textContent : '');
+    const fieldsHtml =
+      '<div class="mail-field"><span class="mail-field-label">КОМУ:</span><span class="mail-field-value">' + toValue + '</span></div>' +
+      '<div class="mail-field"><span class="mail-field-label">ОТ КОГО:</span><span class="mail-field-value">' + mail.from + '</span></div>' +
+      '<div class="mail-field"><span class="mail-field-label">ТЕМА:</span><span class="mail-field-value">' + mail.tag + '</span></div>';
     mailReader.innerHTML =
       '<div class="mail-fields">' + fieldsHtml + '</div>' +
       '<div class="mail-subject">' + mail.subject + '</div>' +
