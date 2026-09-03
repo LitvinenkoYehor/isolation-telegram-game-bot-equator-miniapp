@@ -1012,6 +1012,172 @@
     background:var(--scr-cyan);
     box-shadow:0 0 1cqw rgba(143,214,255,0.6);
   }
+  /* ================= MAIL SCREEN ("ПОЧТА") ================= */
+  .mail-content{
+    order:1;
+    flex:1 1 auto;
+    min-height:0;
+    display:flex; flex-direction:column;
+    margin-top:1.8cqw;
+  }
+  .mail-tabs{
+    flex:0 0 auto;
+    display:flex;
+    gap:1cqw;
+    margin-bottom:1.8cqw;
+  }
+  .mail-tab{
+    flex:1 1 auto;
+    padding:1.8cqw 1cqw;
+    border:1px solid var(--scr-line);
+    border-radius:0.8cqw;
+    background:rgba(255,255,255,0.02);
+    color:var(--scr-text-dim);
+    font-family:inherit;
+    font-size:1.9cqw; font-weight:600; letter-spacing:0.05em;
+    text-align:center;
+    cursor:pointer;
+  }
+  .mail-tab.active{
+    border-color:var(--scr-cyan);
+    background:rgba(143,214,255,0.1);
+    color:#eaf5ff;
+    text-shadow:var(--phosphor);
+  }
+  .mail-panel{
+    flex:1 1 auto;
+    min-height:0;
+    display:none;
+  }
+  .mail-panel.active{ display:flex; }
+  .mail-split{
+    flex:1 1 auto;
+    min-height:0;
+    display:flex;
+    border:1px solid var(--scr-line);
+    border-radius:0.8cqw;
+    overflow:hidden;
+    background:rgba(255,255,255,0.02);
+  }
+  .mail-list{
+    flex:0 0 38%;
+    min-height:0;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    border-right:1px solid var(--scr-line);
+  }
+  .mail-list::-webkit-scrollbar{ width:3px; }
+  .mail-list::-webkit-scrollbar-thumb{ background:var(--scr-line-strong); border-radius:2px; }
+  .mail-list::-webkit-scrollbar-track{ background:transparent; }
+  .mail-row{
+    display:flex; flex-direction:column;
+    gap:0.5cqw;
+    width:100%;
+    padding:1.6cqw 1.2cqw;
+    border-bottom:1px solid var(--scr-line);
+    background:none;
+    border-left:2px solid transparent;
+    color:inherit; font-family:inherit;
+    text-align:left;
+    cursor:pointer;
+    position:relative;
+  }
+  .mail-row:last-child{ border-bottom:none; }
+  .mail-row.active{
+    background:rgba(143,214,255,0.1);
+    border-left-color:var(--scr-cyan);
+  }
+  .mail-row:active{ background:rgba(255,255,255,0.05); }
+  .mail-row-top{
+    display:flex; align-items:center; gap:0.8cqw;
+  }
+  .mail-dot{
+    flex:0 0 auto;
+    width:1.6cqw; height:1.6cqw; min-width:5px; min-height:5px;
+    border-radius:50%;
+    background:var(--scr-amber);
+    box-shadow:0 0 0.8cqw var(--scr-amber);
+    opacity:0;
+  }
+  .mail-row.unread .mail-dot{ opacity:1; }
+  .mail-row-from{
+    font-size:1.7cqw; letter-spacing:0.03em;
+    color:var(--scr-text-dim);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .mail-row.unread .mail-row-from{ color:var(--scr-text); font-weight:600; }
+  .mail-row-subject{
+    font-size:1.8cqw; line-height:1.3;
+    color:var(--scr-text-dim);
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .mail-row.unread .mail-row-subject{ color:var(--scr-text); font-weight:600; }
+  .mail-row-tag{
+    margin-top:0.2cqw;
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.4cqw; letter-spacing:0.08em;
+    color:var(--scr-text-dim);
+  }
+  .mail-reader{
+    flex:1 1 auto;
+    min-width:0; min-height:0;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    padding:2cqw 2.2cqw;
+  }
+  .mail-reader::-webkit-scrollbar{ width:3px; }
+  .mail-reader::-webkit-scrollbar-thumb{ background:var(--scr-line-strong); border-radius:2px; }
+  .mail-reader::-webkit-scrollbar-track{ background:transparent; }
+  .mail-reader-empty{
+    height:100%;
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    font-size:2cqw; color:var(--scr-text-dim);
+    padding:4cqw;
+  }
+  .mail-fields{
+    padding-bottom:1.6cqw;
+    border-bottom:1px solid var(--scr-line);
+    margin-bottom:1.8cqw;
+  }
+  .mail-field{
+    display:flex; gap:1cqw;
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.7cqw; letter-spacing:0.03em;
+    padding:0.4cqw 0;
+    color:var(--scr-text-dim);
+  }
+  .mail-field-label{ flex:0 0 auto; min-width:11cqw; color:var(--scr-text-dim); }
+  .mail-field-value{ color:var(--scr-text); }
+  .mail-subject{
+    margin-top:1.4cqw;
+    font-size:2.6cqw; font-weight:700; letter-spacing:0.03em;
+    color:#eaf5ff;
+    text-shadow:var(--phosphor);
+  }
+  .mail-body{
+    margin-top:2cqw;
+    font-size:2cqw; line-height:1.6;
+    color:var(--scr-text);
+  }
+  .mail-body b{ color:var(--scr-cyan); }
+  .mail-body p{ margin:0 0 1.6cqw 0; }
+  .mail-body p:last-child{ margin-bottom:0; }
+  .mail-send-panel{
+    align-items:center; justify-content:center;
+    text-align:center;
+    font-size:2cqw; color:var(--scr-text-dim);
+    padding:4cqw;
+    border:1px solid var(--scr-line);
+    border-radius:0.8cqw;
+    background:rgba(255,255,255,0.02);
+  }
+
   /* ================= RENAME OVERLAY — "system warning window" ================= */
   /* Modal dialog stacked above everything (menu/settings included), styled like
      an in-universe OS pop-up: title bar + close button + warning icon + body.
@@ -1254,8 +1420,8 @@
             </svg></span>
             <span class="lbl">СТАНЦИИ</span>
           </button>
-          <button class="tile" type="button">
-            <span class="badge">3</span>
+          <button class="tile" type="button" id="tileMail">
+            <span class="badge" id="mailBadge">4</span>
             <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
               <rect x="3" y="5" width="18" height="14" rx="1.4"/>
               <path d="M3.5 6.4l8.5 6.9 8.5-6.9"/>
@@ -1571,6 +1737,104 @@
 
     </div>
 
+    <!-- ================= MAIL ("ПОЧТА") — opened from the menu tile ================= -->
+    <div class="screen-content" id="mailScreen" hidden>
+      <div class="screen-watermark" aria-hidden="true">
+        <svg viewBox="0 0 200 200">
+          <g class="wreath-r">
+            <path class="stem" d="M113,148 Q128,166 100,168"/>
+            <path class="leaf" d="M110.8,150.9 C125.6,157.9 129.8,177.5 119.1,190.0 C104.3,182.9 100.2,163.3 110.8,150.9 Z"/>
+            <path class="leaf" d="M124.4,145.9 C140.6,148.6 150.0,166.3 143.2,181.2 C127.0,178.5 117.6,160.8 124.4,145.9 Z"/>
+            <path class="leaf" d="M136.1,137.4 C152.4,135.6 166.3,150.0 163.9,166.2 C147.6,168.0 133.7,153.6 136.1,137.4 Z"/>
+            <path class="leaf" d="M147.6,127.5 C159.6,122.8 173.4,130.8 175.3,143.5 C163.4,148.2 149.6,140.2 147.6,127.5 Z"/>
+            <path class="leaf" d="M153.4,113.3 C163.5,105.5 179.1,109.4 184.4,121.0 C174.2,128.8 158.7,124.9 153.4,113.3 Z"/>
+            <path class="leaf" d="M155.0,98.1 C162.6,87.8 178.6,87.2 186.9,97.0 C179.3,107.2 163.3,107.8 155.0,98.1 Z"/>
+            <path class="leaf" d="M155.2,82.1 C158.2,73.7 168.7,70.3 176.1,75.3 C173.0,83.6 162.6,87.0 155.2,82.1 Z"/>
+            <path class="leaf" d="M148.1,67.6 C148.7,58.7 157.8,52.5 166.3,55.3 C165.7,64.1 156.6,70.3 148.1,67.6 Z"/>
+          </g>
+          <g class="wreath-l">
+            <path class="stem" d="M87,148 Q72,166 100,168"/>
+            <path class="leaf" d="M89.2,150.9 C74.4,157.9 70.2,177.5 80.9,190.0 C95.7,182.9 99.8,163.3 89.2,150.9 Z"/>
+            <path class="leaf" d="M75.6,145.9 C59.4,148.6 50.0,166.3 56.8,181.2 C73.0,178.5 82.4,160.8 75.6,145.9 Z"/>
+            <path class="leaf" d="M63.9,137.4 C47.6,135.6 33.7,150.0 36.1,166.2 C52.4,168.0 66.3,153.6 63.9,137.4 Z"/>
+            <path class="leaf" d="M52.4,127.5 C40.4,122.8 26.6,130.8 24.7,143.5 C36.6,148.2 50.4,140.2 52.4,127.5 Z"/>
+            <path class="leaf" d="M46.6,113.3 C36.5,105.5 20.9,109.4 15.6,121.0 C25.8,128.8 41.3,124.9 46.6,113.3 Z"/>
+            <path class="leaf" d="M45.0,98.1 C37.4,87.8 21.4,87.2 13.1,97.0 C20.7,107.2 36.7,107.8 45.0,98.1 Z"/>
+            <path class="leaf" d="M44.8,82.1 C41.8,73.7 31.3,70.3 23.9,75.3 C27.0,83.6 37.4,87.0 44.8,82.1 Z"/>
+            <path class="leaf" d="M51.9,67.6 C51.3,58.7 42.2,52.5 33.7,55.3 C34.3,64.1 43.4,70.3 51.9,67.6 Z"/>
+          </g>
+          <g class="compass-mark">
+            <circle cx="100" cy="100" r="44"/>
+            <circle cx="100" cy="100" r="40"/>
+            <polygon points="100.0,16.0 103.4,91.7 126.2,73.8 108.3,96.6 184.0,100.0 108.3,103.4 126.2,126.2 103.4,108.3 100.0,184.0 96.6,108.3 73.8,126.2 91.7,103.4 16.0,100.0 91.7,96.6 73.8,73.8 96.6,91.7"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <div class="brand-text">
+            <div class="b1">EQUATOR</div>
+            <div class="b2">STATION</div>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="clock" id="clock4">14:28</div>
+          <div class="icon-btn" title="Системы станции">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <rect x="3" y="4" width="18" height="5" rx="1"/>
+              <rect x="3" y="15" width="18" height="5" rx="1"/>
+              <circle cx="7" cy="6.5" r="0.7" fill="currentColor" stroke="none"/>
+              <circle cx="7" cy="17.5" r="0.7" fill="currentColor" stroke="none"/>
+              <line x1="11" y1="6.5" x2="17" y2="6.5"/>
+              <line x1="11" y1="17.5" x2="17" y2="17.5"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="mail-content">
+        <div class="mail-tabs">
+          <button class="mail-tab active" type="button" id="mailTabInbox">ВХОДЯЩИЕ</button>
+          <button class="mail-tab" type="button" id="mailTabSend">ОТПРАВИТЬ</button>
+        </div>
+
+        <div class="mail-panel active" id="mailInboxPanel">
+          <div class="mail-split">
+            <div class="mail-list" id="mailList"></div>
+            <div class="mail-reader" id="mailReader">
+              <div class="mail-reader-empty">ВЫБЕРИТЕ ПИСЬМО ИЗ СПИСКА СЛЕВА</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mail-panel mail-send-panel" id="mailSendPanel">
+          ОТПРАВКА ПИСЕМ ПОКА НЕДОСТУПНА.<br>ФУНКЦИЯ В РАЗРАБОТКЕ.
+        </div>
+      </div>
+
+      <button class="back-row" id="mailBack" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 18l-6-6 6-6"/></svg>
+        <span>НАЗАД В МЕНЮ</span>
+      </button>
+
+      <div class="bottombar">
+        <div class="icon-btn" title="Разделы">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <polygon points="12 3 21 8 12 13 3 8 12 3"/>
+            <polyline points="3 12 12 17 21 12"/>
+            <polyline points="3 16 12 21 21 16"/>
+          </svg>
+        </div>
+        <div class="tag">EQUATOR-01 // SEC-B</div>
+        <div class="icon-btn" title="Ещё">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+        </div>
+      </div>
+
+    </div>
+
     <!-- ================= GATE: 1) LOCKED ================= -->
     <div class="gate-layer" id="gateLocked">
       <div class="logo-slot" id="stationLogoSlot">
@@ -1751,6 +2015,8 @@
     if (clock2) clock2.textContent = time;
     const clock3 = document.getElementById('clock3');
     if (clock3) clock3.textContent = time;
+    const clock4 = document.getElementById('clock4');
+    if (clock4) clock4.textContent = time;
   }
   tick();
   setInterval(tick, 15000);
@@ -1783,10 +2049,12 @@
   const mainMenu   = document.getElementById('mainMenu');
   const profileScreen = document.getElementById('profileScreen');
   const settingsScreen = document.getElementById('settingsScreen');
-  // Profile/Settings switch to instantly (no boot animation to time against),
+  const mailScreen = document.getElementById('mailScreen');
+  // Profile/Settings/Mail switch to instantly (no boot animation to time against),
   // so their wallpaper can just be shown right away.
   profileScreen.querySelectorAll('.screen-watermark').forEach(w => w.classList.add('wp-shown'));
   settingsScreen.querySelectorAll('.screen-watermark').forEach(w => w.classList.add('wp-shown'));
+  mailScreen.querySelectorAll('.screen-watermark').forEach(w => w.classList.add('wp-shown'));
   const bootLog    = document.getElementById('bootLog');
   const callsignInput = document.getElementById('callsignInput');
   const hudName    = document.getElementById('hudName');
@@ -2287,6 +2555,160 @@
   document.getElementById('settingsBack').addEventListener('click', closeSettings);
 
   // =========================================================
+  //  ПОЧТА ("MAIL") — раздел вложен в главное меню (как ИНСТРУКТАЖ/НАСТРОЙКИ).
+  //  На этом этапе письма одинаковые у всех игроков (те же 4 записи, что и
+  //  в "🆕 Обновления" внутри "⚙️ Опции" текстового бота, см.
+  //  handlers/updates.py + data/updates.json) — рассылка от лица игры про
+  //  апдейты бота. "Отправить" пока просто заглушка: реальная отправка
+  //  писем не реализована. Список слева и открытое письмо справа скроллятся
+  //  независимо (двухпанельная раскладка вроде gmail), цифра на плитке
+  //  "ПОЧТА" в главном меню = число непрочитанных во "ВХОДЯЩИЕ" и пересчитывается
+  //  при каждом прочтении.
+  const mailData = [
+    {
+      id: 'upd-04',
+      from: 'СЛУЖБА ОБНОВЛЕНИЙ',
+      tag: 'ОБНОВЛЕНИЕ 0.4',
+      subject: '🌐 Режим заседаний «Международный»',
+      unread: true,
+      body: '<p>В обновлении 0.4 в игру добавлен второй режим заседаний — «Международный», и всё, что понадобилось, чтобы его было удобно тестировать и находить в интерфейсе.</p>' +
+            '<p><b>Что нового:</b></p>' +
+            '<p>• «Международный» режим заседаний — вместо свободного текста в чате каждый игрок строит реплику через «Карточку речи»: выбирает действие (Вопросы/Защита/Обвинения/Факты), подпункт, а иногда ещё игрока и локацию. Хост может включить его в приватном лобби перед стартом партии, кнопкой переключения режима на экране лобби.<br>' +
+            '• Полный перевод «Международного» режима на английский — все фразы и подписи меню теперь на двух языках, и каждый получатель видит реплику на своём собственном языке, а не на языке того, кто её отправил.<br>' +
+            '• Исправлен баг, из-за которого отправленная реплика в новом режиме не доходила до самого отправителя.<br>' +
+            '• Новые команды для быстрого вызова карточек, если нужное сообщение потерялось среди остальной переписки: /game — карточка игры, /vote — карточка голосования, /speech — карточка речи, /lobby — карточка лобби (только для лобби, созданных через «Играть»). Каждая команда работает только в подходящий момент партии.</p>'
+    },
+    {
+      id: 'upd-03',
+      from: 'СЛУЖБА ОБНОВЛЕНИЙ',
+      tag: 'ОБНОВЛЕНИЕ 0.3',
+      subject: '📊 Статистика игрока и раздел «Опции»',
+      unread: true,
+      body: '<p>В обновлении 0.3 каждый игрок заполучил постоянный профиль, который сохраняется навсегда, плюс отдельное меню для просмотра статистики.</p>' +
+            '<p><b>Что нового:</b></p>' +
+            '<p>• Новый раздел «⚙️ Опции» в главном меню — общее место для всех личных настроек и данных игрока (в будущем будет пополняться новыми пунктами).<br>' +
+            '• «👤 Профиль» — карточка с постоянной статистикой: уровень и полоса XP до следующего уровня, число сыгранных и выигранных партий (отдельно за Персонал и за Ликвидатора), количество убийств, смертей, выполненных заданий и суммарное время в игре.<br>' +
+            '• Прогресс и XP начисляются автоматически по итогам каждой завершённой партии — в зависимости от роли, победы/поражения, количества килов/заданий и времени в игре.<br>' +
+            '• «✏️ Изменить имя» — позволяет задать собственный ник вместо имени/юзернейма из Telegram; после смены ник больше не подменяется автоматически. Менять его можно не чаще одного раза в несколько дней, чтобы не создавать лишнюю нагрузку.</p>'
+    },
+    {
+      id: 'upd-021',
+      from: 'СЛУЖБА ОБНОВЛЕНИЙ',
+      tag: 'ОБНОВЛЕНИЕ 0.2.1',
+      subject: '🔒 Закрытие лобби и исключение игрока',
+      unread: true,
+      body: '<p>Открытые по коду лобби могут оказаться уязвимы: хост никак не мог противодействовать тем, кто мог случайно подобрать пароль. В 0.2.1 хост получил полный контроль над составом своей партии.</p>' +
+            '<p><b>Что нового:</b></p>' +
+            '<p>• Кнопка «🔒 Закрыть лобби» / «🔓 Сделать открытым» на экране хоста — переключает режим приёма новых игроков.<br>' +
+            '• Пока лобби закрыто, ввод верного кода больше не добавляет игрока сразу: заявка уходит в очередь ожидания.<br>' +
+            '• Хост видит каждую заявку с кнопками «✅ Принять» / «❌ Отклонить» и решает, кого пускать.<br>' +
+            '• Новая кнопка «👢 Исключить игрока» (видна только хосту, как и возможность закрыть лобби) открывает список текущих участников — по нажатию на имя игрок сразу убирается из лобби.<br>' +
+            '• Исключённый получает уведомление о том, что его убрали, а остальным участникам список лобби обновляется автоматически.</p>'
+    },
+    {
+      id: 'upd-02',
+      from: 'СЛУЖБА ОБНОВЛЕНИЙ',
+      tag: 'ОБНОВЛЕНИЕ 0.2',
+      subject: '🎮 Создание игры через кнопку «Играть»',
+      unread: true,
+      body: '<p>Раньше собрать партию можно было только через групповой чат командой /startisolationgame. В обновлении 0.2 появился второй, более быстрый способ — прямо в личных сообщениях с ботом.</p>' +
+            '<p><b>Что нового:</b></p>' +
+            '<p>• Кнопка «🎮 Играть» в главном меню открывает подменю с двумя вариантами: «🆕 Создать игру» и «🔑 Присоединиться к игре».<br>' +
+            '• Хост создаёт лобби — затем бот просит хоста написать 5-символьный код (буквы и цифры, регистр важен).<br>' +
+            '• Чтобы присоединиться, достаточно выбрать опцию «🔑 Присоединиться к игре» и прислать боту этот код в личке — никакой общий групповой чат для сбора больше не нужен.<br>' +
+            '• На экране лобби хост видит список всех подключившихся игроков в реальном времени и запускает партию, когда набралось нужное количество.</p>' +
+            '<p>Старый способ через групповой чат никуда не делся — оба варианта работают параллельно, «Играть» просто даёт более гибкую альтернативу для тех, у кого нет отдельной группы для сбора.</p>'
+    }
+  ];
+
+  const mailList = document.getElementById('mailList');
+  const mailReader = document.getElementById('mailReader');
+  const mailBadge = document.getElementById('mailBadge');
+  let mailActiveId = null;
+
+  function updateMailBadge(){
+    const unreadCount = mailData.filter(m => m.unread).length;
+    if (mailBadge){
+      mailBadge.textContent = unreadCount;
+      mailBadge.style.display = unreadCount > 0 ? '' : 'none';
+    }
+  }
+
+  function renderMailList(){
+    mailList.innerHTML = '';
+    mailData.forEach(mail => {
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'mail-row' + (mail.unread ? ' unread' : '') + (mail.id === mailActiveId ? ' active' : '');
+      row.innerHTML =
+        '<span class="mail-row-top"><span class="mail-dot"></span><span class="mail-row-from">' + mail.from + '</span></span>' +
+        '<span class="mail-row-subject">' + mail.subject + '</span>' +
+        '<span class="mail-row-tag">' + mail.tag + '</span>';
+      row.addEventListener('click', () => openMailItem(mail.id));
+      mailList.appendChild(row);
+    });
+  }
+
+  function openMailItem(id){
+    const mail = mailData.find(m => m.id === id);
+    if (!mail) return;
+    mailActiveId = id;
+    if (mail.unread){
+      mail.unread = false;
+      updateMailBadge();
+    }
+    mailReader.innerHTML =
+      '<div class="mail-fields">' +
+        '<div class="mail-field"><span class="mail-field-label">КОМУ:</span><span class="mail-field-value" id="mailToValue">' + (hudName ? hudName.textContent : '') + '</span></div>' +
+        '<div class="mail-field"><span class="mail-field-label">ОТ КОГО:</span><span class="mail-field-value">' + mail.from + '</span></div>' +
+        '<div class="mail-field"><span class="mail-field-label">ТЕМА:</span><span class="mail-field-value">' + mail.tag + '</span></div>' +
+      '</div>' +
+      '<div class="mail-subject">' + mail.subject + '</div>' +
+      '<div class="mail-body">' + mail.body + '</div>';
+    mailReader.scrollTop = 0;
+    renderMailList();
+  }
+
+  function openMailTab(tab){
+    const inboxTab = document.getElementById('mailTabInbox');
+    const sendTab = document.getElementById('mailTabSend');
+    const inboxPanel = document.getElementById('mailInboxPanel');
+    const sendPanel = document.getElementById('mailSendPanel');
+    if (tab === 'send'){
+      sendTab.classList.add('active');
+      inboxTab.classList.remove('active');
+      sendPanel.classList.add('active');
+      inboxPanel.classList.remove('active');
+    } else {
+      inboxTab.classList.add('active');
+      sendTab.classList.remove('active');
+      inboxPanel.classList.add('active');
+      sendPanel.classList.remove('active');
+    }
+  }
+
+  function openMail(){
+    mainMenu.classList.remove('reveal');
+    mainMenu.hidden = true;
+    mailScreen.hidden = false;
+    mailScreen.classList.add('reveal');
+    openMailTab('inbox');
+  }
+  function closeMail(){
+    mailScreen.classList.remove('reveal');
+    mailScreen.hidden = true;
+    mainMenu.hidden = false;
+    mainMenu.classList.add('reveal');
+  }
+
+  renderMailList();
+  updateMailBadge();
+  document.getElementById('tileMail').addEventListener('click', openMail);
+  document.getElementById('mailBack').addEventListener('click', closeMail);
+  document.getElementById('mailTabInbox').addEventListener('click', () => openMailTab('inbox'));
+  document.getElementById('mailTabSend').addEventListener('click', () => openMailTab('send'));
+
+  // =========================================================
   //  ИЗМЕНЕНИЕ ИМЕНИ — "системное окно предупреждения" поверх экрана,
   //  открывается из настроек. Тут нет поля ввода: только предупреждение
   //  о перезапуске терминала и выбор "Отмена"/"Перезапуск". Реальный ввод
@@ -2347,6 +2769,8 @@
     settingsScreen.hidden = true;
     profileScreen.classList.remove('reveal');
     profileScreen.hidden = true;
+    mailScreen.classList.remove('reveal');
+    mailScreen.hidden = true;
     mainMenu.classList.remove('reveal');
     mainMenu.querySelectorAll('.shown').forEach(el => el.classList.remove('shown'));
     mainMenu.querySelectorAll('.wp-shown').forEach(el => el.classList.remove('wp-shown'));
