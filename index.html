@@ -1710,11 +1710,13 @@
     deviceBgImg.src = 'monitor_blank_PC_.png';
   }
 
-  // Ask for real fullscreen on desktop, on the first genuine user
-  // gesture (the "ВОЙТИ" / enter button click). Uses the Telegram
-  // Mini App fullscreen API when available (Bot API 8.0+, hides the
-  // client chrome too), otherwise falls back to the browser
-  // Fullscreen API for plain-browser previews.
+  // Ask for real fullscreen on desktop. Uses the Telegram Mini App
+  // fullscreen API when available (Bot API 8.0+, hides the client
+  // chrome too) — this can be requested right away, since opening
+  // the Mini App via the bot's "Играть" button already counts as
+  // the user gesture. Falls back to the browser Fullscreen API for
+  // plain-browser previews, which needs its own in-page click, so
+  // it's re-tried on the "ВОЙТИ" button below.
   function requestDesktopFullscreen(){
     if (!IS_DESKTOP) return;
     const tgw = window.Telegram && window.Telegram.WebApp;
@@ -1729,6 +1731,7 @@
       try { req.call(el); } catch (e) {}
     }
   }
+  requestDesktopFullscreen();
   // =========================================================
 
   function tick(){
@@ -1759,6 +1762,7 @@
     tg.ready();
     tg.expand();
     tg.onEvent('viewportChanged', setTgVh);
+    requestDesktopFullscreen();
   }
 
   // =========================================================
