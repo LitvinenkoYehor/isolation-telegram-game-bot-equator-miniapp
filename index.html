@@ -40,13 +40,8 @@
   }
   .stage{
     position:relative;
-    /* Экран игрока может быть какой угодно ширины — .stage всегда держит
-       ровно пропорции monitor_blank.png (905×1738) и вписывается в высоту
-       окна, а лишнее по бокам (на широком окне) остаётся чёрным фоном body.
-       Простой расчёт без привязки к Telegram-специфике: min() берёт
-       наименьшее из "не шире окна" и "во столько же высотой, сколько окно,
-       при этом пропорции сохранены". */
-    width:min(100vw, calc(100vh * 905 / 1738));
+    width:100%;
+    max-width:520px;
     aspect-ratio:905/1738;
     container-type: inline-size;
     overflow:hidden;
@@ -1688,17 +1683,6 @@
     tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
-    // Полноэкранный режим (Bot API 8.0+, метод requestFullscreen) — поддержан
-    // и на телефоне, и в Telegram Desktop/macOS/Web, но решение всё равно
-    // принимает сам клиент Telegram: где-то он просто разворачивает окно, а
-    // где-то (например, в некоторых версиях Desktop) может проигнорировать
-    // запрос или временно не сработать из-за бага в самом клиенте — это уже
-    // не то, что можно починить со стороны Mini App. isVersionAtLeast('8.0')
-    // защищает от падения на старых клиентах, где метода ещё нет.
-    if (typeof tg.isVersionAtLeast === 'function' && tg.isVersionAtLeast('8.0')
-        && typeof tg.requestFullscreen === 'function') {
-      try { tg.requestFullscreen(); } catch (e) { /* клиент отказал — просто остаёмся в обычном (expand'нутом) виде */ }
-    }
     tg.onEvent('viewportChanged', setTgVh);
   }
 
