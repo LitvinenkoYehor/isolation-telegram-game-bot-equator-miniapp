@@ -1168,14 +1168,99 @@
   .mail-body b{ color:var(--scr-cyan); }
   .mail-body p{ margin:0 0 1.6cqw 0; }
   .mail-body p:last-child{ margin-bottom:0; }
-  .mail-send-panel{
-    align-items:center; justify-content:center;
-    text-align:center;
-    font-size:2cqw; color:var(--scr-text-dim);
-    padding:4cqw;
+  .mail-send-panel{ padding:0; }
+  .mail-compose{
+    flex:1 1 auto;
+    min-width:0; min-height:0;
+    display:flex; flex-direction:column;
+    gap:1.6cqw;
+    padding:2cqw 2.2cqw;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+  }
+  .mail-compose::-webkit-scrollbar{ width:3px; }
+  .mail-compose::-webkit-scrollbar-thumb{ background:var(--scr-line-strong); border-radius:2px; }
+  .mail-compose::-webkit-scrollbar-track{ background:transparent; }
+  .mail-compose-fields{ display:flex; flex-direction:column; gap:1.6cqw; }
+  .mail-compose-field{ display:flex; flex-direction:column; gap:0.6cqw; }
+  .mail-compose-label{
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.5cqw; letter-spacing:0.08em;
+    color:var(--scr-text-dim);
+  }
+  .mail-compose-input, .mail-compose-textarea{
+    width:100%;
+    padding:1.4cqw 1.6cqw;
+    background:rgba(255,255,255,0.03);
     border:1px solid var(--scr-line);
-    border-radius:0.8cqw;
+    border-radius:0.6cqw;
+    color:var(--scr-text);
+    font-family:inherit;
+    font-size:1.8cqw;
+    outline:none;
+  }
+  .mail-compose-input:focus, .mail-compose-textarea:focus{ border-color:var(--scr-cyan); }
+  .mail-compose-textarea{
+    flex:1 1 auto;
+    min-height:16cqw;
+    resize:none;
+    line-height:1.5;
+  }
+  .mail-compose-static{
+    padding:1.4cqw 1.6cqw;
+    border:1px solid var(--scr-line);
+    border-radius:0.6cqw;
     background:rgba(255,255,255,0.02);
+    color:var(--scr-text);
+    font-size:1.8cqw;
+    letter-spacing:0.03em;
+  }
+  .mail-compose-status{
+    min-height:1.6em;
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.5cqw; letter-spacing:0.03em;
+    color:var(--scr-text-dim);
+  }
+  .mail-compose-status.error{ color:#ff9a8a; }
+  .mail-compose-status.ok{ color:var(--scr-green); }
+  .mail-compose-send{
+    flex:0 0 auto;
+    padding:1.8cqw 1cqw;
+    border:1px solid var(--scr-cyan);
+    border-radius:0.8cqw;
+    background:rgba(143,214,255,0.1);
+    color:#eaf5ff;
+    font-family:inherit; font-weight:600; letter-spacing:0.05em;
+    font-size:1.9cqw;
+    cursor:pointer;
+  }
+  .mail-compose-send:active{ filter:brightness(0.85); }
+  .mail-compose-send:disabled{ opacity:0.5; cursor:default; }
+  .mail-delete-btn{
+    margin-top:2.4cqw;
+    padding:1.4cqw 1cqw;
+    border:1px solid rgba(255,154,138,0.5);
+    border-radius:0.6cqw;
+    background:rgba(255,154,138,0.08);
+    color:#ff9a8a;
+    font-family:inherit; font-weight:600; letter-spacing:0.05em;
+    font-size:1.7cqw;
+    cursor:pointer;
+  }
+  .mail-delete-btn:active{ filter:brightness(0.85); }
+  .mail-row-detail{
+    margin-top:0.8cqw;
+    padding-top:0.8cqw;
+    border-top:1px dashed var(--scr-line);
+    font-size:1.6cqw; line-height:1.5;
+    color:var(--scr-text-dim);
+  }
+  .mail-row-empty{
+    padding:3cqw 2cqw;
+    text-align:center;
+    font-size:1.7cqw;
+    color:var(--scr-text-dim);
   }
 
   /* ================= RENAME OVERLAY — "system warning window" ================= */
@@ -1810,7 +1895,38 @@
         </div>
 
         <div class="mail-panel mail-send-panel" id="mailSendPanel">
-          ОТПРАВКА ПИСЕМ ПОКА НЕДОСТУПНА.<br>ФУНКЦИЯ В РАЗРАБОТКЕ.
+          <div class="mail-split">
+            <div class="mail-list" id="mailSentList"></div>
+            <div class="mail-compose" id="mailCompose">
+              <!-- Поля "От кого"/"Кому" видны только администратору
+                   (currentProfile.is_admin, см. JS) — обычный игрок вместо
+                   них видит статичную строку "КОМУ: ЦЕНТР УПРАВЛЕНИЯ" ниже. -->
+              <div class="mail-compose-fields" id="mailComposeAdminFields" hidden>
+                <div class="mail-compose-field">
+                  <label class="mail-compose-label" for="mailFromInput">ОТ КОГО</label>
+                  <input class="mail-compose-input" id="mailFromInput" type="text" maxlength="40" placeholder="ЦЕНТР УПРАВЛЕНИЯ" autocomplete="off">
+                </div>
+                <div class="mail-compose-field">
+                  <label class="mail-compose-label" for="mailToInput">КОМУ</label>
+                  <input class="mail-compose-input" id="mailToInput" type="text" maxlength="40" placeholder="TELEGRAM ID ИГРОКА ИЛИ &quot;ALL&quot;" autocomplete="off">
+                </div>
+              </div>
+              <div class="mail-compose-field" id="mailToStaticRow">
+                <span class="mail-compose-label">КОМУ</span>
+                <span class="mail-compose-static" id="mailToStatic">ЦЕНТР УПРАВЛЕНИЯ</span>
+              </div>
+              <div class="mail-compose-field">
+                <label class="mail-compose-label" for="mailSubjectInput">ТЕМА</label>
+                <input class="mail-compose-input" id="mailSubjectInput" type="text" maxlength="120" placeholder="КРАТКО О ЧЁМ ПИСЬМО" autocomplete="off">
+              </div>
+              <div class="mail-compose-field" style="flex:1 1 auto; min-height:0;">
+                <label class="mail-compose-label" for="mailBodyInput">СООБЩЕНИЕ</label>
+                <textarea class="mail-compose-textarea" id="mailBodyInput" maxlength="3500" placeholder="ТЕКСТ ПИСЬМА..."></textarea>
+              </div>
+              <div class="mail-compose-status" id="mailComposeStatus"></div>
+              <button class="mail-compose-send" id="mailSendBtn" type="button">ОТПРАВИТЬ</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1938,6 +2054,26 @@
         <div class="rename-actions">
           <button class="rename-btn" id="renameCancel" type="button">ОТМЕНА</button>
           <button class="rename-btn primary" id="renameConfirm" type="button">ПЕРЕЗАПУСК</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MAIL DELETE OVERLAY — подтверждение удаления письма ================= -->
+    <div class="rename-overlay" id="mailDeleteOverlay" hidden>
+      <div class="rename-window">
+        <div class="rename-titlebar">
+          <span class="rename-titlebar-text">⚠ ПОДТВЕРЖДЕНИЕ</span>
+          <button class="rename-close" id="mailDeleteClose" type="button" aria-label="Закрыть">✕</button>
+        </div>
+        <div class="rename-body">
+          <div class="rename-warn-row">
+            <span class="rename-warn-icon">⚠</span>
+            <p class="rename-warn-text">Письмо будет удалено безвозвратно. Отменить это действие будет нельзя.</p>
+          </div>
+        </div>
+        <div class="rename-actions">
+          <button class="rename-btn" id="mailDeleteCancel" type="button">ОТМЕНА</button>
+          <button class="rename-btn primary" id="mailDeleteConfirm" type="button">УДАЛИТЬ</button>
         </div>
       </div>
     </div>
@@ -2555,88 +2691,242 @@
   document.getElementById('settingsBack').addEventListener('click', closeSettings);
 
   // =========================================================
+  // =========================================================
   //  ПОЧТА ("MAIL") — раздел вложен в главное меню (как ИНСТРУКТАЖ/НАСТРОЙКИ).
-  //  На этом этапе письма одинаковые у всех игроков (те же 4 записи, что и
-  //  в "🆕 Обновления" внутри "⚙️ Опции" текстового бота, см.
-  //  handlers/updates.py + data/updates.json) — рассылка от лица игры про
-  //  апдейты бота. "Отправить" пока просто заглушка: реальная отправка
-  //  писем не реализована. Список слева и открытое письмо справа скроллятся
-  //  независимо (двухпанельная раскладка вроде gmail), цифра на плитке
-  //  "ПОЧТА" в главном меню = число непрочитанных во "ВХОДЯЩИЕ" и пересчитывается
-  //  при каждом прочтении.
-  const mailData = [
-    {
-      id: 'upd-04',
-      from: 'СЛУЖБА ОБНОВЛЕНИЙ',
-      tag: 'ОБНОВЛЕНИЕ 0.4',
-      subject: '🌐 Режим заседаний «Международный»',
-      unread: true,
-      body: '<p>В обновлении 0.4 в игру добавлен второй режим заседаний — «Международный», и всё, что понадобилось, чтобы его было удобно тестировать и находить в интерфейсе.</p>' +
-            '<p><b>Что нового:</b></p>' +
-            '<p>• «Международный» режим заседаний — вместо свободного текста в чате каждый игрок строит реплику через «Карточку речи»: выбирает действие (Вопросы/Защита/Обвинения/Факты), подпункт, а иногда ещё игрока и локацию. Хост может включить его в приватном лобби перед стартом партии, кнопкой переключения режима на экране лобби.<br>' +
-            '• Полный перевод «Международного» режима на английский — все фразы и подписи меню теперь на двух языках, и каждый получатель видит реплику на своём собственном языке, а не на языке того, кто её отправил.<br>' +
-            '• Исправлен баг, из-за которого отправленная реплика в новом режиме не доходила до самого отправителя.<br>' +
-            '• Новые команды для быстрого вызова карточек, если нужное сообщение потерялось среди остальной переписки: /game — карточка игры, /vote — карточка голосования, /speech — карточка речи, /lobby — карточка лобби (только для лобби, созданных через «Играть»). Каждая команда работает только в подходящий момент партии.</p>'
-    },
-    {
-      id: 'upd-03',
-      from: 'СЛУЖБА ОБНОВЛЕНИЙ',
-      tag: 'ОБНОВЛЕНИЕ 0.3',
-      subject: '📊 Статистика игрока и раздел «Опции»',
-      unread: true,
-      body: '<p>В обновлении 0.3 каждый игрок заполучил постоянный профиль, который сохраняется навсегда, плюс отдельное меню для просмотра статистики.</p>' +
-            '<p><b>Что нового:</b></p>' +
-            '<p>• Новый раздел «⚙️ Опции» в главном меню — общее место для всех личных настроек и данных игрока (в будущем будет пополняться новыми пунктами).<br>' +
-            '• «👤 Профиль» — карточка с постоянной статистикой: уровень и полоса XP до следующего уровня, число сыгранных и выигранных партий (отдельно за Персонал и за Ликвидатора), количество убийств, смертей, выполненных заданий и суммарное время в игре.<br>' +
-            '• Прогресс и XP начисляются автоматически по итогам каждой завершённой партии — в зависимости от роли, победы/поражения, количества килов/заданий и времени в игре.<br>' +
-            '• «✏️ Изменить имя» — позволяет задать собственный ник вместо имени/юзернейма из Telegram; после смены ник больше не подменяется автоматически. Менять его можно не чаще одного раза в несколько дней, чтобы не создавать лишнюю нагрузку.</p>'
-    },
-    {
-      id: 'upd-021',
-      from: 'СЛУЖБА ОБНОВЛЕНИЙ',
-      tag: 'ОБНОВЛЕНИЕ 0.2.1',
-      subject: '🔒 Закрытие лобби и исключение игрока',
-      unread: true,
-      body: '<p>Открытые по коду лобби могут оказаться уязвимы: хост никак не мог противодействовать тем, кто мог случайно подобрать пароль. В 0.2.1 хост получил полный контроль над составом своей партии.</p>' +
-            '<p><b>Что нового:</b></p>' +
-            '<p>• Кнопка «🔒 Закрыть лобби» / «🔓 Сделать открытым» на экране хоста — переключает режим приёма новых игроков.<br>' +
-            '• Пока лобби закрыто, ввод верного кода больше не добавляет игрока сразу: заявка уходит в очередь ожидания.<br>' +
-            '• Хост видит каждую заявку с кнопками «✅ Принять» / «❌ Отклонить» и решает, кого пускать.<br>' +
-            '• Новая кнопка «👢 Исключить игрока» (видна только хосту, как и возможность закрыть лобби) открывает список текущих участников — по нажатию на имя игрок сразу убирается из лобби.<br>' +
-            '• Исключённый получает уведомление о том, что его убрали, а остальным участникам список лобби обновляется автоматически.</p>'
-    },
-    {
-      id: 'upd-02',
-      from: 'СЛУЖБА ОБНОВЛЕНИЙ',
-      tag: 'ОБНОВЛЕНИЕ 0.2',
-      subject: '🎮 Создание игры через кнопку «Играть»',
-      unread: true,
-      body: '<p>Раньше собрать партию можно было только через групповой чат командой /startisolationgame. В обновлении 0.2 появился второй, более быстрый способ — прямо в личных сообщениях с ботом.</p>' +
-            '<p><b>Что нового:</b></p>' +
-            '<p>• Кнопка «🎮 Играть» в главном меню открывает подменю с двумя вариантами: «🆕 Создать игру» и «🔑 Присоединиться к игре».<br>' +
-            '• Хост создаёт лобби — затем бот просит хоста написать 5-символьный код (буквы и цифры, регистр важен).<br>' +
-            '• Чтобы присоединиться, достаточно выбрать опцию «🔑 Присоединиться к игре» и прислать боту этот код в личке — никакой общий групповой чат для сбора больше не нужен.<br>' +
-            '• На экране лобби хост видит список всех подключившихся игроков в реальном времени и запускает партию, когда набралось нужное количество.</p>' +
-            '<p>Старый способ через групповой чат никуда не делся — оба варианта работают параллельно, «Играть» просто даёт более гибкую альтернативу для тех, у кого нет отдельной группы для сбора.</p>'
+  //  ВХОДЯЩИЕ — рассылки всем + личные письма от администратора; у самого
+  //  администратора (config.ADMIN_ID) вкладка вместо этого показывает
+  //  "ПОЛУЧЕННЫЕ" — письма от игроков (см. game/webapp_api.py:mail_inbox,
+  //  game/mailbox_db.py). ОТПРАВИТЬ — слева история отправленных писем,
+  //  справа форма: у игрока получатель зафиксирован ("ЦЕНТР УПРАВЛЕНИЯ" —
+  //  письмо дублируется администратору в Telegram + на Gmail, как и
+  //  "Связаться с нами"), у администратора вместо этого редактируемые
+  //  "От кого"/"Кому" (Telegram ID конкретного игрока либо "all" — всем).
+  //  Письма, кроме рассылок от "СЛУЖБА ОБНОВЛЕНИЙ", самоудаляются на
+  //  сервере через 2 суток; их же можно стереть вручную кнопкой "Удалить"
+  //  (с подтверждением) — см. mailDeleteOverlay. Счётчик непрочитанных на
+  //  плитке "ПОЧТА" — персистентный (game/mailbox_db.py: mail_read_state),
+  //  не сбрасывается при повторном входе.
+  // =========================================================
+
+  const MAIL_ADMIN_LABEL_TEXT = 'ЦЕНТР УПРАВЛЕНИЯ';
+
+  function mailInitData(){ return tg && tg.initData ? tg.initData : ''; }
+
+  // Предпросмотр вне Telegram (нет initData, бэкенду нечего проверять) —
+  // те же 4 письма про обновления бота, что раньше были захардкожены тут
+  // же; храним их в замыкании, чтобы "прочитано" переживало переключение
+  // вкладок хотя бы в рамках одного открытого предпросмотра.
+  let _offlineMailInbox = null;
+  function offlineDemoMailInbox(){
+    if (!_offlineMailInbox){
+      _offlineMailInbox = [
+        {
+          id: 'upd-04', kind: 'broadcast',
+          from: 'СЛУЖБА ОБНОВЛЕНИЙ', from_chat_id: null,
+          tag: 'ОБНОВЛЕНИЕ 0.4',
+          subject: '🌐 Режим заседаний «Международный»',
+          unread: true, deletable: false,
+          body: '<p>В обновлении 0.4 в игру добавлен второй режим заседаний — «Международный», и всё, что понадобилось, чтобы его было удобно тестировать и находить в интерфейсе.</p>' +
+                '<p><b>Что нового:</b></p>' +
+                '<p>• «Международный» режим заседаний — вместо свободного текста в чате каждый игрок строит реплику через «Карточку речи»: выбирает действие (Вопросы/Защита/Обвинения/Факты), подпункт, а иногда ещё игрока и локацию. Хост может включить его в приватном лобби перед стартом партии, кнопкой переключения режима на экране лобби.<br>' +
+                '• Полный перевод «Международного» режима на английский — все фразы и подписи меню теперь на двух языках, и каждый получатель видит реплику на своём собственном языке, а не на языке того, кто её отправил.<br>' +
+                '• Исправлен баг, из-за которого отправленная реплика в новом режиме не доходила до самого отправителя.<br>' +
+                '• Новые команды для быстрого вызова карточек, если нужное сообщение потерялось среди остальной переписки: /game — карточка игры, /vote — карточка голосования, /speech — карточка речи, /lobby — карточка лобби (только для лобби, созданных через «Играть»). Каждая команда работает только в подходящий момент партии.</p>'
+        },
+        {
+          id: 'upd-03', kind: 'broadcast',
+          from: 'СЛУЖБА ОБНОВЛЕНИЙ', from_chat_id: null,
+          tag: 'ОБНОВЛЕНИЕ 0.3',
+          subject: '📊 Статистика игрока и раздел «Опции»',
+          unread: true, deletable: false,
+          body: '<p>В обновлении 0.3 каждый игрок заполучил постоянный профиль, который сохраняется навсегда, плюс отдельное меню для просмотра статистики.</p>' +
+                '<p><b>Что нового:</b></p>' +
+                '<p>• Новый раздел «⚙️ Опции» в главном меню — общее место для всех личных настроек и данных игрока (в будущем будет пополняться новыми пунктами).<br>' +
+                '• «👤 Профиль» — карточка с постоянной статистикой: уровень и полоса XP до следующего уровня, число сыгранных и выигранных партий (отдельно за Персонал и за Ликвидатора), количество убийств, смертей, выполненных заданий и суммарное время в игре.<br>' +
+                '• Прогресс и XP начисляются автоматически по итогам каждой завершённой партии — в зависимости от роли, победы/поражения, количества килов/заданий и времени в игре.<br>' +
+                '• «✏️ Изменить имя» — позволяет задать собственный ник вместо имени/юзернейма из Telegram; после смены ник больше не подменяется автоматически. Менять его можно не чаще одного раза в несколько дней, чтобы не создавать лишнюю нагрузку.</p>'
+        },
+        {
+          id: 'upd-021', kind: 'broadcast',
+          from: 'СЛУЖБА ОБНОВЛЕНИЙ', from_chat_id: null,
+          tag: 'ОБНОВЛЕНИЕ 0.2.1',
+          subject: '🔒 Закрытие лобби и исключение игрока',
+          unread: true, deletable: false,
+          body: '<p>Открытые по коду лобби могут оказаться уязвимы: хост никак не мог противодействовать тем, кто мог случайно подобрать пароль. В 0.2.1 хост получил полный контроль над составом своей партии.</p>' +
+                '<p><b>Что нового:</b></p>' +
+                '<p>• Кнопка «🔒 Закрыть лобби» / «🔓 Сделать открытым» на экране хоста — переключает режим приёма новых игроков.<br>' +
+                '• Пока лобби закрыто, ввод верного кода больше не добавляет игрока сразу: заявка уходит в очередь ожидания.<br>' +
+                '• Хост видит каждую заявку с кнопками «✅ Принять» / «❌ Отклонить» и решает, кого пускать.<br>' +
+                '• Новая кнопка «👢 Исключить игрока» (видна только хосту, как и возможность закрыть лобби) открывает список текущих участников — по нажатию на имя игрок сразу убирается из лобби.<br>' +
+                '• Исключённый получает уведомление о том, что его убрали, а остальным участникам список лобби обновляется автоматически.</p>'
+        },
+        {
+          id: 'upd-02', kind: 'broadcast',
+          from: 'СЛУЖБА ОБНОВЛЕНИЙ', from_chat_id: null,
+          tag: 'ОБНОВЛЕНИЕ 0.2',
+          subject: '🎮 Создание игры через кнопку «Играть»',
+          unread: true, deletable: false,
+          body: '<p>Раньше собрать партию можно было только через групповой чат командой /startisolationgame. В обновлении 0.2 появился второй, более быстрый способ — прямо в личных сообщениях с ботом.</p>' +
+                '<p><b>Что нового:</b></p>' +
+                '<p>• Кнопка «🎮 Играть» в главном меню открывает подменю с двумя вариантами: «🆕 Создать игру» и «🔑 Присоединиться к игре».<br>' +
+                '• Хост создаёт лобби — затем бот просит хоста написать 5-символьный код (буквы и цифры, регистр важен).<br>' +
+                '• Чтобы присоединиться, достаточно выбрать опцию «🔑 Присоединиться к игре» и прислать боту этот код в личке — никакой общий групповой чат для сбора больше не нужен.<br>' +
+                '• На экране лобби хост видит список всех подключившихся игроков в реальном времени и запускает партию, когда набралось нужное количество.</p>' +
+                '<p>Старый способ через групповой чат никуда не делся — оба варианта работают параллельно, «Играть» просто даёт более гибкую альтернативу для тех, у кого нет отдельной группы для сбора.</p>'
+        }
+      ];
     }
-  ];
+    return {
+      items: _offlineMailInbox,
+      unread_count: _offlineMailInbox.filter(m => m.unread).length,
+      is_admin: false
+    };
+  }
+
+  async function fetchMailInbox(){
+    const initData = mailInitData();
+    if (!initData) return offlineDemoMailInbox();
+    try {
+      const res = await fetch(apiUrl('/api/mail/inbox?initData=' + encodeURIComponent(initData)));
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return await res.json();
+    } catch (e) {
+      console.error('Не удалось получить почту с сервера:', e);
+      return { items: [], unread_count: 0, is_admin: false };
+    }
+  }
+
+  async function fetchMailSent(){
+    const initData = mailInitData();
+    if (!initData) return { items: [], is_admin: false };
+    try {
+      const res = await fetch(apiUrl('/api/mail/sent?initData=' + encodeURIComponent(initData)));
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return await res.json();
+    } catch (e) {
+      console.error('Не удалось получить отправленные письма:', e);
+      return { items: [], is_admin: false };
+    }
+  }
+
+  async function postMailRead(id){
+    const initData = mailInitData();
+    if (!initData) return; // офлайн-предпросмотр — отмечать прочитанным негде
+    try {
+      await fetch(apiUrl('/api/mail/read'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ initData, id })
+      });
+    } catch (e) {
+      console.error('Не удалось отметить письмо прочитанным:', e);
+    }
+  }
+
+  async function postMailDelete(id){
+    const initData = mailInitData();
+    if (!initData) return true; // офлайн-предпросмотр — просто убираем локально
+    try {
+      const res = await fetch(apiUrl('/api/mail/delete'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ initData, id })
+      });
+      return res.ok;
+    } catch (e) {
+      console.error('Не удалось удалить письмо:', e);
+      return false;
+    }
+  }
+
+  async function postMailSend(payload){
+    const initData = mailInitData();
+    if (!initData) {
+      // офлайн-предпросмотр: слать некуда, просто подтверждаем локально.
+      return { ok: true, id: 'local-' + Date.now() };
+    }
+    try {
+      const res = await fetch(apiUrl('/api/mail/send'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.assign({ initData }, payload))
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) return { ok: true, id: data.id };
+      return { ok: false, status: res.status, data };
+    } catch (e) {
+      return { ok: false, status: 0, data: null };
+    }
+  }
+
+  // Коды ошибок совпадают с тем, что возвращает /api/mail/send (см.
+  // game/webapp_api.py:mail_send).
+  function mailSendErrorMessage(status, data){
+    if (status === 429) {
+      return 'Слишком часто. Следующее письмо можно отправить через ' +
+        fmtDuration((data && data.remaining_seconds) || 0) + '.';
+    }
+    if (data && data.error === 'subject_too_long') return 'Тема длиннее ' + data.limit + ' символов.';
+    if (data && data.error === 'body_too_long') return 'Текст письма длиннее ' + data.limit + ' символов.';
+    if (data && data.error === 'empty') return 'Заполните тему и текст письма.';
+    if (data && data.error === 'missing_to') return 'Укажите получателя в поле «Кому».';
+    if (data && data.error === 'bad_to') return 'В поле «Кому» — Telegram ID числом или слово «all».';
+    if (data && data.error === 'player_not_found') return 'Игрок с таким Telegram ID не найден.';
+    if (status === 401) return 'Не удалось подтвердить сеанс Telegram. Закройте и снова откройте Mini App.';
+    if (status === 503) return 'Отправка временно недоступна.';
+    return 'Не удалось отправить письмо. Проверьте соединение и попробуйте ещё раз.';
+  }
+
+  // Тот же формат "ДД.ММ ЧЧ:ММ", что и часы в шапке — для строки-подписи
+  // под письмами в истории отправленных.
+  function fmtMailDate(ts){
+    if (!ts) return '';
+    const d = new Date(ts * 1000);
+    const pad = n => String(n).padStart(2, '0');
+    return pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
 
   const mailList = document.getElementById('mailList');
   const mailReader = document.getElementById('mailReader');
   const mailBadge = document.getElementById('mailBadge');
+  const mailTabInboxBtn = document.getElementById('mailTabInbox');
   let mailActiveId = null;
+  let mailInboxItems = [];
+  let mailSentItems = [];
+  let mailIsAdmin = false;
 
-  function updateMailBadge(){
-    const unreadCount = mailData.filter(m => m.unread).length;
-    if (mailBadge){
-      mailBadge.textContent = unreadCount;
-      mailBadge.style.display = unreadCount > 0 ? '' : 'none';
+  function updateMailBadge(count){
+    if (!mailBadge) return;
+    const n = count || 0;
+    mailBadge.textContent = n;
+    mailBadge.style.display = n > 0 ? '' : 'none';
+  }
+
+  // Показывает игроку "КОМУ: ЦЕНТР УПРАВЛЕНИЯ" (статичная строка) либо, у
+  // администратора, редактируемые поля "От кого"/"Кому" — переключается
+  // при каждой загрузке почты, когда становится известен is_admin.
+  function applyComposeMode(){
+    const adminFields = document.getElementById('mailComposeAdminFields');
+    const staticRow = document.getElementById('mailToStaticRow');
+    const staticVal = document.getElementById('mailToStatic');
+    if (!adminFields || !staticRow) return;
+    if (mailIsAdmin){
+      adminFields.hidden = false;
+      staticRow.hidden = true;
+    } else {
+      adminFields.hidden = true;
+      staticRow.hidden = false;
+      if (staticVal) staticVal.textContent = MAIL_ADMIN_LABEL_TEXT;
     }
   }
 
   function renderMailList(){
     mailList.innerHTML = '';
-    mailData.forEach(mail => {
+    if (!mailInboxItems.length){
+      mailList.innerHTML = '<div class="mail-row-empty">ПИСЕМ ПОКА НЕТ</div>';
+      return;
+    }
+    mailInboxItems.forEach(mail => {
       const row = document.createElement('button');
       row.type = 'button';
       row.className = 'mail-row' + (mail.unread ? ' unread' : '') + (mail.id === mailActiveId ? ' active' : '');
@@ -2649,25 +2939,195 @@
     });
   }
 
+  function renderMailReader(mail){
+    let fieldsHtml;
+    if (mailIsAdmin){
+      // "ПОЛУЧЕННЫЕ" у администратора: имя и Telegram ID отдельными
+      // строками, как и просили — вместо "КОМУ"/"ОТ КОГО" обычного вида.
+      fieldsHtml =
+        '<div class="mail-field"><span class="mail-field-label">ОТ КОГО (ИМЯ):</span><span class="mail-field-value">' + mail.from + '</span></div>' +
+        '<div class="mail-field"><span class="mail-field-label">ОТ КОГО (TELEGRAM ID):</span><span class="mail-field-value">' + (mail.from_chat_id != null ? mail.from_chat_id : '—') + '</span></div>';
+    } else {
+      fieldsHtml =
+        '<div class="mail-field"><span class="mail-field-label">КОМУ:</span><span class="mail-field-value">' + (hudName ? hudName.textContent : '') + '</span></div>' +
+        '<div class="mail-field"><span class="mail-field-label">ОТ КОГО:</span><span class="mail-field-value">' + mail.from + '</span></div>' +
+        '<div class="mail-field"><span class="mail-field-label">ТЕМА:</span><span class="mail-field-value">' + mail.tag + '</span></div>';
+    }
+    mailReader.innerHTML =
+      '<div class="mail-fields">' + fieldsHtml + '</div>' +
+      '<div class="mail-subject">' + mail.subject + '</div>' +
+      '<div class="mail-body">' + mail.body + '</div>' +
+      (mail.deletable ? '<button class="mail-delete-btn" type="button" id="mailDeleteTrigger">🗑 УДАЛИТЬ ПИСЬМО</button>' : '');
+    mailReader.scrollTop = 0;
+    const delBtn = document.getElementById('mailDeleteTrigger');
+    if (delBtn) delBtn.addEventListener('click', () => openMailDeleteConfirm(mail.id, 'inbox'));
+  }
+
   function openMailItem(id){
-    const mail = mailData.find(m => m.id === id);
+    const mail = mailInboxItems.find(m => m.id === id);
     if (!mail) return;
     mailActiveId = id;
     if (mail.unread){
       mail.unread = false;
-      updateMailBadge();
+      postMailRead(id);
+      updateMailBadge(mailInboxItems.filter(m => m.unread).length);
     }
-    mailReader.innerHTML =
-      '<div class="mail-fields">' +
-        '<div class="mail-field"><span class="mail-field-label">КОМУ:</span><span class="mail-field-value" id="mailToValue">' + (hudName ? hudName.textContent : '') + '</span></div>' +
-        '<div class="mail-field"><span class="mail-field-label">ОТ КОГО:</span><span class="mail-field-value">' + mail.from + '</span></div>' +
-        '<div class="mail-field"><span class="mail-field-label">ТЕМА:</span><span class="mail-field-value">' + mail.tag + '</span></div>' +
-      '</div>' +
-      '<div class="mail-subject">' + mail.subject + '</div>' +
-      '<div class="mail-body">' + mail.body + '</div>';
-    mailReader.scrollTop = 0;
+    renderMailReader(mail);
     renderMailList();
   }
+
+  async function loadMailInbox(){
+    const data = await fetchMailInbox();
+    mailInboxItems = data.items || [];
+    mailIsAdmin = !!data.is_admin;
+    if (mailTabInboxBtn) mailTabInboxBtn.textContent = mailIsAdmin ? 'ПОЛУЧЕННЫЕ' : 'ВХОДЯЩИЕ';
+    updateMailBadge(data.unread_count);
+    applyComposeMode();
+    if (mailActiveId && !mailInboxItems.find(m => m.id === mailActiveId)){
+      mailActiveId = null;
+      mailReader.innerHTML = '<div class="mail-reader-empty">ВЫБЕРИТЕ ПИСЬМО ИЗ СПИСКА СЛЕВА</div>';
+    }
+    renderMailList();
+  }
+
+  function renderMailSentList(){
+    const list = document.getElementById('mailSentList');
+    if (!list) return;
+    list.innerHTML = '';
+    if (!mailSentItems.length){
+      list.innerHTML = '<div class="mail-row-empty">ПИСЕМ ПОКА НЕТ</div>';
+      return;
+    }
+    mailSentItems.forEach(mail => {
+      const row = document.createElement('div');
+      row.className = 'mail-row';
+      const toLabel = '→ ' + (mailIsAdmin ? (mail.to_label || '') : MAIL_ADMIN_LABEL_TEXT);
+      row.innerHTML =
+        '<span class="mail-row-top"><span class="mail-row-from">' + toLabel + '</span></span>' +
+        '<span class="mail-row-subject">' + mail.subject + '</span>' +
+        '<span class="mail-row-tag">' + fmtMailDate(mail.created_at) + '</span>';
+      row.addEventListener('click', () => {
+        const existing = row.querySelector('.mail-row-detail');
+        if (existing){ existing.remove(); return; }
+        list.querySelectorAll('.mail-row-detail').forEach(d => d.remove());
+        const detail = document.createElement('div');
+        detail.className = 'mail-row-detail';
+        detail.innerHTML = mail.body;
+        row.appendChild(detail);
+      });
+      if (mail.deletable){
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'mail-delete-btn';
+        delBtn.textContent = '🗑 УДАЛИТЬ';
+        delBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openMailDeleteConfirm(mail.id, 'sent');
+        });
+        row.appendChild(delBtn);
+      }
+      list.appendChild(row);
+    });
+  }
+
+  async function loadMailSent(){
+    const data = await fetchMailSent();
+    mailSentItems = data.items || [];
+    mailIsAdmin = !!data.is_admin;
+    applyComposeMode();
+    renderMailSentList();
+  }
+
+  let mailSending = false;
+  async function submitMail(){
+    if (mailSending) return;
+    const subjectInput = document.getElementById('mailSubjectInput');
+    const bodyInput = document.getElementById('mailBodyInput');
+    const statusEl = document.getElementById('mailComposeStatus');
+    const sendBtn = document.getElementById('mailSendBtn');
+    const subject = subjectInput.value.trim();
+    const body = bodyInput.value.trim();
+    statusEl.className = 'mail-compose-status';
+    if (!subject || !body){
+      statusEl.textContent = 'Заполните тему и текст письма.';
+      statusEl.classList.add('error');
+      return;
+    }
+    const payload = { subject, body };
+    let toInput = null;
+    if (mailIsAdmin){
+      const fromInput = document.getElementById('mailFromInput');
+      toInput = document.getElementById('mailToInput');
+      const toVal = toInput.value.trim();
+      if (!toVal){
+        statusEl.textContent = 'Укажите получателя в поле «Кому».';
+        statusEl.classList.add('error');
+        return;
+      }
+      payload.to = toVal;
+      if (fromInput.value.trim()) payload.from = fromInput.value.trim();
+    }
+    mailSending = true;
+    sendBtn.disabled = true;
+    statusEl.textContent = 'ОТПРАВКА...';
+    const result = await postMailSend(payload);
+    sendBtn.disabled = false;
+    mailSending = false;
+    if (!result.ok){
+      statusEl.textContent = mailSendErrorMessage(result.status, result.data);
+      statusEl.classList.add('error');
+      return;
+    }
+    statusEl.textContent = 'ПИСЬМО ОТПРАВЛЕНО.';
+    statusEl.classList.add('ok');
+    subjectInput.value = '';
+    bodyInput.value = '';
+    if (toInput) toInput.value = '';
+    loadMailSent();
+  }
+
+  // ---- Подтверждение удаления письма (переиспользует вёрстку
+  // .rename-overlay — то же "системное окно", что и предупреждение о
+  // смене имени, но со своим текстом и своими кнопками) ------------------
+  const mailDeleteOverlay = document.getElementById('mailDeleteOverlay');
+  const mailDeleteCancelBtn = document.getElementById('mailDeleteCancel');
+  const mailDeleteCloseBtn = document.getElementById('mailDeleteClose');
+  const mailDeleteConfirmBtn = document.getElementById('mailDeleteConfirm');
+  let mailPendingDelete = null; // { id, source: 'inbox' | 'sent' }
+
+  function openMailDeleteConfirm(id, source){
+    mailPendingDelete = { id, source };
+    mailDeleteOverlay.hidden = false;
+    requestAnimationFrame(() => mailDeleteOverlay.classList.add('shown'));
+  }
+  function closeMailDeleteConfirm(){
+    mailDeleteOverlay.classList.remove('shown');
+    setTimeout(() => { mailDeleteOverlay.hidden = true; }, 250);
+    mailPendingDelete = null;
+  }
+  mailDeleteCancelBtn.addEventListener('click', closeMailDeleteConfirm);
+  mailDeleteCloseBtn.addEventListener('click', closeMailDeleteConfirm);
+  mailDeleteConfirmBtn.addEventListener('click', async () => {
+    if (!mailPendingDelete) return;
+    const { id, source } = mailPendingDelete;
+    mailDeleteConfirmBtn.disabled = true;
+    const ok = await postMailDelete(id);
+    mailDeleteConfirmBtn.disabled = false;
+    if (!ok) { closeMailDeleteConfirm(); return; }
+    if (source === 'inbox'){
+      mailInboxItems = mailInboxItems.filter(m => m.id !== id);
+      if (mailActiveId === id){
+        mailActiveId = null;
+        mailReader.innerHTML = '<div class="mail-reader-empty">ВЫБЕРИТЕ ПИСЬМО ИЗ СПИСКА СЛЕВА</div>';
+      }
+      updateMailBadge(mailInboxItems.filter(m => m.unread).length);
+      renderMailList();
+    } else {
+      mailSentItems = mailSentItems.filter(m => m.id !== id);
+      renderMailSentList();
+    }
+    closeMailDeleteConfirm();
+  });
 
   function openMailTab(tab){
     const inboxTab = document.getElementById('mailTabInbox');
@@ -2679,6 +3139,7 @@
       inboxTab.classList.remove('active');
       sendPanel.classList.add('active');
       inboxPanel.classList.remove('active');
+      loadMailSent();
     } else {
       inboxTab.classList.add('active');
       sendTab.classList.remove('active');
@@ -2692,6 +3153,7 @@
     mainMenu.hidden = true;
     mailScreen.hidden = false;
     mailScreen.classList.add('reveal');
+    loadMailInbox();
     openMailTab('inbox');
   }
   function closeMail(){
@@ -2701,12 +3163,15 @@
     mainMenu.classList.add('reveal');
   }
 
-  renderMailList();
-  updateMailBadge();
+  // Загружаем сразу при открытии Mini App — цифра на плитке "ПОЧТА" в
+  // главном меню должна быть верной ещё до того, как игрок открыл раздел.
+  loadMailInbox();
+  document.getElementById('mailSendBtn').addEventListener('click', submitMail);
   document.getElementById('tileMail').addEventListener('click', openMail);
   document.getElementById('mailBack').addEventListener('click', closeMail);
   document.getElementById('mailTabInbox').addEventListener('click', () => openMailTab('inbox'));
   document.getElementById('mailTabSend').addEventListener('click', () => openMailTab('send'));
+
 
   // =========================================================
   //  ИЗМЕНЕНИЕ ИМЕНИ — "системное окно предупреждения" поверх экрана,
