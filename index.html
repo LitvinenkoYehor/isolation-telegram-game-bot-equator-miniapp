@@ -3614,16 +3614,23 @@
   // =========================================================
   //  SUPPORT ("ПОДДЕРЖКА ПРОЕКТА") — по-настоящему выходим из Mini App в
   //  чат с ботом. Предупреждение то же "системное окно", что и у смены
-  //  имени; по "ПРОДОЛЖИТЬ" выходим из полноэкранного режима и вызываем
-  //  Telegram.WebApp.sendData(...) — согласно Bot API это единственный
-  //  штатный способ Mini App отправить что-то боту и сразу закрыться;
-  //  Telegram сам гасит приложение сразу после вызова. Сообщение о
-  //  поддержке в этот момент приходит от БОТА в реальном чате, а не
-  //  рисуется здесь — см. handlers/support.py: on_web_app_data (принимает
-  //  { action: "open_support" } и присылает support.intro с той же
-  //  клавиатурой, что и в /start → "Поддержать проект").
-  //  ВАЖНО: sendData доступен только для Mini App, запущенного через
-  //  Menu Button (см. bot.py: MenuButtonWebApp) — здесь это так и есть.
+  //  имени; по "ПРОДОЛЖИТЬ" уходит POST /api/support/open (см.
+  //  game/webapp_api.py: support_open), бот сам присылает в чат
+  //  support.intro с той же клавиатурой, что и /start → "Поддержать
+  //  проект", а фронтенд после успешного ответа закрывает Mini App через
+  //  Telegram.WebApp.close().
+  //
+  //  ВАЖНО (и это была причина бага): Telegram.WebApp.sendData(...)
+  //  работает ТОЛЬКО для Mini App, запущенного через web_app-кнопку
+  //  обычной (Reply) клавиатуры — см. официальную документацию Bot API
+  //  ("This method is only available for Mini Apps launched via a
+  //  Keyboard button"). Эта игра открывается через Menu Button (см.
+  //  bot.py: MenuButtonWebApp), и для такого способа запуска sendData по
+  //  правилам Bot API молча ничего не делает — ни сообщения боту, ни
+  //  закрытия приложения. Именно поэтому раньше нажатие "ПРОДОЛЖИТЬ"
+  //  только гасило полноэкранный режим (exitFullscreen честно отработал)
+  //  и на этом всё останавливалось. Теперь вместо sendData используется
+  //  обычный HTTP-запрос к уже существующему бэкенду Mini App API.
   // =========================================================
   const supportWarningOverlay = document.getElementById('supportWarningOverlay');
   const supportWarningCancel  = document.getElementById('supportWarningCancel');
@@ -3642,22 +3649,39 @@
   supportWarningCancel.addEventListener('click', closeSupportWarning);
   supportWarningClose.addEventListener('click', closeSupportWarning);
 
-  supportWarningConfirm.addEventListener('click', () => {
+  supportWarningConfirm.addEventListener('click', async () => {
     closeSupportWarning();
 
-    if (tg) {
-      if (typeof tg.exitFullscreen === 'function') {
-        try { tg.exitFullscreen(); } catch (e) {}
-      }
-      if (typeof tg.sendData === 'function') {
-        // Закрывает Mini App сам по себе — дальше игрок уже в чате с ботом.
-        tg.sendData(JSON.stringify({ action: 'open_support' }));
-      } else if (typeof tg.close === 'function') {
-        tg.close();
-      }
+    if (tg && typeof tg.exitFullscreen === 'function') {
+      try { tg.exitFullscreen(); } catch (e) {}
     }
-    // Вне Telegram (обычный браузер, превью) сделать тут нечего —
-    // Mini App API просто недоступен, окно останется как есть.
+
+    const initData = tg && tg.initData ? tg.initData : '';
+    if (!initData) {
+      // Вне Telegram (обычный браузер, превью) бэкенду нечего проверять и
+      // некому слать сообщение — просто ничего не делаем, окно останется
+      // как есть, как и раньше в этом случае.
+      return;
+    }
+
+    try {
+      const res = await fetch(apiUrl('/api/support/open'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ initData })
+      });
+      if (res.ok && tg && typeof tg.close === 'function') {
+        // Бот уже прислал раздел поддержки в чат — закрываем Mini App,
+        // чтобы игрок сразу увидел это сообщение (close работает при
+        // любом способе запуска, в отличие от sendData, см. выше).
+        try { tg.close(); } catch (e) {}
+      }
+      // Если бэкенд не ответил ok — молча оставляем Mini App открытым
+      // (как и остальные разделы, например "Письма", ведут себя при
+      // сетевой ошибке), чтобы не закрыть игру без фактической отправки.
+    } catch (e) {
+      // Сеть недоступна/бэкенд не ответил — не закрываем приложение.
+    }
   });
 
   // =========================================================
