@@ -159,11 +159,14 @@
     100%{ opacity:1; }
   }
 
-  /* CRT overlay effects — z-index raised above .gate-layer (20) so the scanline
-     texture, vignette, sweep and flicker read atmospherically over the login
-     screens and the league logo too, not just the main menu underneath them */
+  /* CRT overlay effects — z-index raised above .gate-layer (20) AND above the
+     rename overlay (.rename-overlay, z-index:60) so the scanline texture,
+     vignette, sweep and flicker read atmospherically over the login screens,
+     the league logo, and any modal "system window" (like the rename dialog)
+     too — everything on screen is meant to look like it's being displayed on
+     the same CRT tube, not just the main menu underneath it all. */
   .crt-scanlines{
-    position:absolute; inset:0; pointer-events:none; z-index:25;
+    position:absolute; inset:0; pointer-events:none; z-index:65;
     background:repeating-linear-gradient(
       to bottom,
       rgba(10,14,18,0.16) 0px,
@@ -174,11 +177,11 @@
     mix-blend-mode:multiply;
   }
   .crt-vignette{
-    position:absolute; inset:0; pointer-events:none; z-index:26;
+    position:absolute; inset:0; pointer-events:none; z-index:66;
     background:radial-gradient(120% 100% at 50% 45%, rgba(0,0,0,0) 55%, rgba(0,0,0,0.55) 100%);
   }
   .crt-sweep{
-    position:absolute; left:0; right:0; height:22%; z-index:27; pointer-events:none;
+    position:absolute; left:0; right:0; height:22%; z-index:67; pointer-events:none;
     background:linear-gradient(to bottom, rgba(210,235,255,0.08), rgba(210,235,255,0) 100%);
     animation: sweep 7s linear infinite;
   }
@@ -187,7 +190,7 @@
     100%{ top:105%; }
   }
   .crt-flicker{
-    position:absolute; inset:0; pointer-events:none; z-index:28;
+    position:absolute; inset:0; pointer-events:none; z-index:68;
     background:rgba(255,255,255,0.02);
     animation:flicker 5.5s infinite;
   }
@@ -780,6 +783,12 @@
 
   /* ================= PROFILE SCREEN ("ЛИЧНОЕ ДЕЛО") ================= */
   .back-row{
+    /* Pinned to the bottom of the screen, not the top under the header —
+       that's the placement people expect for a "back" control. .screen-content
+       is a flex column (topbar → profile-scroll → back-row); profile-scroll
+       is flex:1 1 auto, so it always grows to fill exactly the space between
+       the header and this button — no leftover gap either way. */
+    order:5;
     flex:0 0 auto;
     margin-top:1.6cqw;
     display:flex; align-items:center; gap:1.6cqw;
@@ -976,8 +985,13 @@
     position:absolute; inset:0; z-index:60;
     display:flex; align-items:center; justify-content:center;
     padding:6cqw;
-    background:rgba(8,12,16,0.55);
-    backdrop-filter:blur(1.5px);
+    /* No dimming/blur scrim over whatever screen is open underneath — this
+       reads as its own floating "system window" sitting on top of the
+       desktop, the way an OS dialog does, not a mobile-style modal that
+       darkens the rest of the interface. Still fully opaque to clicks
+       (default pointer-events:auto) so the screen behind stays inert while
+       the window is open, exactly as before — only the look changed. */
+    background:transparent;
     opacity:0;
     transition:opacity .25s ease;
   }
