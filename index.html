@@ -1683,6 +1683,17 @@
     tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
+    // Полноэкранный режим (Bot API 8.0+, метод requestFullscreen) — поддержан
+    // и на телефоне, и в Telegram Desktop/macOS/Web, но решение всё равно
+    // принимает сам клиент Telegram: где-то он просто разворачивает окно, а
+    // где-то (например, в некоторых версиях Desktop) может проигнорировать
+    // запрос или временно не сработать из-за бага в самом клиенте — это уже
+    // не то, что можно починить со стороны Mini App. isVersionAtLeast('8.0')
+    // защищает от падения на старых клиентах, где метода ещё нет.
+    if (typeof tg.isVersionAtLeast === 'function' && tg.isVersionAtLeast('8.0')
+        && typeof tg.requestFullscreen === 'function') {
+      try { tg.requestFullscreen(); } catch (e) { /* клиент отказал — просто остаёмся в обычном (expand'нутом) виде */ }
+    }
     tg.onEvent('viewportChanged', setTgVh);
   }
 
