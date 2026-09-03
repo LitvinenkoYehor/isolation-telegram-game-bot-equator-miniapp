@@ -105,24 +105,6 @@
     100%{ filter:brightness(1); }
   }
 
-  /* Mirror of powerOn — played on ".screen" when the player confirms
-     leaving for the Telegram bot (see "Поддержка проекта"). Same CRT-tube
-     language as the boot-up flicker, just run in reverse and ending on a
-     collapsed, dark tube instead of a lit one. */
-  @keyframes powerOff{
-    0%{ filter:brightness(1); transform:scaleY(1); opacity:1; }
-    18%{ filter:brightness(1.7); }
-    34%{ filter:brightness(0.5); }
-    48%{ filter:brightness(2.6); }
-    62%{ filter:brightness(0.12); transform:scaleY(1); }
-    80%{ filter:brightness(0.04); transform:scaleY(0.035); }
-    100%{ filter:brightness(0); transform:scaleY(0.02); opacity:1; }
-  }
-  .screen.powering-off{
-    animation:powerOff .65s cubic-bezier(.4,0,.7,1) both;
-    transform-origin:center;
-  }
-
   @keyframes fadeUp{
     0%{ opacity:0; transform:translateY(0.9cqh); }
     100%{ opacity:1; transform:translateY(0); }
@@ -1471,139 +1453,6 @@
   }
   .terminal-off[hidden]{ display:none; }
 
-  /* =========================================================
-     "EXIT TO TELEGRAM" SIMULATION — "Поддержка проекта" tile.
-     After the warning dialog is confirmed and the CRT screen powers
-     off (see .screen.powering-off above), this fades in on top of
-     everything — including the CRT overlays and .terminal-off — to
-     sell the idea that the Mini App has closed and the player is now
-     looking at the bot's own chat message with the real Stars
-     keyboard. Purely a visual mock: no network calls happen here.
-     ========================================================= */
-  .tg-mock{
-    position:absolute; inset:0; z-index:85;
-    display:flex; flex-direction:column;
-    background:#0e1621;
-    color:#e7ecf0;
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .5s ease;
-  }
-  .tg-mock.shown{ opacity:1; pointer-events:auto; }
-  .tg-mock[hidden]{ display:none; }
-
-  .tg-header{
-    flex:0 0 auto;
-    display:flex; align-items:center; gap:2.6cqw;
-    padding:2.8cqw 3.2cqw;
-    background:#17212b;
-    border-bottom:1px solid rgba(255,255,255,0.06);
-  }
-  .tg-back{
-    flex:none;
-    width:6cqw; height:6cqw; min-width:20px; min-height:20px;
-    display:flex; align-items:center; justify-content:center;
-    color:#8fa3b5;
-    background:none; border:none; padding:0; cursor:pointer;
-  }
-  .tg-back svg{ width:100%; height:100%; }
-  .tg-avatar{
-    flex:none;
-    width:9.4cqw; height:9.4cqw; min-width:30px; min-height:30px;
-    border-radius:50%;
-    background:linear-gradient(135deg,#5fb2e8,#2b6da8);
-    display:flex; align-items:center; justify-content:center;
-    font-family:'IBM VGA 8x16',monospace;
-    font-size:3.6cqw; font-weight:700; color:#fff;
-  }
-  .tg-header-info{ flex:1 1 auto; min-width:0; }
-  .tg-header-name{
-    font-size:2.5cqw; font-weight:600; color:#fff;
-    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-  }
-  .tg-header-sub{ font-size:1.7cqw; color:#6b8199; margin-top:0.3cqw; }
-
-  .tg-chat{
-    position:relative;
-    flex:1 1 auto; min-height:0; overflow-y:auto;
-    padding:4cqw 3.2cqw;
-    background:
-      radial-gradient(120% 90% at 15% 0%, rgba(95,178,232,0.07) 0%, transparent 60%),
-      #0e1621;
-  }
-  .tg-bubble{
-    max-width:88%;
-    background:#1c2b3a;
-    border-radius:0 1.6cqw 1.6cqw 1.6cqw;
-    padding:2.8cqw 3cqw;
-    box-shadow:0 0.4cqw 1.2cqw rgba(0,0,0,0.3);
-  }
-  .tg-bubble-text{
-    margin:0;
-    font-size:2.05cqw; line-height:1.55; color:#e7ecf0;
-    white-space:pre-line;
-  }
-  .tg-bubble-time{
-    margin-top:1.4cqw;
-    font-size:1.5cqw; color:#6b8199;
-    text-align:right;
-  }
-  .tg-kb{
-    max-width:88%;
-    margin-top:1cqw;
-    background:#1c2b3a;
-    border-radius:1.6cqw;
-    overflow:hidden;
-    box-shadow:0 0.4cqw 1.2cqw rgba(0,0,0,0.3);
-  }
-  .tg-kb-btn{
-    display:block; width:100%;
-    padding:2.3cqw 2.6cqw;
-    background:none; border:none;
-    border-top:1px solid rgba(255,255,255,0.07);
-    color:#6fc3ff;
-    font-size:2cqw; font-weight:600; text-align:center;
-    cursor:pointer;
-  }
-  .tg-kb-btn:first-child{ border-top:none; }
-  .tg-kb-btn:active{ background:rgba(255,255,255,0.05); }
-
-  .tg-toast{
-    position:absolute; left:50%; bottom:5cqw; transform:translateX(-50%) translateY(6px);
-    max-width:82%;
-    background:rgba(24,36,48,0.96);
-    border:1px solid rgba(255,255,255,0.12);
-    border-radius:1.4cqw;
-    padding:2cqw 3cqw;
-    font-size:1.8cqw; line-height:1.4; color:#e7ecf0;
-    text-align:center;
-    opacity:0; pointer-events:none;
-    transition:opacity .25s ease, transform .25s ease;
-    z-index:2;
-  }
-  .tg-toast.shown{ opacity:1; transform:translateX(-50%) translateY(0); }
-
-  .tg-composer{
-    flex:0 0 auto;
-    display:flex; align-items:center; gap:2.4cqw;
-    padding:2.2cqw 3.2cqw;
-    background:#17212b;
-    border-top:1px solid rgba(255,255,255,0.06);
-  }
-  .tg-composer-icon{
-    flex:none; width:5.2cqw; height:5.2cqw; min-width:18px; min-height:18px;
-    color:#6b8199;
-  }
-  .tg-composer-icon svg{ width:100%; height:100%; }
-  .tg-composer-input{
-    flex:1 1 auto;
-    padding:1.8cqw 2.8cqw;
-    background:#0e1621;
-    border-radius:5cqw;
-    color:#54687c;
-    font-size:1.9cqw;
-  }
-
   /* short "reboot" boot-log replay after a successful rename — reuses the
      same #gateBoot layer/markup as the very first login, just retriggered */
 </style>
@@ -2444,48 +2293,6 @@
 
     <!-- ================= TERMINAL OFF — экран "гаснет" во время перезапуска ================= -->
     <div class="terminal-off" id="terminalOff" hidden></div>
-
-    <!-- ================= TELEGRAM MOCK — симулирует переход в реальный
-         Telegram-бот после отключения терминала: то же сообщение и та же
-         клавиатура со звёздами, что и в разделе "Поддержать проект" бота.
-         Чисто визуальная имитация — никаких реальных запросов отсюда не уходит. ================= -->
-    <div class="tg-mock" id="telegramMock" hidden>
-      <div class="tg-header">
-        <button class="tg-back" id="tgMockBack" type="button" aria-label="Назад">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <div class="tg-avatar">И</div>
-        <div class="tg-header-info">
-          <div class="tg-header-name">Isolation Bot</div>
-          <div class="tg-header-sub">бот</div>
-        </div>
-      </div>
-      <div class="tg-chat">
-        <div class="tg-bubble">
-          <p class="tg-bubble-text">❤️ Поддержать проект
-
-Я делаю «Изоляцию» сам, в свободное время, и хочу, чтобы игра жила и развивалась долго.
-
-Поддержка — дело абсолютно добровольное. Она не даёт игрового преимущества и ничего внутриигрового — только моя благодарность и более быстрая разработка новых механик и станций.
-
-Поддержать можно только звёздами Telegram ⭐.</p>
-          <div class="tg-bubble-time">только что</div>
-        </div>
-        <div class="tg-kb">
-          <button class="tg-kb-btn" type="button" data-amount="25">⭐ 25</button>
-          <button class="tg-kb-btn" type="button" data-amount="50">⭐ 50</button>
-          <button class="tg-kb-btn" type="button" data-amount="100">⭐ 100</button>
-          <button class="tg-kb-btn" type="button" id="tgMockCustom">✏️ Своя сумма</button>
-          <button class="tg-kb-btn" type="button" id="tgMockMenuBack">⬅️ Назад</button>
-        </div>
-        <div class="tg-toast" id="tgMockToast"></div>
-      </div>
-      <div class="tg-composer">
-        <span class="tg-composer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21.44 11.05l-9.19 9.19a5.5 5.5 0 01-7.78-7.78l9.19-9.19a3.67 3.67 0 015.19 5.19l-9.2 9.19a1.83 1.83 0 01-2.6-2.6l8.49-8.48"/></svg></span>
-        <div class="tg-composer-input">Написать сообщение…</div>
-        <span class="tg-composer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15a3 3 0 003-3V6a3 3 0 10-6 0v6a3 3 0 003 3z"/><path d="M19 11a7 7 0 01-14 0M12 18v3"/></svg></span>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -3805,20 +3612,23 @@
   }
 
   // =========================================================
-  //  SUPPORT ("ПОДДЕРЖКА ПРОЕКТА") — уходим из терминала в реальный
-  //  Telegram-бот. Сначала системное предупреждение (то же "окно", что и
-  //  у предупреждения о перезапуске при смене имени), затем терминал
-  //  реально "выключается" (реверс анимации powerOn на .screen) и поверх
-  //  гаснущего экрана проявляется мок настоящего сообщения бота со
-  //  звёздами — чтобы это читалось как "приложение закрылось, вот Telegram".
-  //  Никакие реальные запросы отсюда не уходят, это только визуализация.
+  //  SUPPORT ("ПОДДЕРЖКА ПРОЕКТА") — по-настоящему выходим из Mini App в
+  //  чат с ботом. Предупреждение то же "системное окно", что и у смены
+  //  имени; по "ПРОДОЛЖИТЬ" выходим из полноэкранного режима и вызываем
+  //  Telegram.WebApp.sendData(...) — согласно Bot API это единственный
+  //  штатный способ Mini App отправить что-то боту и сразу закрыться;
+  //  Telegram сам гасит приложение сразу после вызова. Сообщение о
+  //  поддержке в этот момент приходит от БОТА в реальном чате, а не
+  //  рисуется здесь — см. handlers/support.py: on_web_app_data (принимает
+  //  { action: "open_support" } и присылает support.intro с той же
+  //  клавиатурой, что и в /start → "Поддержать проект").
+  //  ВАЖНО: sendData доступен только для Mini App, запущенного через
+  //  Menu Button (см. bot.py: MenuButtonWebApp) — здесь это так и есть.
   // =========================================================
   const supportWarningOverlay = document.getElementById('supportWarningOverlay');
   const supportWarningCancel  = document.getElementById('supportWarningCancel');
   const supportWarningConfirm = document.getElementById('supportWarningConfirm');
   const supportWarningClose   = document.getElementById('supportWarningClose');
-  const telegramMock          = document.getElementById('telegramMock');
-  const tgMockToast           = document.getElementById('tgMockToast');
 
   function openSupportWarning(){
     supportWarningOverlay.hidden = false;
@@ -3834,60 +3644,20 @@
 
   supportWarningConfirm.addEventListener('click', () => {
     closeSupportWarning();
-    setTimeout(leaveForTelegram, 260);
-  });
 
-  // "ПРОДОЛЖИТЬ" — прячем меню как есть (как в performTerminalReset), гасим
-  // экран анимацией powerOff и, когда тюб полностью погас, проявляем мок
-  // Telegram-чата поверх черноты.
-  function leaveForTelegram(){
-    [mainMenu, profileScreen, settingsScreen, mailScreen, databaseScreen].forEach(s => {
-      s.classList.remove('reveal');
-      s.hidden = true;
-    });
-
-    screenEl.classList.add('powering-off');
-    setTimeout(() => {
-      telegramMock.hidden = false;
-      requestAnimationFrame(() => telegramMock.classList.add('shown'));
-    }, 650);
-  }
-
-  // Возврат "из Telegram" — обратная последовательность: чат гаснет,
-  // терминал коротко "включается" (переиспользуем terminalOff/powerOn) и
-  // игрок снова оказывается в главном меню, как будто просто вернулся из бота.
-  function returnFromTelegram(){
-    telegramMock.classList.remove('shown');
-    setTimeout(() => {
-      telegramMock.hidden = true;
-      screenEl.classList.remove('powering-off');
-      terminalOff.hidden = false;
-      setTimeout(() => {
-        terminalOff.hidden = true;
-        mainMenu.hidden = false;
-        mainMenu.classList.add('reveal');
-      }, 900);
-    }, 400);
-  }
-  document.getElementById('tgMockBack').addEventListener('click', returnFromTelegram);
-  document.getElementById('tgMockMenuBack').addEventListener('click', returnFromTelegram);
-
-  // Кнопки со звёздами — только визуализация: в реальном боте вместо тоста
-  // здесь открылась бы настоящая оплата через Telegram (see support.py).
-  let tgToastTimer = null;
-  function showTgToast(text){
-    tgMockToast.textContent = text;
-    tgMockToast.classList.add('shown');
-    clearTimeout(tgToastTimer);
-    tgToastTimer = setTimeout(() => tgMockToast.classList.remove('shown'), 2600);
-  }
-  document.querySelectorAll('.tg-kb-btn[data-amount]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      showTgToast('В настоящем боте здесь открылась бы оплата ⭐ ' + btn.dataset.amount + ' через Telegram');
-    });
-  });
-  document.getElementById('tgMockCustom').addEventListener('click', () => {
-    showTgToast('В настоящем боте здесь можно ввести свою сумму звёзд');
+    if (tg) {
+      if (typeof tg.exitFullscreen === 'function') {
+        try { tg.exitFullscreen(); } catch (e) {}
+      }
+      if (typeof tg.sendData === 'function') {
+        // Закрывает Mini App сам по себе — дальше игрок уже в чате с ботом.
+        tg.sendData(JSON.stringify({ action: 'open_support' }));
+      } else if (typeof tg.close === 'function') {
+        tg.close();
+      }
+    }
+    // Вне Telegram (обычный браузер, превью) сделать тут нечего —
+    // Mini App API просто недоступен, окно останется как есть.
   });
 
   // =========================================================
