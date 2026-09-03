@@ -1183,7 +1183,18 @@
   .mail-compose::-webkit-scrollbar-thumb{ background:var(--scr-line-strong); border-radius:2px; }
   .mail-compose::-webkit-scrollbar-track{ background:transparent; }
   .mail-compose-fields{ display:flex; flex-direction:column; gap:1.6cqw; }
+  /* Раньше именно тут был баг с "двойным Кому": элемент с атрибутом
+     [hidden] всё равно оставался видимым, потому что авторское правило
+     .mail-compose-fields{display:flex} (обычный приоритет каскада) всегда
+     перебивает встроенное [hidden]{display:none} браузера — origin решает
+     раньше specificity. Явное правило ниже — тот же приём, что и для
+     .gate-layer[hidden]/.rename-overlay[hidden] в этом файле — гарантирует,
+     что шаг 1 и шаг 2 формы "Отправить" не показываются одновременно. */
+  #mailComposeRecipientStep[hidden],
+  #mailComposeBodyStep[hidden]{ display:none; }
+  .mail-compose-body-step{ flex:1 1 auto; min-height:0; }
   .mail-compose-field{ display:flex; flex-direction:column; gap:0.6cqw; }
+  .mail-compose-field-grow{ flex:1 1 auto; min-height:0; }
   .mail-compose-label{
     font-family:'IBM VGA 8x16',monospace;
     font-size:1.5cqw; letter-spacing:0.08em;
@@ -1203,18 +1214,20 @@
   .mail-compose-input:focus, .mail-compose-textarea:focus{ border-color:var(--scr-cyan); }
   .mail-compose-textarea{
     flex:1 1 auto;
-    min-height:16cqw;
+    /* min-height:0 (а не фиксированный cqw-пол, как раньше) — без этого
+       textarea, будучи flex-элементом, брал себе "автоматический минимум"
+       по контенту: при длинном тексте поле растягивалось по контенту и
+       вылезало ЗА пределы рамки .mail-split (виден был скролл всей формы
+       целиком, а не текста внутри поля). Явный min-height:0 на textarea И
+       на каждой обёртке-flex-контейнере выше по дереву (.mail-compose-
+       body-step, .mail-compose-field-grow) — обязательное условие, чтобы
+       поле остановилось на границе рамки и текст листался ВНУТРИ него
+       обычной прокруткой, как и просили.
+    */
+    min-height:0;
     resize:none;
     line-height:1.5;
-  }
-  .mail-compose-static{
-    padding:1.4cqw 1.6cqw;
-    border:1px solid var(--scr-line);
-    border-radius:0.6cqw;
-    background:rgba(255,255,255,0.02);
-    color:var(--scr-text);
-    font-size:1.8cqw;
-    letter-spacing:0.03em;
+    overflow-y:auto;
   }
   .mail-compose-status{
     min-height:1.6em;
@@ -1898,33 +1911,38 @@
           <div class="mail-split">
             <div class="mail-list" id="mailSentList"></div>
             <div class="mail-compose" id="mailCompose">
-              <!-- Поля "От кого"/"Кому" видны только администратору
-                   (currentProfile.is_admin, см. JS) — обычный игрок вместо
-                   них видит статичную строку "КОМУ: ЦЕНТР УПРАВЛЕНИЯ" ниже. -->
-              <div class="mail-compose-fields" id="mailComposeAdminFields" hidden>
+              <!-- Шаг 1, только для администратора (currentProfile.is_admin,
+                   см. JS: applyComposeMode) — выбор получателя, затем
+                   "ПРОДОЛЖИТЬ" открывает шаг 2 ниже. Обычный игрок этот шаг
+                   никогда не видит: у него сразу открыт шаг 2. -->
+              <div class="mail-compose-fields" id="mailComposeRecipientStep" hidden>
                 <div class="mail-compose-field">
                   <label class="mail-compose-label" for="mailFromInput">ОТ КОГО</label>
                   <input class="mail-compose-input" id="mailFromInput" type="text" maxlength="40" placeholder="ЦЕНТР УПРАВЛЕНИЯ" autocomplete="off">
                 </div>
                 <div class="mail-compose-field">
                   <label class="mail-compose-label" for="mailToInput">КОМУ</label>
-                  <input class="mail-compose-input" id="mailToInput" type="text" maxlength="40" placeholder="TELEGRAM ID ИГРОКА ИЛИ &quot;ALL&quot;" autocomplete="off">
+                  <input class="mail-compose-input" id="mailToInput" type="text" maxlength="40" placeholder="TELEGRAM ID, ALL, ALL-ALL ИЛИ ALL-ALL-NEVER" autocomplete="off">
                 </div>
+                <div class="mail-compose-status" id="mailRecipientStatus"></div>
+                <button class="mail-compose-send" id="mailContinueBtn" type="button">ПРОДОЛЖИТЬ</button>
               </div>
-              <div class="mail-compose-field" id="mailToStaticRow">
-                <span class="mail-compose-label">КОМУ</span>
-                <span class="mail-compose-static" id="mailToStatic">ЦЕНТР УПРАВЛЕНИЯ</span>
+
+              <!-- Шаг 2 — то же самое, что видит обычный игрок: только
+                   Тема и Сообщение (получатель/отправитель к этому моменту
+                   уже определён). -->
+              <div class="mail-compose-fields mail-compose-body-step" id="mailComposeBodyStep">
+                <div class="mail-compose-field">
+                  <label class="mail-compose-label" for="mailSubjectInput">ТЕМА</label>
+                  <input class="mail-compose-input" id="mailSubjectInput" type="text" maxlength="120" placeholder="КРАТКО О ЧЁМ ПИСЬМО" autocomplete="off">
+                </div>
+                <div class="mail-compose-field mail-compose-field-grow">
+                  <label class="mail-compose-label" for="mailBodyInput">СООБЩЕНИЕ</label>
+                  <textarea class="mail-compose-textarea" id="mailBodyInput" maxlength="3500" placeholder="ТЕКСТ ПИСЬМА..."></textarea>
+                </div>
+                <div class="mail-compose-status" id="mailComposeStatus"></div>
+                <button class="mail-compose-send" id="mailSendBtn" type="button">ОТПРАВИТЬ</button>
               </div>
-              <div class="mail-compose-field">
-                <label class="mail-compose-label" for="mailSubjectInput">ТЕМА</label>
-                <input class="mail-compose-input" id="mailSubjectInput" type="text" maxlength="120" placeholder="КРАТКО О ЧЁМ ПИСЬМО" autocomplete="off">
-              </div>
-              <div class="mail-compose-field" style="flex:1 1 auto; min-height:0;">
-                <label class="mail-compose-label" for="mailBodyInput">СООБЩЕНИЕ</label>
-                <textarea class="mail-compose-textarea" id="mailBodyInput" maxlength="3500" placeholder="ТЕКСТ ПИСЬМА..."></textarea>
-              </div>
-              <div class="mail-compose-status" id="mailComposeStatus"></div>
-              <button class="mail-compose-send" id="mailSendBtn" type="button">ОТПРАВИТЬ</button>
             </div>
           </div>
         </div>
@@ -2694,14 +2712,19 @@
   // =========================================================
   //  ПОЧТА ("MAIL") — раздел вложен в главное меню (как ИНСТРУКТАЖ/НАСТРОЙКИ).
   //  ВХОДЯЩИЕ — рассылки всем + личные письма от администратора; у самого
-  //  администратора (config.ADMIN_ID) вкладка вместо этого показывает
-  //  "ПОЛУЧЕННЫЕ" — письма от игроков (см. game/webapp_api.py:mail_inbox,
-  //  game/mailbox_db.py). ОТПРАВИТЬ — слева история отправленных писем,
-  //  справа форма: у игрока получатель зафиксирован ("ЦЕНТР УПРАВЛЕНИЯ" —
-  //  письмо дублируется администратору в Telegram + на Gmail, как и
-  //  "Связаться с нами"), у администратора вместо этого редактируемые
-  //  "От кого"/"Кому" (Telegram ID конкретного игрока либо "all" — всем).
-  //  Письма, кроме рассылок от "СЛУЖБА ОБНОВЛЕНИЙ", самоудаляются на
+  //  администратора (config.ADMIN_ID) вкладка называется так же
+  //  "ВХОДЯЩИЕ", но показывает письма от игроков (см. game/webapp_api.py:
+  //  mail_inbox, game/mailbox_db.py) — общаться друг с другом игроки не
+  //  могут, личные письма ходят только между игроком и администратором.
+  //  ОТПРАВИТЬ — слева история отправленных писем, справа форма из двух
+  //  шагов: у игрока получатель зафиксирован (ЦЕНТР УПРАВЛЕНИЯ — письмо
+  //  дублируется администратору в Telegram + на Gmail, как и "Связаться с
+  //  нами"), поэтому он сразу видит шаг 2 (Тема/Сообщение); у администратора
+  //  сперва шаг 1 — редактируемые "От кого"/"Кому" (Telegram ID конкретного
+  //  игрока, либо ALL/ALL-ALL/ALL-ALL-NEVER — рассылка всем, см.
+  //  game/mailbox_db.py: AUDIENCE_*), кнопка "ПРОДОЛЖИТЬ" открывает тот же
+  //  шаг 2, что видит игрок. Письма, кроме "вечных" (audience
+  //  ALL-ALL-NEVER и статические письма про обновления), самоудаляются на
   //  сервере через 2 суток; их же можно стереть вручную кнопкой "Удалить"
   //  (с подтверждением) — см. mailDeleteOverlay. Счётчик непрочитанных на
   //  плитке "ПОЧТА" — персистентный (game/mailbox_db.py: mail_read_state),
@@ -2870,7 +2893,7 @@
     if (data && data.error === 'body_too_long') return 'Текст письма длиннее ' + data.limit + ' символов.';
     if (data && data.error === 'empty') return 'Заполните тему и текст письма.';
     if (data && data.error === 'missing_to') return 'Укажите получателя в поле «Кому».';
-    if (data && data.error === 'bad_to') return 'В поле «Кому» — Telegram ID числом или слово «all».';
+    if (data && data.error === 'bad_to') return 'В поле «Кому» — Telegram ID числом, ALL, ALL-ALL или ALL-ALL-NEVER.';
     if (data && data.error === 'player_not_found') return 'Игрок с таким Telegram ID не найден.';
     if (status === 401) return 'Не удалось подтвердить сеанс Telegram. Закройте и снова откройте Mini App.';
     if (status === 503) return 'Отправка временно недоступна.';
@@ -2890,6 +2913,10 @@
   const mailReader = document.getElementById('mailReader');
   const mailBadge = document.getElementById('mailBadge');
   const mailTabInboxBtn = document.getElementById('mailTabInbox');
+  const mailComposeRecipientStep = document.getElementById('mailComposeRecipientStep');
+  const mailComposeBodyStep = document.getElementById('mailComposeBodyStep');
+  const mailContinueBtn = document.getElementById('mailContinueBtn');
+  const mailRecipientStatus = document.getElementById('mailRecipientStatus');
   let mailActiveId = null;
   let mailInboxItems = [];
   let mailSentItems = [];
@@ -2902,23 +2929,55 @@
     mailBadge.style.display = n > 0 ? '' : 'none';
   }
 
-  // Показывает игроку "КОМУ: ЦЕНТР УПРАВЛЕНИЯ" (статичная строка) либо, у
-  // администратора, редактируемые поля "От кого"/"Кому" — переключается
-  // при каждой загрузке почты, когда становится известен is_admin.
+  // Обычный игрок всегда видит только шаг 2 (Тема/Сообщение) — получатель
+  // у него и так один (ЦЕНТР УПРАВЛЕНИЯ), спрашивать нечего. Администратор
+  // сначала видит шаг 1 (От кого/Кому + "ПРОДОЛЖИТЬ"); шаг 2 у него
+  // открывается только через mailContinueBtn (см. ниже). Сбрасывает форму
+  // на "начало" при каждой загрузке вкладки "Отправить" — см. loadMailSent.
   function applyComposeMode(){
-    const adminFields = document.getElementById('mailComposeAdminFields');
-    const staticRow = document.getElementById('mailToStaticRow');
-    const staticVal = document.getElementById('mailToStatic');
-    if (!adminFields || !staticRow) return;
+    if (!mailComposeRecipientStep || !mailComposeBodyStep) return;
     if (mailIsAdmin){
-      adminFields.hidden = false;
-      staticRow.hidden = true;
+      mailComposeRecipientStep.hidden = false;
+      mailComposeBodyStep.hidden = true;
     } else {
-      adminFields.hidden = true;
-      staticRow.hidden = false;
-      if (staticVal) staticVal.textContent = MAIL_ADMIN_LABEL_TEXT;
+      mailComposeRecipientStep.hidden = true;
+      mailComposeBodyStep.hidden = false;
     }
   }
+
+  // Проверка поля "Кому" на шаге 1 — тот же набор допустимых значений, что
+  // и на сервере (см. game/webapp_api.py:mail_send, game/mailbox_db.py:
+  // AUDIENCE_*): Telegram ID числом, либо ALL/ALL-ALL/ALL-ALL-NEVER без
+  // учёта регистра. Финальную проверку (существует ли такой игрок и т.д.)
+  // всё равно делает сервер — это только чтобы не пускать на шаг 2 совсем
+  // пустое/заведомо неверное значение.
+  function validateMailTo(raw){
+    const val = raw.trim();
+    if (!val) return { ok: false, message: 'Укажите получателя в поле «Кому».' };
+    const lower = val.toLowerCase();
+    if (lower === 'all' || lower === 'all-all' || lower === 'all-all-never') return { ok: true };
+    if (/^-?\d+$/.test(val)) return { ok: true };
+    return { ok: false, message: 'В поле «Кому» — Telegram ID числом, ALL, ALL-ALL или ALL-ALL-NEVER.' };
+  }
+
+  if (mailContinueBtn){
+    mailContinueBtn.addEventListener('click', () => {
+      const toInput = document.getElementById('mailToInput');
+      const check = validateMailTo(toInput ? toInput.value : '');
+      if (!check.ok){
+        mailRecipientStatus.textContent = check.message;
+        mailRecipientStatus.className = 'mail-compose-status error';
+        return;
+      }
+      mailRecipientStatus.textContent = '';
+      mailRecipientStatus.className = 'mail-compose-status';
+      mailComposeRecipientStep.hidden = true;
+      mailComposeBodyStep.hidden = false;
+      const subjectInput = document.getElementById('mailSubjectInput');
+      if (subjectInput) subjectInput.focus();
+    });
+  }
+
 
   function renderMailList(){
     mailList.innerHTML = '';
@@ -2942,14 +3001,21 @@
   function renderMailReader(mail){
     let fieldsHtml;
     if (mailIsAdmin){
-      // "ПОЛУЧЕННЫЕ" у администратора: имя и Telegram ID отдельными
-      // строками, как и просили — вместо "КОМУ"/"ОТ КОГО" обычного вида.
+      // У администратора "ВХОДЯЩИЕ" показывают письма от игроков: имя и
+      // Telegram ID отдельными строками, как и просили — вместо
+      // "КОМУ"/"ОТ КОГО" обычного вида.
       fieldsHtml =
         '<div class="mail-field"><span class="mail-field-label">ОТ КОГО (ИМЯ):</span><span class="mail-field-value">' + mail.from + '</span></div>' +
         '<div class="mail-field"><span class="mail-field-label">ОТ КОГО (TELEGRAM ID):</span><span class="mail-field-value">' + (mail.from_chat_id != null ? mail.from_chat_id : '—') + '</span></div>';
     } else {
+      // Рассылки (kind === 'broadcast', категории ALL/ALL-ALL/ALL-ALL-NEVER
+      // — см. game/mailbox_db.py: AUDIENCE_*) адресованы не лично игроку,
+      // поэтому в "КОМУ" вместо его ника пишем "ВСЕМ"; для личного письма
+      // от администратора (from_admin) там по-прежнему собственное имя
+      // игрока.
+      const toValue = mail.kind === 'broadcast' ? 'ВСЕМ' : (hudName ? hudName.textContent : '');
       fieldsHtml =
-        '<div class="mail-field"><span class="mail-field-label">КОМУ:</span><span class="mail-field-value">' + (hudName ? hudName.textContent : '') + '</span></div>' +
+        '<div class="mail-field"><span class="mail-field-label">КОМУ:</span><span class="mail-field-value">' + toValue + '</span></div>' +
         '<div class="mail-field"><span class="mail-field-label">ОТ КОГО:</span><span class="mail-field-value">' + mail.from + '</span></div>' +
         '<div class="mail-field"><span class="mail-field-label">ТЕМА:</span><span class="mail-field-value">' + mail.tag + '</span></div>';
     }
@@ -2980,7 +3046,7 @@
     const data = await fetchMailInbox();
     mailInboxItems = data.items || [];
     mailIsAdmin = !!data.is_admin;
-    if (mailTabInboxBtn) mailTabInboxBtn.textContent = mailIsAdmin ? 'ПОЛУЧЕННЫЕ' : 'ВХОДЯЩИЕ';
+    if (mailTabInboxBtn) mailTabInboxBtn.textContent = 'ВХОДЯЩИЕ';
     updateMailBadge(data.unread_count);
     applyComposeMode();
     if (mailActiveId && !mailInboxItems.find(m => m.id === mailActiveId)){
@@ -3055,16 +3121,15 @@
     }
     const payload = { subject, body };
     let toInput = null;
+    let fromInput = null;
     if (mailIsAdmin){
-      const fromInput = document.getElementById('mailFromInput');
+      fromInput = document.getElementById('mailFromInput');
       toInput = document.getElementById('mailToInput');
-      const toVal = toInput.value.trim();
-      if (!toVal){
-        statusEl.textContent = 'Укажите получателя в поле «Кому».';
-        statusEl.classList.add('error');
-        return;
-      }
-      payload.to = toVal;
+      // Значение "Кому" уже проверено на шаге 1 (см. mailContinueBtn), но
+      // сервер — источник истины (например, "игрок с таким ID не найден"
+      // можно узнать только там), поэтому payload.to всё равно берём
+      // отсюда и заново проверяем ответ сервера ниже.
+      payload.to = toInput.value.trim();
       if (fromInput.value.trim()) payload.from = fromInput.value.trim();
     }
     mailSending = true;
@@ -3074,7 +3139,20 @@
     sendBtn.disabled = false;
     mailSending = false;
     if (!result.ok){
-      statusEl.textContent = mailSendErrorMessage(result.status, result.data);
+      const message = mailSendErrorMessage(result.status, result.data);
+      const recipientError = result.data && ['missing_to', 'bad_to', 'player_not_found'].includes(result.data.error);
+      if (mailIsAdmin && recipientError){
+        // Ошибка касается получателя — возвращаем администратора на шаг 1,
+        // чтобы он поправил именно поле "Кому", а не тему/сообщение.
+        mailComposeBodyStep.hidden = true;
+        mailComposeRecipientStep.hidden = false;
+        mailRecipientStatus.textContent = message;
+        mailRecipientStatus.className = 'mail-compose-status error';
+        statusEl.textContent = '';
+        statusEl.className = 'mail-compose-status';
+        return;
+      }
+      statusEl.textContent = message;
       statusEl.classList.add('error');
       return;
     }
@@ -3083,6 +3161,8 @@
     subjectInput.value = '';
     bodyInput.value = '';
     if (toInput) toInput.value = '';
+    if (fromInput) fromInput.value = '';
+    applyComposeMode(); // у администратора — назад на шаг 1 для следующего письма
     loadMailSent();
   }
 
