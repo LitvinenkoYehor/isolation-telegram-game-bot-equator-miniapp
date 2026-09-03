@@ -769,6 +769,12 @@
 
   /* ---- bottom bar ---- */
   .bottombar{
+    /* Explicit order so that on the profile/settings screens (where it sits
+       in the same flex column as .back-row below) it stays the very last
+       thing on screen — the back button goes just above it, not below. On
+       the main menu it's the only thing here with a custom order, which
+       doesn't change anything since it was already last. */
+    order:3;
     flex:0 0 auto;
     margin-top:1.8cqw;
     padding-top:1.4cqw;
@@ -783,12 +789,13 @@
 
   /* ================= PROFILE SCREEN ("ЛИЧНОЕ ДЕЛО") ================= */
   .back-row{
-    /* Pinned to the bottom of the screen, not the top under the header —
-       that's the placement people expect for a "back" control. .screen-content
-       is a flex column (topbar → profile-scroll → back-row); profile-scroll
-       is flex:1 1 auto, so it always grows to fill exactly the space between
-       the header and this button — no leftover gap either way. */
-    order:5;
+    /* Sits just above the "EQUATOR-01 // SEC-B" bottom bar, not at the very
+       top under the header where people don't expect a "back" control, and
+       not below the bottom bar either. .screen-content is a flex column
+       (topbar → profile-scroll[order:1] → back-row[order:2] → bottombar
+       [order:3]); profile-scroll is flex:1 1 auto, so it always grows to
+       fill exactly the space above — no leftover gap. */
+    order:2;
     flex:0 0 auto;
     margin-top:1.6cqw;
     display:flex; align-items:center; gap:1.6cqw;
@@ -810,6 +817,7 @@
     font-size:2.1cqw; letter-spacing:0.08em; font-weight:600;
   }
   .profile-scroll{
+    order:1;
     flex:1 1 auto;
     min-height:0;
     overflow-y:auto;
