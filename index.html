@@ -3318,7 +3318,9 @@
       sendPanel.classList.add('active');
       inboxPanel.classList.remove('active');
       loadMailSent();
-      showMailSendInfoOnce();
+      // Подсказка — для обычного игрока (админ и так знает, что это за
+      // раздел; ему эта справка не нужна и не должна всплывать).
+      if (!mailIsAdmin) showMailSendInfoOnce();
     } else {
       inboxTab.classList.add('active');
       sendTab.classList.remove('active');
