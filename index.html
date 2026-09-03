@@ -81,7 +81,14 @@
      keeping text/UI proportions correct in the landscape layout.
      ========================================================= */
   .stage.pc{
-    max-width:1120px;
+    /* Scale the whole photo up as far as it goes in EITHER direction
+       (never stretching x/y independently — aspect-ratio keeps the
+       shape fixed) until it touches the viewport edge on whichever
+       axis runs out first. This is what removes the black bars: the
+       old fixed max-width capped the stage way below the screen size
+       on most desktop monitors. */
+    max-width:none;
+    width:min(100vw, calc(var(--tg-vh, 1vh) * 100 * 1721 / 914));
     aspect-ratio:1721/914;
   }
   .stage.pc .screen{
