@@ -891,22 +891,6 @@
     font-size:1.5cqw; letter-spacing:0.1em; color:var(--scr-text-dim);
     opacity:0.7;
   }
-  /* Mobile-only bump: fires when the real (px) container is narrow — i.e. the
-     phone stage, capped at 520px — but not on the PC stage, whose .screen
-     container is far wider. Keeps the desktop version untouched.
-     Sized at the midpoint between the original values and the first pass
-     (old=0%, first pass=100% -> this is 50%). */
-  @container (max-width: 600px){
-    .empty-state{ gap:3cqw; padding:6cqw 4.5cqw; }
-    .empty-state .title{ font-size:3.6cqw; }
-    .empty-state .desc{ font-size:2.7cqw; line-height:1.52; max-width:80cqw; }
-    .empty-state .tag-line{ font-size:2cqw; }
-    #databaseScreen .back-row{
-      margin-top:1.6cqw; padding:1.76cqw 2.08cqw; gap:1.76cqw; border-radius:0.88cqw;
-    }
-    #databaseScreen .back-row svg{ width:4.16cqw; height:4.16cqw; min-width:14px; min-height:14px; }
-    #databaseScreen .back-row span{ font-size:2.72cqw; }
-  }
   .profile-id{
     flex:0 0 auto;
     display:flex; align-items:center; gap:2.4cqw;
@@ -1062,43 +1046,6 @@
     left:calc(100% - 3.2cqw - 0.5cqw);
     background:var(--scr-cyan);
     box-shadow:0 0 1cqw rgba(143,214,255,0.6);
-  }
-  /* Mobile-only bump for the Settings screen — bigger labels, values, arrow
-     icons and toggle switches (real tap targets), plus roomier rows. Scoped
-     to #settingsScreen so the shared .profile-section-label / .switch rules
-     don't spill into Профиль before that screen gets the same pass. The PC
-     stage's container is wide enough that this query never fires there.
-     Sized at the midpoint between the original values and the first pass
-     (old=0%, first pass=100% -> this is 50%). */
-  @container (max-width: 600px){
-    #settingsScreen .profile-section-label{
-      font-size:2.4cqw; margin-top:4cqw; padding-bottom:1cqw;
-    }
-    #settingsScreen .settings-row,
-    #settingsScreen .settings-row-link{
-      padding:2.9cqw 0.5cqw; gap:1.8cqw;
-    }
-    #settingsScreen .settings-label{ font-size:3cqw; }
-    #settingsScreen .settings-value{ font-size:2.55cqw; }
-    #settingsScreen .settings-arrow{
-      width:4.6cqw; height:4.6cqw; min-width:16px; min-height:16px;
-    }
-    #settingsScreen .switch{
-      width:10.7cqw; height:5.8cqw; min-width:39px; min-height:22px;
-    }
-    #settingsScreen .switch-track{ border-radius:3.5cqw; }
-    #settingsScreen .switch-thumb{
-      left:0.6cqw;
-      width:4.3cqw; height:4.3cqw; min-width:16px; min-height:16px;
-    }
-    #settingsScreen .switch input:checked ~ .switch-track .switch-thumb{
-      left:calc(100% - 4.3cqw - 0.6cqw);
-    }
-    #settingsScreen .back-row{
-      margin-top:1.6cqw; padding:1.76cqw 2.08cqw; gap:1.76cqw; border-radius:0.88cqw;
-    }
-    #settingsScreen .back-row svg{ width:4.16cqw; height:4.16cqw; min-width:14px; min-height:14px; }
-    #settingsScreen .back-row span{ font-size:2.72cqw; }
   }
   /* ================= MAIL SCREEN ("ПОЧТА") ================= */
   .mail-content{
@@ -1257,71 +1204,6 @@
   .mail-body p{ margin:0 0 1.6cqw 0; }
   .mail-body p:last-child{ margin-bottom:0; }
   .mail-send-panel{ padding:0; }
-
-  /* Reader toolbar ("НАЗАД" / "УДАЛИТЬ") — injected by JS only on mobile,
-     sits above КОМУ/ОТ КОГО/ТЕМА. Never rendered on desktop (there the two
-     panes sit side by side and don't need a way back), so no @container
-     scoping is needed here — the markup itself only exists on phones. */
-  .mail-reader-toolbar{
-    position:sticky; top:0; z-index:2;
-    display:flex; align-items:center; justify-content:space-between;
-    gap:2cqw;
-    margin:0 -0.4cqw 2cqw; padding:2cqw 0.4cqw 1.6cqw;
-    background:rgba(31,39,48,0.95);
-    -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
-    border-bottom:1px solid var(--scr-line);
-  }
-  .mail-reader-back{
-    display:flex; align-items:center; gap:1cqw;
-    background:none; border:none; padding:0.6cqw 0;
-    color:var(--scr-cyan); font-family:inherit; cursor:pointer;
-  }
-  .mail-reader-back svg{ width:4cqw; height:4cqw; min-width:14px; min-height:14px; flex:0 0 auto; }
-  .mail-reader-back span{ font-size:2.6cqw; font-weight:600; letter-spacing:0.06em; }
-  .mail-reader-back:active{ opacity:0.7; }
-  .mail-reader-delete-top{
-    display:flex; align-items:center; gap:1cqw;
-    padding:1cqw 1.6cqw;
-    border:1px solid rgba(255,154,138,0.5);
-    border-radius:0.8cqw;
-    background:rgba(255,154,138,0.1);
-    color:#ff9a8a; font-family:inherit; font-weight:600; letter-spacing:0.05em;
-    cursor:pointer;
-  }
-  .mail-reader-delete-top svg{ width:3.4cqw; height:3.4cqw; min-width:13px; min-height:13px; flex:0 0 auto; }
-  .mail-reader-delete-top span{ font-size:2.4cqw; }
-  .mail-reader-delete-top:active{ filter:brightness(0.85); }
-
-  /* Mobile-only Mail layout: on the PC stage this @container never fires
-     (its container is far wider than 600px real px), so the side-by-side
-     list+reader split above is untouched there. On the phone stage, the
-     list becomes a single full-width pane (the .screen-content padding
-     already leaves a small margin either side); tapping a message swaps to
-     a full-width reader pane instead of splitting the screen 38/62 — with
-     the JS-added .mail-reading class on #mailScreen controlling which pane
-     shows. Text is bumped by the same scale used on the Database screen. */
-  @container (max-width: 600px){
-    .mail-list{ flex:1 1 auto; width:100%; border-right:none; }
-    .mail-reader{ display:none; padding:0 0.4cqw 2.4cqw; }
-    #mailScreen.mail-reading .mail-list{ display:none; }
-    #mailScreen.mail-reading .mail-reader{ display:block; }
-    #mailScreen.mail-reading #mailBack{ display:none; }
-    #mailScreen.mail-reading .mail-tabs{ display:none; }
-
-    .mail-row{ padding:2.2cqw 1.6cqw; gap:0.7cqw; }
-    .mail-row-top{ gap:1.1cqw; }
-    .mail-dot{ width:2.1cqw; height:2.1cqw; min-width:7px; min-height:7px; }
-    .mail-row-from{ font-size:2.3cqw; }
-    .mail-row-subject{ font-size:2.4cqw; }
-    .mail-row-tag{ font-size:1.9cqw; }
-
-    .mail-field{ font-size:2.3cqw; }
-    .mail-field-label{ min-width:13cqw; }
-    .mail-subject{ font-size:3.5cqw; }
-    .mail-body{ font-size:2.7cqw; }
-    .mail-reader-empty{ font-size:2.7cqw; }
-  }
-
   .mail-compose{
     flex:1 1 auto;
     min-width:0; min-height:0;
@@ -1536,7 +1418,67 @@
   }
   .doc-submit:active{ filter:brightness(0.85); }
 
-  /* ================= FIELD PICKER — плавающее окно выбора для полей бланка
+  /* ================= STATION MAP ("СТАНЦИИ") — чертёж станции, нарисованный
+     прямо в HTML/SVG (не картинка), и свободная камера над ним: вьюпорт
+     обрезает лишнее (overflow:hidden), а сам чертёж — просто большой слой
+     с transform: translate/scale, который двигают пальцем/мышью. Открывается
+     сразу приближенным к центральному узлу, поэтому вся станция целиком
+     на экран не помещается — это и есть весь смысл камеры. ================= */
+  .station-map-wrap{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; padding:1cqw 1.6cqw 1.6cqw; }
+  .station-map-viewport{
+    position:relative; flex:1 1 auto; min-height:0;
+    overflow:hidden;
+    border:1px solid var(--scr-line-strong);
+    border-radius:1cqw;
+    background:#0c1826;
+    touch-action:none;
+    cursor:grab;
+  }
+  .station-map-viewport.grabbing{ cursor:grabbing; }
+  .station-map-layer{
+    position:absolute; top:0; left:0;
+    width:1900px; height:1300px;
+    transform-origin:0 0;
+    will-change:transform;
+  }
+  .station-map-layer svg{ display:block; width:100%; height:100%; }
+  .station-room{ cursor:pointer; }
+  .station-room rect{ transition:filter .12s ease; }
+  .station-room:active rect{ filter:brightness(1.3); }
+
+  .station-map-zoom{
+    position:absolute; right:1.4cqw; bottom:1.4cqw; z-index:5;
+    display:flex; flex-direction:column; gap:0.7cqw;
+  }
+  .station-map-zoom button{
+    width:6.4cqw; height:6.4cqw; min-width:32px; min-height:32px;
+    border-radius:0.6cqw;
+    border:1px solid var(--scr-line-strong);
+    background:rgba(18,26,36,0.78);
+    color:var(--scr-text);
+    font-size:2.6cqw; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+  .station-map-zoom button:active{ filter:brightness(0.8); }
+
+  .station-map-hint{
+    position:absolute; left:50%; bottom:1.6cqw; z-index:5;
+    transform:translateX(-50%);
+    padding:0.9cqw 1.8cqw;
+    background:rgba(10,16,24,0.78);
+    border:1px solid var(--scr-line);
+    border-radius:1cqw;
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.6cqw; letter-spacing:0.05em;
+    color:var(--scr-text-dim);
+    pointer-events:none;
+    transition:opacity .5s ease;
+    white-space:nowrap;
+  }
+  .station-map-hint.faded{ opacity:0; }
+
+ плавающее окно выбора для полей бланка
      заявки. Один переиспользуемый узел на все поля; список вариантов или
      поле ввода кода подставляются в JS. Раньше окно выныривало рядом с
      местом нажатия и на узких экранах могло оказаться далеко от пальца/
@@ -1925,7 +1867,7 @@
             </svg></span>
             <span class="lbl">ИНСТРУКТАЖ</span>
           </button>
-          <button class="tile" type="button">
+          <button class="tile" type="button" id="tileStations">
             <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
               <circle cx="6" cy="17" r="1.7"/>
               <circle cx="12" cy="7" r="1.7"/>
@@ -2251,6 +2193,265 @@
         </div>
       </div>
 
+    </div>
+
+    <!-- ================= STATIONS ("СТАНЦИИ") — чертёж станции «Астрал-1»,
+         нарисованный SVG прямо здесь (не картинка). Комнаты и переходы
+         повторяют game/rooms.py (id совпадают — заготовка на будущее, когда
+         экран станет кликабельным списком помещений). Сам чертёж крупнее
+         вьюпорта — см. .station-map-viewport/.station-map-layer и pan/zoom
+         в JS, поэтому целиком на экране он не помещается. ================= -->
+    <div class="screen-content" id="stationsScreen" hidden>
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <div class="brand-text">
+            <div class="b1">EQUATOR</div>
+            <div class="b2">STATION</div>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="clock" id="clock7">14:28</div>
+          <div class="icon-btn" title="Системы станции">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <rect x="3" y="4" width="18" height="5" rx="1"/>
+              <rect x="3" y="15" width="18" height="5" rx="1"/>
+              <circle cx="7" cy="6.5" r="0.7" fill="currentColor" stroke="none"/>
+              <circle cx="7" cy="17.5" r="0.7" fill="currentColor" stroke="none"/>
+              <line x1="11" y1="6.5" x2="17" y2="6.5"/>
+              <line x1="11" y1="17.5" x2="17" y2="17.5"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <button class="back-row" id="stationsBack" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 18l-6-6 6-6"/></svg>
+        <span>НАЗАД В МЕНЮ</span>
+      </button>
+
+      <div class="station-map-wrap">
+        <div class="station-map-viewport" id="stationMapViewport">
+          <div class="station-map-layer" id="stationMapLayer">
+            <svg viewBox="0 0 1900 1300" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="hubGradient" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#4d7fc9"/>
+                  <stop offset="48%" stop-color="#4d7fc9"/>
+                  <stop offset="52%" stop-color="#3ea86d"/>
+                  <stop offset="100%" stop-color="#3ea86d"/>
+                </linearGradient>
+                <pattern id="gridPattern" width="140" height="100" patternUnits="userSpaceOnUse">
+                  <path d="M 140 0 L 0 0 0 100" fill="none" stroke="#8fbfe0" stroke-width="1" opacity="0.14"/>
+                </pattern>
+              </defs>
+
+              <rect x="0" y="0" width="1900" height="1300" fill="#0c1826"/>
+              <rect x="40" y="40" width="1820" height="1220" fill="url(#gridPattern)"/>
+              <rect x="40" y="40" width="1820" height="1220" fill="none" stroke="#8fbfe0" stroke-width="2" opacity="0.5"/>
+
+              <g fill="#8fa3b5" font-size="20" letter-spacing="2" font-family="'IBM VGA 8x16',monospace">
+                <text x="110" y="30" text-anchor="middle">A</text>
+                <text x="250" y="30" text-anchor="middle">B</text>
+                <text x="390" y="30" text-anchor="middle">C</text>
+                <text x="530" y="30" text-anchor="middle">D</text>
+                <text x="670" y="30" text-anchor="middle">E</text>
+                <text x="810" y="30" text-anchor="middle">F</text>
+                <text x="950" y="30" text-anchor="middle">G</text>
+                <text x="1090" y="30" text-anchor="middle">H</text>
+                <text x="1230" y="30" text-anchor="middle">I</text>
+                <text x="1370" y="30" text-anchor="middle">J</text>
+                <text x="1510" y="30" text-anchor="middle">K</text>
+                <text x="1650" y="30" text-anchor="middle">L</text>
+                <text x="110" y="1285" text-anchor="middle">A</text>
+                <text x="250" y="1285" text-anchor="middle">B</text>
+                <text x="390" y="1285" text-anchor="middle">C</text>
+                <text x="530" y="1285" text-anchor="middle">D</text>
+                <text x="670" y="1285" text-anchor="middle">E</text>
+                <text x="810" y="1285" text-anchor="middle">F</text>
+                <text x="950" y="1285" text-anchor="middle">G</text>
+                <text x="1090" y="1285" text-anchor="middle">H</text>
+                <text x="1230" y="1285" text-anchor="middle">I</text>
+                <text x="1370" y="1285" text-anchor="middle">J</text>
+                <text x="1510" y="1285" text-anchor="middle">K</text>
+                <text x="1650" y="1285" text-anchor="middle">L</text>
+              </g>
+
+              <g fill="#8fa3b5" font-size="20" letter-spacing="1" font-family="'IBM VGA 8x16',monospace">
+                <text x="24" y="101" text-anchor="middle">1</text>
+                <text x="24" y="223" text-anchor="middle">2</text>
+                <text x="24" y="345" text-anchor="middle">3</text>
+                <text x="24" y="467" text-anchor="middle">4</text>
+                <text x="24" y="589" text-anchor="middle">5</text>
+                <text x="24" y="711" text-anchor="middle">6</text>
+                <text x="24" y="833" text-anchor="middle">7</text>
+                <text x="24" y="955" text-anchor="middle">8</text>
+                <text x="24" y="1077" text-anchor="middle">9</text>
+                <text x="24" y="1199" text-anchor="middle">10</text>
+                <text x="1876" y="101" text-anchor="middle">1</text>
+                <text x="1876" y="223" text-anchor="middle">2</text>
+                <text x="1876" y="345" text-anchor="middle">3</text>
+                <text x="1876" y="467" text-anchor="middle">4</text>
+                <text x="1876" y="589" text-anchor="middle">5</text>
+                <text x="1876" y="711" text-anchor="middle">6</text>
+                <text x="1876" y="833" text-anchor="middle">7</text>
+                <text x="1876" y="955" text-anchor="middle">8</text>
+                <text x="1876" y="1077" text-anchor="middle">9</text>
+                <text x="1876" y="1199" text-anchor="middle">10</text>
+              </g>
+
+              <g stroke-linecap="round" fill="none">
+                <line x1="950" y1="380" x2="950" y2="260" stroke="#b7c1c9" stroke-width="46"/>
+                <line x1="950" y1="260" x2="950" y2="150" stroke="#b7c1c9" stroke-width="46"/>
+                <line x1="950" y1="150" x2="665" y2="100" stroke="#b7c1c9" stroke-width="40"/>
+                <line x1="950" y1="260" x2="1230" y2="230" stroke="#b7c1c9" stroke-width="46"/>
+
+                <line x1="950" y1="820" x2="950" y2="950" stroke="#c98f8f" stroke-width="46"/>
+                <line x1="950" y1="950" x2="650" y2="1030" stroke="#c98f8f" stroke-width="46"/>
+                <line x1="950" y1="950" x2="920" y2="1030" stroke="#c98f8f" stroke-width="46"/>
+                <line x1="950" y1="950" x2="1230" y2="1030" stroke="#c98f8f" stroke-width="46"/>
+
+                <line x1="740" y1="600" x2="540" y2="600" stroke="#7fa8dd" stroke-width="46"/>
+                <line x1="540" y1="600" x2="340" y2="380" stroke="#7fa8dd" stroke-width="46"/>
+                <line x1="540" y1="600" x2="340" y2="600" stroke="#7fa8dd" stroke-width="46"/>
+                <line x1="540" y1="600" x2="340" y2="830" stroke="#7fa8dd" stroke-width="46"/>
+
+                <line x1="1160" y1="600" x2="1360" y2="600" stroke="#6dbf94" stroke-width="46"/>
+                <line x1="1360" y1="600" x2="1560" y2="380" stroke="#6dbf94" stroke-width="46"/>
+                <line x1="1360" y1="600" x2="1560" y2="600" stroke="#6dbf94" stroke-width="46"/>
+                <line x1="1360" y1="600" x2="1560" y2="830" stroke="#6dbf94" stroke-width="46"/>
+              </g>
+
+              <g class="station-room" data-room="central_hub">
+                <circle cx="950" cy="600" r="170" fill="none" stroke="url(#hubGradient)" stroke-width="70" opacity="0.85"/>
+                <circle cx="950" cy="600" r="100" fill="#1b3350" stroke="#cddbe6" stroke-width="2"/>
+                <text x="950" y="592" text-anchor="middle" fill="#eaf5ff" font-size="21" font-weight="700" letter-spacing="1" font-family="'IBM VGA 8x16',monospace">ЦЕНТРАЛЬНЫЙ УЗЕЛ:</text>
+                <text x="950" y="618" text-anchor="middle" fill="#eaf5ff" font-size="21" font-weight="700" letter-spacing="1" font-family="'IBM VGA 8x16',monospace">РЕАКТОР И УПРАВЛЕНИЕ</text>
+              </g>
+
+              <circle cx="950" cy="260" r="20" fill="#2a3138" stroke="#b7c1c9" stroke-width="2"/>
+              <circle cx="950" cy="950" r="20" fill="#3a2626" stroke="#c98f8f" stroke-width="2"/>
+              <circle cx="540" cy="600" r="20" fill="#1e3350" stroke="#7fa8dd" stroke-width="2"/>
+              <circle cx="1360" cy="600" r="20" fill="#1e3a2c" stroke="#6dbf94" stroke-width="2"/>
+
+              <text x="470" y="500" fill="#dceaff" font-size="17" letter-spacing="1" text-anchor="middle" transform="rotate(-18 470 500)" font-family="'IBM VGA 8x16',monospace">КОРИДОР ЦЕНТР-А</text>
+              <text x="1440" y="500" fill="#e2f7ec" font-size="17" letter-spacing="1" text-anchor="middle" transform="rotate(18 1440 500)" font-family="'IBM VGA 8x16',monospace">КОРИДОР ЦЕНТР-Б</text>
+
+              <g font-size="19" text-anchor="middle" fill="#eaf5ff" font-weight="600" font-family="'IBM VGA 8x16',monospace">
+                <g class="station-room" data-room="main_airlock">
+                  <rect x="520" y="45" width="290" height="110" rx="10" fill="#7c8894" fill-opacity="0.45" stroke="#d8dee4" stroke-width="2"/>
+                  <text x="665" y="97">ГЛАВНЫЙ</text>
+                  <text x="665" y="122">СТЫКОВОЧНЫЙ ШЛЮЗ</text>
+                </g>
+                <g class="station-room" data-room="cargo_terminal">
+                  <rect x="840" y="95" width="220" height="110" rx="10" fill="#7c8894" fill-opacity="0.45" stroke="#d8dee4" stroke-width="2"/>
+                  <text x="950" y="150">ГРУЗОВОЙ</text>
+                  <text x="950" y="175">ТЕРМИНАЛ</text>
+                </g>
+                <g class="station-room" data-room="maintenance">
+                  <rect x="1100" y="170" width="260" height="120" rx="10" fill="#7c8894" fill-opacity="0.45" stroke="#d8dee4" stroke-width="2"/>
+                  <text x="1230" y="235">ТЕХОБСЛУЖИВАНИЕ</text>
+                </g>
+
+                <g class="station-room" data-room="medbay">
+                  <rect x="520" y="990" width="220" height="120" rx="10" fill="#a15656" fill-opacity="0.45" stroke="#f2b9b9" stroke-width="2"/>
+                  <text x="630" y="1055">МЕДЦЕНТР</text>
+                </g>
+                <g class="station-room" data-room="armory">
+                  <rect x="790" y="990" width="220" height="120" rx="10" fill="#a15656" fill-opacity="0.45" stroke="#f2b9b9" stroke-width="2"/>
+                  <text x="900" y="1055">АРСЕНАЛ</text>
+                </g>
+                <g class="station-room" data-room="security_control">
+                  <rect x="1090" y="990" width="330" height="150" rx="10" fill="#a15656" fill-opacity="0.45" stroke="#f2b9b9" stroke-width="2"/>
+                  <text x="1255" y="1055">БЕЗОПАСНОСТЬ</text>
+                  <text x="1255" y="1080">И КОНТРОЛЬ</text>
+                </g>
+
+                <g class="station-room" data-room="crew_quarters">
+                  <rect x="120" y="310" width="260" height="140" rx="10" fill="#3f6fb0" fill-opacity="0.45" stroke="#bcd7ff" stroke-width="2"/>
+                  <text x="250" y="375">ЭКИПАЖНЫЕ</text>
+                  <text x="250" y="400">КАЮТЫ</text>
+                </g>
+                <g class="station-room" data-room="dining_hall">
+                  <rect x="120" y="530" width="260" height="140" rx="10" fill="#3f6fb0" fill-opacity="0.45" stroke="#bcd7ff" stroke-width="2"/>
+                  <text x="250" y="595">ОБЕДЕННЫЙ ЗАЛ</text>
+                  <text x="250" y="620">И ОТДЫХ</text>
+                </g>
+                <g class="station-room" data-room="hydroponics">
+                  <rect x="120" y="760" width="260" height="140" rx="10" fill="#3f6fb0" fill-opacity="0.45" stroke="#bcd7ff" stroke-width="2"/>
+                  <text x="250" y="838">ГИДРОПОНИКА</text>
+                </g>
+
+                <g class="station-room" data-room="robotics_lab">
+                  <rect x="1420" y="310" width="300" height="140" rx="10" fill="#3f9066" fill-opacity="0.45" stroke="#b9f0cf" stroke-width="2"/>
+                  <text x="1570" y="368">ЛАБОРАТОРИЯ</text>
+                  <text x="1570" y="393">РОБОТОТЕХНИКИ</text>
+                </g>
+                <g class="station-room" data-room="materials_lab">
+                  <rect x="1420" y="530" width="300" height="140" rx="10" fill="#3f9066" fill-opacity="0.45" stroke="#b9f0cf" stroke-width="2"/>
+                  <text x="1570" y="608">ИССЛЕДОВАНИЕ</text>
+                  <text x="1570" y="633">МАТЕРИАЛОВ</text>
+                </g>
+                <g class="station-room" data-room="xeno_lab">
+                  <rect x="1420" y="760" width="300" height="140" rx="10" fill="#3f9066" fill-opacity="0.45" stroke="#b9f0cf" stroke-width="2"/>
+                  <text x="1570" y="838">ХИМ-ЛАБ</text>
+                </g>
+              </g>
+
+              <g transform="translate(1770,110)">
+                <circle r="46" fill="none" stroke="#cddbe6" stroke-width="2"/>
+                <polygon points="0,-38 8,10 0,-4 -8,10" fill="#cddbe6"/>
+                <text y="-52" text-anchor="middle" fill="#cddbe6" font-size="18" font-family="'IBM VGA 8x16',monospace">С</text>
+              </g>
+
+              <text x="70" y="90" fill="#eaf5ff" font-size="34" font-weight="700" letter-spacing="1" font-family="'IBM VGA 8x16',monospace">КОСМИЧЕСКАЯ СТАНЦИЯ «АСТРАЛ-1»: ПЛАН ЭТАЖА</text>
+
+              <g font-size="17" fill="#dceaff" font-family="'IBM VGA 8x16',monospace">
+                <rect x="70" y="130" width="26" height="20" fill="#3f6fb0"/>
+                <text x="106" y="146">ЖИЛОЙ МОДУЛЬ</text>
+                <rect x="70" y="158" width="26" height="20" fill="#3f9066"/>
+                <text x="106" y="174">НАУЧНЫЙ ОТСЕК</text>
+                <rect x="70" y="186" width="26" height="20" fill="#a15656"/>
+                <text x="106" y="202">МОДУЛЬ БЕЗОПАСНОСТИ</text>
+                <rect x="70" y="214" width="26" height="20" fill="#7c8894"/>
+                <text x="106" y="230">ГРУЗОВОЙ И ТЕХНИЧЕСКИЙ ОТСЕК</text>
+              </g>
+
+              <text x="70" y="1225" fill="#eaf5ff" font-size="34" font-weight="700" font-family="'IBM VGA 8x16',monospace">УРОВЕНЬ 1</text>
+
+              <g font-size="18" fill="#dceaff" font-family="'IBM VGA 8x16',monospace">
+                <line x1="1330" y1="1110" x2="1330" y2="1230" stroke="#8fbfe0" stroke-width="1.4" opacity="0.6"/>
+                <text x="1360" y="1140">ДАТА: 10.10.2045</text>
+                <text x="1360" y="1168">ВЕРСИЯ ПЛАНА: 2.1</text>
+                <text x="1360" y="1196">СТАТУС: ДЕЙСТВУЮЩИЙ</text>
+                <text x="1360" y="1224">РАЗРАБОТКА: КБ «ПЛАНЕТАЛЬ»</text>
+              </g>
+            </svg>
+          </div>
+
+          <div class="station-map-zoom">
+            <button type="button" id="stationZoomIn" aria-label="Приблизить">+</button>
+            <button type="button" id="stationZoomOut" aria-label="Отдалить">−</button>
+            <button type="button" id="stationZoomReset" aria-label="Сбросить вид">⟲</button>
+          </div>
+
+          <div class="station-map-hint" id="stationMapHint">ПЕРЕТАЩИТЕ, ЧТОБЫ ОСМОТРЕТЬ СТАНЦИЮ</div>
+        </div>
+      </div>
+
+      <div class="bottombar">
+        <div class="icon-btn" title="Разделы">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <polygon points="12 3 21 8 12 13 3 8 12 3"/>
+            <polyline points="3 12 12 17 21 12"/>
+            <polyline points="3 16 12 21 21 16"/>
+          </svg>
+        </div>
+        <div class="tag">EQUATOR-01 // SEC-B</div>
+        <div class="icon-btn" title="Ещё">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+        </div>
+      </div>
     </div>
 
     <!-- ================= DATABASE ("БАЗА ДАННЫХ") — placeholder until the section is built ================= -->
@@ -2987,6 +3188,8 @@
     if (clock5) clock5.textContent = time;
     const clock6 = document.getElementById('clock6');
     if (clock6) clock6.textContent = time;
+    const clock7 = document.getElementById('clock7');
+    if (clock7) clock7.textContent = time;
   }
   tick();
   setInterval(tick, 15000);
@@ -3021,6 +3224,7 @@
   const settingsScreen = document.getElementById('settingsScreen');
   const mailScreen = document.getElementById('mailScreen');
   const databaseScreen = document.getElementById('databaseScreen');
+  const stationsScreen = document.getElementById('stationsScreen');
   const shiftDocumentScreen = document.getElementById('shiftDocumentScreen');
   // Profile/Settings/Mail/Database switch to instantly (no boot animation to time against),
   // so their wallpaper can just be shown right away.
@@ -3544,6 +3748,168 @@
   }
   document.getElementById('tileDatabase').addEventListener('click', openDatabase);
   document.getElementById('databaseBack').addEventListener('click', closeDatabase);
+
+  // --- Stations screen ("СТАНЦИИ") — чертёж станции с панорамируемой/
+  //     масштабируемой камерой, см. setupStationMap() ниже. Карта
+  //     инициализируется (мерится и центрируется) только при первом
+  //     открытии экрана — до этого он hidden, и его размеры равны нулю.
+  let stationMapReady = false;
+  function openStations(){
+    mainMenu.classList.remove('reveal');
+    mainMenu.hidden = true;
+    stationsScreen.hidden = false;
+    stationsScreen.classList.add('reveal');
+    if (!stationMapReady) {
+      stationMapReady = true;
+      requestAnimationFrame(initStationMap);
+    }
+  }
+  function closeStations(){
+    stationsScreen.classList.remove('reveal');
+    stationsScreen.hidden = true;
+    mainMenu.hidden = false;
+    mainMenu.classList.add('reveal');
+  }
+  document.getElementById('tileStations').addEventListener('click', openStations);
+  document.getElementById('stationsBack').addEventListener('click', closeStations);
+
+  // --- Station map camera — панорамирование (drag/touch) и зум (колесо,
+  //     pinch, кнопки +/−/⟲). Чертёж — слой фиксированного размера
+  //     (1900x1300 css-px, см. .station-map-layer), который двигается и
+  //     масштабируется через transform: translate(...) scale(...) внутри
+  //     обрезающего вьюпорта. Открывается уже приближенным к центральному
+  //     узлу станции, поэтому весь чертёж на экране сразу не помещается —
+  //     это и есть смысл свободной камеры, которую попросили сделать.
+  const stationMapViewport = document.getElementById('stationMapViewport');
+  const stationMapLayer = document.getElementById('stationMapLayer');
+  const stationMapHint = document.getElementById('stationMapHint');
+  const STATION_MAP_W = 1900, STATION_MAP_H = 1300;
+  const STATION_HUB_X = 950, STATION_HUB_Y = 600;
+  let stationScale = 1, stationMinScale = 1, stationMaxScale = 1;
+  let stationTx = 0, stationTy = 0;
+
+  function applyStationTransform(){
+    const vw = stationMapViewport.clientWidth, vh = stationMapViewport.clientHeight;
+    const lw = STATION_MAP_W * stationScale, lh = STATION_MAP_H * stationScale;
+    // Клэмп: если слой мельче вьюпорта по какой-то оси — центрируем по ней,
+    // иначе не даём краю карты оторваться от края вьюпорта.
+    stationTx = lw <= vw ? (vw - lw) / 2 : Math.min(0, Math.max(vw - lw, stationTx));
+    stationTy = lh <= vh ? (vh - lh) / 2 : Math.min(0, Math.max(vh - lh, stationTy));
+    stationMapLayer.style.transform = `translate(${stationTx}px, ${stationTy}px) scale(${stationScale})`;
+  }
+
+  function setStationScaleAroundPoint(newScale, px, py){
+    newScale = Math.min(stationMaxScale, Math.max(stationMinScale, newScale));
+    const mapX = (px - stationTx) / stationScale;
+    const mapY = (py - stationTy) / stationScale;
+    stationScale = newScale;
+    stationTx = px - mapX * stationScale;
+    stationTy = py - mapY * stationScale;
+    applyStationTransform();
+  }
+
+  function initStationMap(){
+    const vw = stationMapViewport.clientWidth, vh = stationMapViewport.clientHeight;
+    if (!vw || !vh) return;
+    // minScale — «весь чертёж целиком помещается во вьюпорт» (можно
+    // отдалиться максимум досюда); стартуем заметно ближе, чтобы игрок не
+    // видел всю станцию сразу и ему было что исследовать камерой.
+    stationMinScale = Math.max(vw / STATION_MAP_W, vh / STATION_MAP_H);
+    stationMaxScale = stationMinScale * 4.2;
+    stationScale = Math.min(stationMaxScale, stationMinScale * 2.15);
+    stationTx = vw / 2 - STATION_HUB_X * stationScale;
+    stationTy = vh / 2 - STATION_HUB_Y * stationScale;
+    applyStationTransform();
+  }
+
+  const stationPointers = new Map();
+  let stationDragLast = null;
+  let stationPinchStartDist = null;
+  let stationPinchStartScale = null;
+  let stationHintHidden = false;
+
+  function stationHideHint(){
+    if (stationHintHidden) return;
+    stationHintHidden = true;
+    stationMapHint.classList.add('faded');
+  }
+  setTimeout(stationHideHint, 4500);
+
+  function stationDist(a, b){ return Math.hypot(a.x - b.x, a.y - b.y); }
+  function stationMid(a, b){ return { x:(a.x + b.x) / 2, y:(a.y + b.y) / 2 }; }
+
+  stationMapViewport.addEventListener('pointerdown', (e) => {
+    stationMapViewport.setPointerCapture(e.pointerId);
+    stationPointers.set(e.pointerId, { x:e.clientX, y:e.clientY });
+    if (stationPointers.size === 1) {
+      stationDragLast = { x:e.clientX, y:e.clientY };
+      stationMapViewport.classList.add('grabbing');
+      stationHideHint();
+    } else if (stationPointers.size === 2) {
+      const pts = [...stationPointers.values()];
+      stationPinchStartDist = stationDist(pts[0], pts[1]);
+      stationPinchStartScale = stationScale;
+      stationDragLast = null;
+    }
+  });
+
+  stationMapViewport.addEventListener('pointermove', (e) => {
+    if (!stationPointers.has(e.pointerId)) return;
+    stationPointers.set(e.pointerId, { x:e.clientX, y:e.clientY });
+    if (stationPointers.size === 1 && stationDragLast) {
+      const dx = e.clientX - stationDragLast.x;
+      const dy = e.clientY - stationDragLast.y;
+      stationDragLast = { x:e.clientX, y:e.clientY };
+      stationTx += dx; stationTy += dy;
+      applyStationTransform();
+    } else if (stationPointers.size === 2 && stationPinchStartDist) {
+      const pts = [...stationPointers.values()];
+      const d = stationDist(pts[0], pts[1]);
+      const mid = stationMid(pts[0], pts[1]);
+      const rect = stationMapViewport.getBoundingClientRect();
+      const newScale = stationPinchStartScale * (d / stationPinchStartDist);
+      setStationScaleAroundPoint(newScale, mid.x - rect.left, mid.y - rect.top);
+    }
+  });
+
+  function stationEndPointer(e){
+    stationPointers.delete(e.pointerId);
+    if (stationPointers.size === 1) {
+      stationDragLast = [...stationPointers.values()][0];
+      stationPinchStartDist = null;
+    } else if (stationPointers.size === 0) {
+      stationDragLast = null;
+      stationPinchStartDist = null;
+      stationMapViewport.classList.remove('grabbing');
+    }
+  }
+  stationMapViewport.addEventListener('pointerup', stationEndPointer);
+  stationMapViewport.addEventListener('pointercancel', stationEndPointer);
+  stationMapViewport.addEventListener('pointerleave', (e) => {
+    if (stationPointers.has(e.pointerId)) stationEndPointer(e);
+  });
+
+  stationMapViewport.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const rect = stationMapViewport.getBoundingClientRect();
+    const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+    setStationScaleAroundPoint(stationScale * factor, e.clientX - rect.left, e.clientY - rect.top);
+  }, { passive:false });
+
+  stationMapViewport.addEventListener('dblclick', (e) => {
+    const rect = stationMapViewport.getBoundingClientRect();
+    setStationScaleAroundPoint(stationScale * 1.5, e.clientX - rect.left, e.clientY - rect.top);
+  });
+
+  document.getElementById('stationZoomIn').addEventListener('click', () => {
+    setStationScaleAroundPoint(stationScale * 1.3, stationMapViewport.clientWidth / 2, stationMapViewport.clientHeight / 2);
+  });
+  document.getElementById('stationZoomOut').addEventListener('click', () => {
+    setStationScaleAroundPoint(stationScale / 1.3, stationMapViewport.clientWidth / 2, stationMapViewport.clientHeight / 2);
+  });
+  document.getElementById('stationZoomReset').addEventListener('click', initStationMap);
+
+  window.addEventListener('resize', () => { if (stationMapReady) applyStationTransform(); });
 
   // --- "ЗАЯВКА НА РАСПРЕДЕЛЕНИЕ" screen (bлaнк, открывается через ВЫЙТИ НА
   //     СМЕНУ -> НАЧАТЬ ЗАПОЛНЕНИЕ ДОКУМЕНТА). Same instant, no-fade switch
@@ -4226,10 +4592,6 @@
     });
   }
 
-  function hideMailReaderMobile(){
-    mailScreen.classList.remove('mail-reading');
-  }
-
   function renderMailReader(mail){
     // "ВХОДЯЩИЕ" — что для игрока, что для администратора (после того как
     // его "ВХОДЯЩИЕ" объединили с "ПОЛУЧЕННЫМИ" от игроков, см.
@@ -4246,36 +4608,14 @@
       '<div class="mail-field"><span class="mail-field-label">КОМУ:</span><span class="mail-field-value">' + toValue + '</span></div>' +
       '<div class="mail-field"><span class="mail-field-label">ОТ КОГО:</span><span class="mail-field-value">' + mail.from + '</span></div>' +
       '<div class="mail-field"><span class="mail-field-label">ТЕМА:</span><span class="mail-field-value">' + mail.tag + '</span></div>';
-    // Mobile-only toolbar: back to the list, plus a top-level delete —
-    // replaces the "НАЗАД В МЕНЮ" bar (hidden via CSS while reading) and
-    // the desktop's bottom "🗑 УДАЛИТЬ ПИСЬМО" button, which is skipped
-    // below on phones so there's only one delete control, not two.
-    const toolbarHtml = !IS_DESKTOP ?
-      '<div class="mail-reader-toolbar">' +
-        '<button type="button" class="mail-reader-back" id="mailReaderBackBtn">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 18l-6-6 6-6"/></svg>' +
-          '<span>НАЗАД</span>' +
-        '</button>' +
-        (mail.deletable ?
-          '<button type="button" class="mail-reader-delete-top" id="mailReaderDeleteBtn">' +
-            '<span>УДАЛИТЬ</span>' +
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13a2 2 0 002 2h6a2 2 0 002-2l1-13"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>' +
-          '</button>' : '') +
-      '</div>' : '';
     mailReader.innerHTML =
-      toolbarHtml +
       '<div class="mail-fields">' + fieldsHtml + '</div>' +
       '<div class="mail-subject">' + mail.subject + '</div>' +
       '<div class="mail-body">' + mail.body + '</div>' +
-      (IS_DESKTOP && mail.deletable ? '<button class="mail-delete-btn" type="button" id="mailDeleteTrigger">🗑 УДАЛИТЬ ПИСЬМО</button>' : '');
+      (mail.deletable ? '<button class="mail-delete-btn" type="button" id="mailDeleteTrigger">🗑 УДАЛИТЬ ПИСЬМО</button>' : '');
     mailReader.scrollTop = 0;
     const delBtn = document.getElementById('mailDeleteTrigger');
     if (delBtn) delBtn.addEventListener('click', () => openMailDeleteConfirm(mail.id, 'inbox'));
-    const readerBackBtn = document.getElementById('mailReaderBackBtn');
-    if (readerBackBtn) readerBackBtn.addEventListener('click', hideMailReaderMobile);
-    const readerDeleteBtn = document.getElementById('mailReaderDeleteBtn');
-    if (readerDeleteBtn) readerDeleteBtn.addEventListener('click', () => openMailDeleteConfirm(mail.id, 'inbox'));
-    if (!IS_DESKTOP) mailScreen.classList.add('mail-reading');
   }
 
   function openMailItem(id){
@@ -4301,11 +4641,9 @@
     if (mailActiveId && !mailInboxItems.find(m => m.id === mailActiveId)){
       mailActiveId = null;
       mailReader.innerHTML = '<div class="mail-reader-empty">ВЫБЕРИТЕ ПИСЬМО ИЗ СПИСКА СЛЕВА</div>';
-      hideMailReaderMobile();
     }
     renderMailList();
   }
-
 
   function renderMailSentList(){
     const list = document.getElementById('mailSentList');
@@ -4450,7 +4788,6 @@
       if (mailActiveId === id){
         mailActiveId = null;
         mailReader.innerHTML = '<div class="mail-reader-empty">ВЫБЕРИТЕ ПИСЬМО ИЗ СПИСКА СЛЕВА</div>';
-        hideMailReaderMobile();
       }
       updateMailBadge(mailInboxItems.filter(m => m.unread).length);
       renderMailList();
@@ -4515,7 +4852,6 @@
     const sendTab = document.getElementById('mailTabSend');
     const inboxPanel = document.getElementById('mailInboxPanel');
     const sendPanel = document.getElementById('mailSendPanel');
-    hideMailReaderMobile();
     if (tab === 'send'){
       sendTab.classList.add('active');
       inboxTab.classList.remove('active');
@@ -4538,7 +4874,6 @@
     mainMenu.hidden = true;
     mailScreen.hidden = false;
     mailScreen.classList.add('reveal');
-    hideMailReaderMobile();
     loadMailInbox();
     openMailTab('inbox');
   }
