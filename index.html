@@ -1257,6 +1257,67 @@
   .mail-body p{ margin:0 0 1.6cqw 0; }
   .mail-body p:last-child{ margin-bottom:0; }
   .mail-send-panel{ padding:0; }
+
+  /* Reader toolbar ("НАЗАД" / "УДАЛИТЬ") — injected by JS only on mobile,
+     sits above КОМУ/ОТ КОГО/ТЕМА. Never rendered on desktop (there the two
+     panes sit side by side and don't need a way back), so no @container
+     scoping is needed here — the markup itself only exists on phones. */
+  .mail-reader-toolbar{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:2cqw;
+    margin-bottom:2cqw; padding-bottom:1.6cqw;
+    border-bottom:1px solid var(--scr-line);
+  }
+  .mail-reader-back{
+    display:flex; align-items:center; gap:1cqw;
+    background:none; border:none; padding:0.6cqw 0;
+    color:var(--scr-cyan); font-family:inherit; cursor:pointer;
+  }
+  .mail-reader-back svg{ width:4cqw; height:4cqw; min-width:14px; min-height:14px; flex:0 0 auto; }
+  .mail-reader-back span{ font-size:2.6cqw; font-weight:600; letter-spacing:0.06em; }
+  .mail-reader-back:active{ opacity:0.7; }
+  .mail-reader-delete-top{
+    display:flex; align-items:center; gap:1cqw;
+    padding:1cqw 1.6cqw;
+    border:1px solid rgba(255,154,138,0.5);
+    border-radius:0.8cqw;
+    background:rgba(255,154,138,0.1);
+    color:#ff9a8a; font-family:inherit; font-weight:600; letter-spacing:0.05em;
+    cursor:pointer;
+  }
+  .mail-reader-delete-top svg{ width:3.4cqw; height:3.4cqw; min-width:13px; min-height:13px; flex:0 0 auto; }
+  .mail-reader-delete-top span{ font-size:2.4cqw; }
+  .mail-reader-delete-top:active{ filter:brightness(0.85); }
+
+  /* Mobile-only Mail layout: on the PC stage this @container never fires
+     (its container is far wider than 600px real px), so the side-by-side
+     list+reader split above is untouched there. On the phone stage, the
+     list becomes a single full-width pane (the .screen-content padding
+     already leaves a small margin either side); tapping a message swaps to
+     a full-width reader pane instead of splitting the screen 38/62 — with
+     the JS-added .mail-reading class on #mailScreen controlling which pane
+     shows. Text is bumped by the same scale used on the Database screen. */
+  @container (max-width: 600px){
+    .mail-list{ flex:1 1 auto; width:100%; border-right:none; }
+    .mail-reader{ display:none; padding:2.4cqw 0.4cqw; }
+    #mailScreen.mail-reading .mail-list{ display:none; }
+    #mailScreen.mail-reading .mail-reader{ display:block; }
+    #mailScreen.mail-reading #mailBack{ display:none; }
+
+    .mail-row{ padding:2.2cqw 1.6cqw; gap:0.7cqw; }
+    .mail-row-top{ gap:1.1cqw; }
+    .mail-dot{ width:2.1cqw; height:2.1cqw; min-width:7px; min-height:7px; }
+    .mail-row-from{ font-size:2.3cqw; }
+    .mail-row-subject{ font-size:2.4cqw; }
+    .mail-row-tag{ font-size:1.9cqw; }
+
+    .mail-field{ font-size:2.3cqw; }
+    .mail-field-label{ min-width:13cqw; }
+    .mail-subject{ font-size:3.5cqw; }
+    .mail-body{ font-size:2.7cqw; }
+    .mail-reader-empty{ font-size:2.7cqw; }
+  }
+
   .mail-compose{
     flex:1 1 auto;
     min-width:0; min-height:0;
@@ -4161,6 +4222,10 @@
     });
   }
 
+  function hideMailReaderMobile(){
+    mailScreen.classList.remove('mail-reading');
+  }
+
   function renderMailReader(mail){
     // "ВХОДЯЩИЕ" — что для игрока, что для администратора (после того как
     // его "ВХОДЯЩИЕ" объединили с "ПОЛУЧЕННЫМИ" от игроков, см.
@@ -4177,14 +4242,36 @@
       '<div class="mail-field"><span class="mail-field-label">КОМУ:</span><span class="mail-field-value">' + toValue + '</span></div>' +
       '<div class="mail-field"><span class="mail-field-label">ОТ КОГО:</span><span class="mail-field-value">' + mail.from + '</span></div>' +
       '<div class="mail-field"><span class="mail-field-label">ТЕМА:</span><span class="mail-field-value">' + mail.tag + '</span></div>';
+    // Mobile-only toolbar: back to the list, plus a top-level delete —
+    // replaces the "НАЗАД В МЕНЮ" bar (hidden via CSS while reading) and
+    // the desktop's bottom "🗑 УДАЛИТЬ ПИСЬМО" button, which is skipped
+    // below on phones so there's only one delete control, not two.
+    const toolbarHtml = !IS_DESKTOP ?
+      '<div class="mail-reader-toolbar">' +
+        '<button type="button" class="mail-reader-back" id="mailReaderBackBtn">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 18l-6-6 6-6"/></svg>' +
+          '<span>НАЗАД</span>' +
+        '</button>' +
+        (mail.deletable ?
+          '<button type="button" class="mail-reader-delete-top" id="mailReaderDeleteBtn">' +
+            '<span>УДАЛИТЬ</span>' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13a2 2 0 002 2h6a2 2 0 002-2l1-13"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>' +
+          '</button>' : '') +
+      '</div>' : '';
     mailReader.innerHTML =
+      toolbarHtml +
       '<div class="mail-fields">' + fieldsHtml + '</div>' +
       '<div class="mail-subject">' + mail.subject + '</div>' +
       '<div class="mail-body">' + mail.body + '</div>' +
-      (mail.deletable ? '<button class="mail-delete-btn" type="button" id="mailDeleteTrigger">🗑 УДАЛИТЬ ПИСЬМО</button>' : '');
+      (IS_DESKTOP && mail.deletable ? '<button class="mail-delete-btn" type="button" id="mailDeleteTrigger">🗑 УДАЛИТЬ ПИСЬМО</button>' : '');
     mailReader.scrollTop = 0;
     const delBtn = document.getElementById('mailDeleteTrigger');
     if (delBtn) delBtn.addEventListener('click', () => openMailDeleteConfirm(mail.id, 'inbox'));
+    const readerBackBtn = document.getElementById('mailReaderBackBtn');
+    if (readerBackBtn) readerBackBtn.addEventListener('click', hideMailReaderMobile);
+    const readerDeleteBtn = document.getElementById('mailReaderDeleteBtn');
+    if (readerDeleteBtn) readerDeleteBtn.addEventListener('click', () => openMailDeleteConfirm(mail.id, 'inbox'));
+    if (!IS_DESKTOP) mailScreen.classList.add('mail-reading');
   }
 
   function openMailItem(id){
@@ -4210,9 +4297,11 @@
     if (mailActiveId && !mailInboxItems.find(m => m.id === mailActiveId)){
       mailActiveId = null;
       mailReader.innerHTML = '<div class="mail-reader-empty">ВЫБЕРИТЕ ПИСЬМО ИЗ СПИСКА СЛЕВА</div>';
+      hideMailReaderMobile();
     }
     renderMailList();
   }
+
 
   function renderMailSentList(){
     const list = document.getElementById('mailSentList');
@@ -4357,6 +4446,7 @@
       if (mailActiveId === id){
         mailActiveId = null;
         mailReader.innerHTML = '<div class="mail-reader-empty">ВЫБЕРИТЕ ПИСЬМО ИЗ СПИСКА СЛЕВА</div>';
+        hideMailReaderMobile();
       }
       updateMailBadge(mailInboxItems.filter(m => m.unread).length);
       renderMailList();
@@ -4421,6 +4511,7 @@
     const sendTab = document.getElementById('mailTabSend');
     const inboxPanel = document.getElementById('mailInboxPanel');
     const sendPanel = document.getElementById('mailSendPanel');
+    hideMailReaderMobile();
     if (tab === 'send'){
       sendTab.classList.add('active');
       inboxTab.classList.remove('active');
@@ -4443,6 +4534,7 @@
     mainMenu.hidden = true;
     mailScreen.hidden = false;
     mailScreen.classList.add('reveal');
+    hideMailReaderMobile();
     loadMailInbox();
     openMailTab('inbox');
   }
