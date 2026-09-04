@@ -1263,9 +1263,12 @@
      panes sit side by side and don't need a way back), so no @container
      scoping is needed here — the markup itself only exists on phones. */
   .mail-reader-toolbar{
+    position:sticky; top:0; z-index:2;
     display:flex; align-items:center; justify-content:space-between;
     gap:2cqw;
-    margin-bottom:2cqw; padding-bottom:1.6cqw;
+    margin:0 -0.4cqw 2cqw; padding:2cqw 0.4cqw 1.6cqw;
+    background:rgba(31,39,48,0.95);
+    -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
     border-bottom:1px solid var(--scr-line);
   }
   .mail-reader-back{
@@ -1299,10 +1302,11 @@
      shows. Text is bumped by the same scale used on the Database screen. */
   @container (max-width: 600px){
     .mail-list{ flex:1 1 auto; width:100%; border-right:none; }
-    .mail-reader{ display:none; padding:2.4cqw 0.4cqw; }
+    .mail-reader{ display:none; padding:0 0.4cqw 2.4cqw; }
     #mailScreen.mail-reading .mail-list{ display:none; }
     #mailScreen.mail-reading .mail-reader{ display:block; }
     #mailScreen.mail-reading #mailBack{ display:none; }
+    #mailScreen.mail-reading .mail-tabs{ display:none; }
 
     .mail-row{ padding:2.2cqw 1.6cqw; gap:0.7cqw; }
     .mail-row-top{ gap:1.1cqw; }
