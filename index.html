@@ -1329,6 +1329,167 @@
     color:var(--scr-text-dim);
   }
 
+  /* ================= ЗАЯВКА НА РАСПРЕДЕЛЕНИЕ ("shiftDocumentScreen") =================
+     Бланк документа, открывается из ВЫЙТИ НА СМЕНУ -> НАЧАТЬ ЗАПОЛНЕНИЕ
+     ДОКУМЕНТА. Поля — в ряд (label слева, значение справа на одной строке),
+     в отличие от формы письма, где label и поле стоят друг под другом. */
+  .doc-wrap{
+    flex:1 1 auto;
+    min-height:0;
+    display:flex; flex-direction:column;
+    gap:2.4cqw;
+    padding:0.4cqw 0.2cqw 2cqw;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+  }
+  .doc-wrap::-webkit-scrollbar{ width:3px; }
+  .doc-wrap::-webkit-scrollbar-thumb{ background:var(--scr-line-strong); border-radius:2px; }
+  .doc-wrap::-webkit-scrollbar-track{ background:transparent; }
+  .doc-header{ border-bottom:1px solid var(--scr-line); padding-bottom:1.6cqw; }
+  .doc-title{
+    font-size:2.6cqw; font-weight:700; letter-spacing:0.03em;
+    color:#eaf5ff;
+    text-shadow:var(--phosphor);
+  }
+  .doc-subtitle{
+    margin-top:0.6cqw;
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.4cqw; letter-spacing:0.08em;
+    color:var(--scr-text-dim);
+  }
+  .doc-fields{ display:flex; flex-direction:column; gap:1.2cqw; }
+  .doc-field{
+    display:flex; align-items:center; justify-content:space-between; gap:1.6cqw;
+    width:100%;
+    text-align:left;
+    font-family:'IBM VGA 8x16',monospace;
+    color:inherit;
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--scr-line);
+    border-radius:0.6cqw;
+    padding:1.8cqw 2cqw;
+    cursor:pointer;
+  }
+  /* origin-cascade lesson from .mail-compose-fields above — an authored
+     display:flex on .doc-field always beats the browser's own
+     [hidden]{display:none}, so the override has to be explicit here too. */
+  #docFieldSecondary[hidden], #docFieldMode[hidden]{ display:none; }
+  .doc-field:active{ filter:brightness(0.9); }
+  .doc-field-label{
+    flex:none;
+    font-size:1.6cqw; letter-spacing:0.06em;
+    color:var(--scr-text-dim);
+  }
+  .doc-field-value{
+    display:flex; align-items:center; gap:0.8cqw;
+    font-size:1.8cqw; letter-spacing:0.02em;
+    color:var(--scr-cyan);
+    text-align:right;
+  }
+  .doc-field-value.placeholder{ color:var(--scr-text-dim); }
+  .doc-field-caret{ flex:none; width:1.8cqw; height:1.8cqw; min-width:12px; min-height:12px; }
+  .doc-agreement-label{
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.4cqw; letter-spacing:0.08em;
+    color:var(--scr-text-dim);
+    margin-bottom:0.8cqw;
+  }
+  .doc-agreement-text{
+    background:rgba(255,255,255,0.02);
+    border:1px solid var(--scr-line);
+    border-radius:0.6cqw;
+    padding:2cqw 2.2cqw;
+    font-size:1.6cqw; line-height:1.6;
+    color:var(--scr-text-dim);
+  }
+  .doc-agreement-text p{ margin:0 0 1.4cqw 0; }
+  .doc-agreement-text p:last-child{ margin-bottom:0; }
+  .doc-submit{
+    flex:none;
+    padding:2cqw 1cqw;
+    border:1px solid var(--scr-cyan);
+    border-radius:0.8cqw;
+    background:rgba(143,214,255,0.1);
+    color:#eaf5ff;
+    font-family:inherit; font-weight:600; letter-spacing:0.05em;
+    font-size:1.9cqw;
+    cursor:pointer;
+  }
+  .doc-submit:active{ filter:brightness(0.85); }
+
+  /* ================= FIELD PICKER — плавающее окно выбора, появляется у
+     места нажатия на поле бланка заявки. Один переиспользуемый узел на
+     все поля; список вариантов или поле ввода кода подставляются в JS. ================= */
+  .field-picker-scrim{ position:fixed; inset:0; z-index:69; background:transparent; }
+  .field-picker-scrim[hidden]{ display:none; }
+  .field-picker{
+    position:fixed; z-index:70;
+    width:min(80vw, 320px);
+    background:linear-gradient(180deg, var(--scr-bg-1), var(--scr-bg-2));
+    border:1.4px solid var(--scr-line-strong);
+    border-radius:1.2cqw;
+    box-shadow:0 1cqw 4cqw rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.3);
+    overflow:hidden;
+    opacity:0; transform:scale(0.96);
+    transition:opacity .15s ease, transform .15s ease;
+  }
+  .field-picker[hidden]{ display:none; }
+  .field-picker.shown{ opacity:1; transform:scale(1); }
+  .field-picker-handle{
+    text-align:center;
+    padding:1cqw 0 0.2cqw;
+    color:var(--scr-text-dim);
+    font-size:16px; line-height:1;
+    letter-spacing:0.2em;
+  }
+  .field-picker-list{ display:flex; flex-direction:column; padding:0.6cqw; }
+  .field-picker-list[hidden]{ display:none; }
+  .field-picker-option{
+    display:block; width:100%;
+    text-align:left;
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.9cqw; letter-spacing:0.03em;
+    color:var(--scr-text);
+    background:transparent;
+    border:none; border-top:1px solid var(--scr-line);
+    border-radius:0;
+    padding:1.8cqw 1.8cqw;
+    cursor:pointer;
+  }
+  .field-picker-option:first-child{ border-top:none; }
+  .field-picker-option:active{ background:rgba(255,255,255,0.08); }
+  .field-picker-option.active{ color:var(--scr-cyan); }
+  .field-picker-input-wrap{ padding:1.2cqw 2cqw 2cqw; display:flex; flex-direction:column; gap:1.2cqw; }
+  .field-picker-input-wrap[hidden]{ display:none; }
+  .field-picker-input{
+    width:100%;
+    padding:1.4cqw 1.6cqw;
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--scr-line);
+    border-radius:0.6cqw;
+    color:var(--scr-text);
+    font-family:inherit; font-size:1.8cqw;
+    outline:none;
+  }
+  .field-picker-input:focus{ border-color:var(--scr-cyan); }
+  .field-picker-hint{
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.4cqw; line-height:1.4; letter-spacing:0.03em;
+    color:var(--scr-text-dim);
+  }
+  .field-picker-confirm{
+    padding:1.4cqw 1cqw;
+    border:1px solid var(--scr-cyan);
+    border-radius:0.6cqw;
+    background:rgba(143,214,255,0.1);
+    color:#eaf5ff;
+    font-family:inherit; font-weight:600; letter-spacing:0.05em;
+    font-size:1.7cqw;
+    cursor:pointer;
+  }
+  .field-picker-confirm:active{ filter:brightness(0.85); }
+
   /* ================= RENAME OVERLAY — "system warning window" ================= */
   /* Modal dialog stacked above everything (menu/settings included), styled like
      an in-universe OS pop-up: title bar + close button + warning icon + body.
@@ -1426,6 +1587,7 @@
     display:flex; gap:2cqw;
     padding:3cqw 3.6cqw 3.6cqw;
   }
+  .rename-actions.stacked{ flex-direction:column; }
   .rename-btn{
     flex:1;
     font-family:'IBM VGA 8x16',monospace;
@@ -1444,6 +1606,53 @@
     border-color:var(--scr-amber);
   }
   .rename-btn:disabled{ opacity:0.45; cursor:default; }
+
+  /* --- "ВЫЙТИ НА СМЕНУ" choice buttons — same "system window" language as
+        .rename-btn above, just taller and left-aligned to fit a title +
+        subtitle line, since these lead to two very different flows rather
+        than a plain yes/no. --- */
+  .shift-choice-btn{
+    position:relative;
+    display:flex; flex-direction:column; align-items:flex-start; gap:0.5cqw;
+    width:100%;
+    text-align:left;
+    font-family:'IBM VGA 8x16',monospace;
+    color:var(--scr-text);
+    background:rgba(255,255,255,0.05);
+    border:1.2px solid var(--scr-line-strong);
+    border-radius:0.8cqw;
+    padding:2.4cqw 3.2cqw;
+    cursor:pointer;
+  }
+  .shift-choice-btn:active{ filter:brightness(0.85); }
+  .shift-choice-btn.primary{
+    background:linear-gradient(135deg, rgba(232,181,106,0.28), rgba(232,181,106,0.08));
+    border-color:var(--scr-amber);
+  }
+  .shift-choice-btn .t1{
+    font-size:1.9cqw; font-weight:700; letter-spacing:0.05em;
+    color:#eaf5ff;
+  }
+  .shift-choice-btn .t2{
+    font-size:1.4cqw; letter-spacing:0.05em;
+    color:var(--scr-text-dim);
+  }
+  /* "i" info bubble on the group-recruitment choice — a nested tappable
+     span (not a <button>, to avoid invalid button-in-button markup),
+     stopPropagation'd in JS so tapping it opens the explanation instead
+     of triggering the button underneath it. */
+  .shift-info-dot{
+    position:absolute; top:1.8cqw; right:1.8cqw;
+    width:4.6cqw; height:4.6cqw; min-width:19px; min-height:19px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'IBM VGA 8x16',monospace; font-size:1.9cqw; font-weight:700;
+    color:var(--scr-cyan);
+    background:rgba(143,214,255,0.12);
+    border:1px solid var(--scr-cyan);
+    border-radius:50%;
+    cursor:pointer;
+  }
+  .shift-info-dot:active{ filter:brightness(0.85); }
 
   /* full blackout during the "restart" sequence — sits above absolutely
      everything, including the rename overlay itself and the CRT filters */
@@ -1538,9 +1747,13 @@
       </button>
 
       <div class="menu">
-        <button class="tile-primary" type="button">
+        <button class="tile-primary" type="button" id="tilePrimaryShift">
           <span class="ico">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M9 3.6h6a1 1 0 0 1 1 1V6.4H8V4.6a1 1 0 0 1 1-1Z"/>
+              <rect x="5" y="5.4" width="14" height="16.6" rx="1.6"/>
+              <path d="M8.4 12.6l2.5 2.5L15.8 9.6"/>
+            </svg>
           </span>
           <span class="txt">
             <div class="t1">ВЫЙТИ НА СМЕНУ</div>
@@ -1558,7 +1771,7 @@
               <line x1="8.6" y1="12.8" x2="15.4" y2="12.8"/>
               <line x1="8.6" y1="16.2" x2="13" y2="16.2"/>
             </svg></span>
-            <span class="lbl">ИНСТРУКТАЖ (ТЕОРИЯ)</span>
+            <span class="lbl">ИНСТРУКТАЖ</span>
           </button>
           <button class="tile" type="button">
             <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -1959,7 +2172,7 @@
           </svg>
         </div>
         <div class="title">Раздел пока недоступен</div>
-        <div class="desc">База данных станции ещё наполняется. Загляните сюда позже – здесь появятся документы, личные дела и архивные записи.</div>
+        <div class="desc">База данных станции ещё наполняется. Загляните сюда позже — здесь появятся досье, справочные материалы и архивные записи.</div>
         <div class="tag-line">ДОСТУП: ОГРАНИЧЕН // СТАТУС: В РАЗРАБОТКЕ</div>
       </div>
 
@@ -2120,6 +2333,140 @@
         </div>
       </div>
 
+    </div>
+
+    <!-- ================= ЗАЯВКА НА РАСПРЕДЕЛЕНИЕ ("ВЫЙТИ НА СМЕНУ" -> "НАЧАТЬ
+         ЗАПОЛНЕНИЕ ДОКУМЕНТА") — бланк, который игрок подаёт в диспетчерскую
+         Экватора, чтобы получить допуск к сессии. Поля заполняются не вручную
+         (кроме кода допуска) — тап по полю открывает плавающее окно выбора
+         рядом с местом нажатия, см. JS: openFieldPicker/closeFieldPicker.
+         Кнопка "ПОДАТЬ В ДИСПЕТЧЕРСКУЮ" в этой версии ничего не отправляет —
+         сама механика запуска сессии станет следующим этапом разработки. ================= -->
+    <div class="screen-content" id="shiftDocumentScreen" hidden>
+      <div class="screen-watermark" aria-hidden="true">
+        <svg viewBox="0 0 200 200">
+          <g class="wreath-r">
+            <path class="stem" d="M113,148 Q128,166 100,168"/>
+            <path class="leaf" d="M110.8,150.9 C125.6,157.9 129.8,177.5 119.1,190.0 C104.3,182.9 100.2,163.3 110.8,150.9 Z"/>
+            <path class="leaf" d="M124.4,145.9 C140.6,148.6 150.0,166.3 143.2,181.2 C127.0,178.5 117.6,160.8 124.4,145.9 Z"/>
+            <path class="leaf" d="M136.1,137.4 C152.4,135.6 166.3,150.0 163.9,166.2 C147.6,168.0 133.7,153.6 136.1,137.4 Z"/>
+            <path class="leaf" d="M147.6,127.5 C159.6,122.8 173.4,130.8 175.3,143.5 C163.4,148.2 149.6,140.2 147.6,127.5 Z"/>
+            <path class="leaf" d="M153.4,113.3 C163.5,105.5 179.1,109.4 184.4,121.0 C174.2,128.8 158.7,124.9 153.4,113.3 Z"/>
+            <path class="leaf" d="M155.0,98.1 C162.6,87.8 178.6,87.2 186.9,97.0 C179.3,107.2 163.3,107.8 155.0,98.1 Z"/>
+            <path class="leaf" d="M155.2,82.1 C158.2,73.7 168.7,70.3 176.1,75.3 C173.0,83.6 162.6,87.0 155.2,82.1 Z"/>
+            <path class="leaf" d="M148.1,67.6 C148.7,58.7 157.8,52.5 166.3,55.3 C165.7,64.1 156.6,70.3 148.1,67.6 Z"/>
+          </g>
+          <g class="wreath-l">
+            <path class="stem" d="M87,148 Q72,166 100,168"/>
+            <path class="leaf" d="M89.2,150.9 C74.4,157.9 70.2,177.5 80.9,190.0 C95.7,182.9 99.8,163.3 89.2,150.9 Z"/>
+            <path class="leaf" d="M75.6,145.9 C59.4,148.6 50.0,166.3 56.8,181.2 C73.0,178.5 82.4,160.8 75.6,145.9 Z"/>
+            <path class="leaf" d="M63.9,137.4 C47.6,135.6 33.7,150.0 36.1,166.2 C52.4,168.0 66.3,153.6 63.9,137.4 Z"/>
+            <path class="leaf" d="M52.4,127.5 C40.4,122.8 26.6,130.8 24.7,143.5 C36.6,148.2 50.4,140.2 52.4,127.5 Z"/>
+            <path class="leaf" d="M46.6,113.3 C36.5,105.5 20.9,109.4 15.6,121.0 C25.8,128.8 41.3,124.9 46.6,113.3 Z"/>
+            <path class="leaf" d="M45.0,98.1 C37.4,87.8 21.4,87.2 13.1,97.0 C20.7,107.2 36.7,107.8 45.0,98.1 Z"/>
+            <path class="leaf" d="M44.8,82.1 C41.8,73.7 31.3,70.3 23.9,75.3 C27.0,83.6 37.4,87.0 44.8,82.1 Z"/>
+            <path class="leaf" d="M51.9,67.6 C51.3,58.7 42.2,52.5 33.7,55.3 C34.3,64.1 43.4,70.3 51.9,67.6 Z"/>
+          </g>
+          <g class="compass-mark">
+            <circle cx="100" cy="100" r="44"/>
+            <circle cx="100" cy="100" r="40"/>
+            <polygon points="100.0,16.0 103.4,91.7 126.2,73.8 108.3,96.6 184.0,100.0 108.3,103.4 126.2,126.2 103.4,108.3 100.0,184.0 96.6,108.3 73.8,126.2 91.7,103.4 16.0,100.0 91.7,96.6 73.8,73.8 96.6,91.7"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <div class="brand-text">
+            <div class="b1">EQUATOR</div>
+            <div class="b2">STATION</div>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="clock" id="clock6">14:28</div>
+          <div class="icon-btn" title="Системы станции">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <rect x="3" y="4" width="18" height="5" rx="1"/>
+              <rect x="3" y="15" width="18" height="5" rx="1"/>
+              <circle cx="7" cy="6.5" r="0.7" fill="currentColor" stroke="none"/>
+              <circle cx="7" cy="17.5" r="0.7" fill="currentColor" stroke="none"/>
+              <line x1="11" y1="6.5" x2="17" y2="6.5"/>
+              <line x1="11" y1="17.5" x2="17" y2="17.5"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <button class="back-row" id="shiftDocumentBack" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 18l-6-6 6-6"/></svg>
+        <span>НАЗАД В МЕНЮ</span>
+      </button>
+
+      <div class="doc-wrap">
+        <div class="doc-header">
+          <div class="doc-title">ЗАЯВКА НА РАСПРЕДЕЛЕНИЕ</div>
+          <div class="doc-subtitle">СЛУЖБА РАСПРЕДЕЛЕНИЯ ПЕРСОНАЛА // EQUATOR-01</div>
+        </div>
+
+        <div class="doc-fields">
+          <button class="doc-field" type="button" id="docFieldType">
+            <span class="doc-field-label">ТИП НАЗНАЧЕНИЯ</span>
+            <span class="doc-field-value placeholder" id="docFieldTypeValue">ВЫБРАТЬ<svg class="doc-field-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9l6 6 6-6"/></svg></span>
+          </button>
+          <button class="doc-field" type="button" id="docFieldSecondary" hidden>
+            <span class="doc-field-label" id="docFieldSecondaryLabel">РОЛЬ</span>
+            <span class="doc-field-value placeholder" id="docFieldSecondaryValue">ВЫБРАТЬ<svg class="doc-field-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9l6 6 6-6"/></svg></span>
+          </button>
+          <button class="doc-field" type="button" id="docFieldMode" hidden>
+            <span class="doc-field-label">РЕЖИМ ИГРЫ</span>
+            <span class="doc-field-value placeholder" id="docFieldModeValue">ВЫБРАТЬ<svg class="doc-field-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9l6 6 6-6"/></svg></span>
+          </button>
+        </div>
+
+        <div class="doc-agreement">
+          <div class="doc-agreement-label">ТЕКСТ СОГЛАШЕНИЯ // ОЗНАКОМЛЕНИЕ ОБЯЗАТЕЛЬНО</div>
+          <div class="doc-agreement-text">
+            <p>Настоящим работник подтверждает добровольное согласие на распределение в рамках текущего транзитного цикла Экватора и обязуется исполнять указания непосредственного начальства станции на всём протяжении смены.</p>
+            <p>Работник уведомлен, что скафандр, выданный на смену, является имуществом Лиги Вольных Секторов и остаётся частью сети приписанного Экватора на всё время нахождения на станции. Снятие скафандра вне отведённых для этого помещений трактуется диспетчерской как повод для проверки.</p>
+            <p>В случае подтверждённой угрозы жизни экипажа окончательное решение принимается общим собранием станции путём голосования. Исполнение принятого решения находится вне компетенции отдельного работника.</p>
+            <p>Страховой полис, предоставленный Лигой на срок смены, аннулируется при нарушении порядка ношения скафандра, а также при совершении действий, квалифицируемых как саботаж или содействие агенту Директората.</p>
+            <p>Подача настоящего документа не является гарантией немедленного распределения — очерёдность определяется диспетчерской Экватора самостоятельно, исходя из текущей загруженности сети малых станций.</p>
+          </div>
+        </div>
+
+        <button class="doc-submit" id="docSubmitBtn" type="button">ПОДАТЬ В ДИСПЕТЧЕРСКУЮ</button>
+      </div>
+
+      <div class="bottombar">
+        <div class="icon-btn" title="Разделы">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <polygon points="12 3 21 8 12 13 3 8 12 3"/>
+            <polyline points="3 12 12 17 21 12"/>
+            <polyline points="3 16 12 21 21 16"/>
+          </svg>
+        </div>
+        <div class="tag">EQUATOR-01 // SEC-B</div>
+        <div class="icon-btn" title="Ещё">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= FIELD PICKER — плавающее окно выбора для полей бланка
+         заявки; появляется рядом с местом нажатия (см. JS: openFieldPicker/
+         closeFieldPicker). Один переиспользуемый узел на все поля бланка —
+         содержимое (список вариантов ИЛИ поле ввода кода допуска) подставляется
+         в JS перед показом, в зависимости от того, какое поле было нажато. ================= -->
+    <div class="field-picker-scrim" id="fieldPickerScrim" hidden></div>
+    <div class="field-picker" id="fieldPicker" hidden>
+      <div class="field-picker-handle" aria-hidden="true">–</div>
+      <div class="field-picker-list" id="fieldPickerList"></div>
+      <div class="field-picker-input-wrap" id="fieldPickerInputWrap" hidden>
+        <input class="field-picker-input" id="fieldPickerInput" type="text" maxlength="24" autocomplete="off" spellcheck="false">
+        <div class="field-picker-hint" id="fieldPickerHint"></div>
+        <button class="field-picker-confirm" id="fieldPickerConfirm" type="button">ОК</button>
+      </div>
     </div>
 
     <!-- ================= GATE: 1) LOCKED ================= -->
@@ -2291,8 +2638,55 @@
       </div>
     </div>
 
+    <!-- ================= SHIFT ENTRY — "ВЫЙТИ НА СМЕНУ": выбор между заполнением
+         бланка заявки (остаётся в терминале) и локальным набором экипажа через
+         групповой чат Telegram (уводит из терминала так же, как раздел
+         поддержки, см. SUPPORT WARNING выше). ================= -->
+    <div class="rename-overlay" id="shiftEntryOverlay" hidden>
+      <div class="rename-window">
+        <div class="rename-titlebar">
+          <span class="rename-titlebar-text">▸ ВЫХОД НА СМЕНУ</span>
+          <button class="rename-close" id="shiftEntryClose" type="button" aria-label="Закрыть">✕</button>
+        </div>
+        <div class="rename-body">
+          <p class="rename-warn-text">Выберите, как оформить допуск к сессии.</p>
+        </div>
+        <div class="rename-actions stacked">
+          <button class="shift-choice-btn primary" id="shiftChooseDocument" type="button">
+            <span class="t1">НАЧАТЬ ЗАПОЛНЕНИЕ ДОКУМЕНТА</span>
+            <span class="t2">ЗАЯВКА НА РАСПРЕДЕЛЕНИЕ // В ТЕРМИНАЛЕ</span>
+          </button>
+          <button class="shift-choice-btn" id="shiftChooseLocal" type="button">
+            <span class="t1">МЕСТНЫЙ НАБОР ЭКИПАЖА</span>
+            <span class="t2">ДОБАВИТЬ ПОСТ В ГРУППОВОЙ ЧАТ</span>
+            <span class="shift-info-dot" id="shiftLocalInfoBtn" role="button" tabindex="0" aria-label="Что означает эта кнопка?">i</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SHIFT LOCAL INFO — пояснение к "МЕСТНЫЙ НАБОР ЭКИПАЖА" ================= -->
+    <div class="rename-overlay" id="shiftLocalInfoOverlay" hidden>
+      <div class="rename-window">
+        <div class="rename-titlebar">
+          <span class="rename-titlebar-text">ℹ ИНФОРМАЦИЯ</span>
+          <button class="rename-close" id="shiftLocalInfoClose" type="button" aria-label="Закрыть">✕</button>
+        </div>
+        <div class="rename-body">
+          <div class="rename-warn-row">
+            <span class="rename-warn-icon">ℹ</span>
+            <p class="rename-warn-text">Эта кнопка добавляет ISOLATION в выбранный вами групповой чат Telegram. После этого любой участник группы сможет прямо там, командой боту, начать собирать экипаж — без входа в терминал.</p>
+          </div>
+        </div>
+        <div class="rename-actions">
+          <button class="rename-btn primary" id="shiftLocalInfoConfirm" type="button">ПОНЯТНО</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ================= TERMINAL OFF — экран "гаснет" во время перезапуска ================= -->
     <div class="terminal-off" id="terminalOff" hidden></div>
+
   </div>
 </div>
 
@@ -2368,6 +2762,8 @@
     if (clock4) clock4.textContent = time;
     const clock5 = document.getElementById('clock5');
     if (clock5) clock5.textContent = time;
+    const clock6 = document.getElementById('clock6');
+    if (clock6) clock6.textContent = time;
   }
   tick();
   setInterval(tick, 15000);
@@ -2402,6 +2798,7 @@
   const settingsScreen = document.getElementById('settingsScreen');
   const mailScreen = document.getElementById('mailScreen');
   const databaseScreen = document.getElementById('databaseScreen');
+  const shiftDocumentScreen = document.getElementById('shiftDocumentScreen');
   // Profile/Settings/Mail/Database switch to instantly (no boot animation to time against),
   // so their wallpaper can just be shown right away.
   profileScreen.querySelectorAll('.screen-watermark').forEach(w => w.classList.add('wp-shown'));
@@ -2924,6 +3321,334 @@
   }
   document.getElementById('tileDatabase').addEventListener('click', openDatabase);
   document.getElementById('databaseBack').addEventListener('click', closeDatabase);
+
+  // --- "ЗАЯВКА НА РАСПРЕДЕЛЕНИЕ" screen (bлaнк, открывается через ВЫЙТИ НА
+  //     СМЕНУ -> НАЧАТЬ ЗАПОЛНЕНИЕ ДОКУМЕНТА). Same instant, no-fade switch
+  //     as the other menu-nested screens above.
+  function openShiftDocument(){
+    resetDocForm();
+    mainMenu.classList.remove('reveal');
+    mainMenu.hidden = true;
+    shiftDocumentScreen.hidden = false;
+    shiftDocumentScreen.classList.add('reveal');
+    shiftDocumentScreen.querySelector('.doc-wrap').scrollTop = 0;
+  }
+  function closeShiftDocument(){
+    closeFieldPicker();
+    shiftDocumentScreen.classList.remove('reveal');
+    shiftDocumentScreen.hidden = true;
+    mainMenu.hidden = false;
+    mainMenu.classList.add('reveal');
+  }
+  document.getElementById('shiftDocumentBack').addEventListener('click', closeShiftDocument);
+
+  // =========================================================
+  //  ВЫЙТИ НА СМЕНУ — точка входа. Тап по главной плитке открывает выбор
+  //  между заполнением бланка (остаётся в терминале, см. ниже
+  //  "ЗАЯВКА НА РАСПРЕДЕЛЕНИЕ") и локальным набором экипажа через
+  //  групповой чат Telegram (уводит из терминала — тот же паттерн, что и
+  //  раздел поддержки: exitFullscreen + openTelegramLink + close).
+  // =========================================================
+  const shiftEntryOverlay = document.getElementById('shiftEntryOverlay');
+  const shiftLocalInfoOverlay = document.getElementById('shiftLocalInfoOverlay');
+
+  function openShiftEntry(){
+    shiftEntryOverlay.hidden = false;
+    requestAnimationFrame(() => shiftEntryOverlay.classList.add('shown'));
+  }
+  function closeShiftEntry(){
+    shiftEntryOverlay.classList.remove('shown');
+    setTimeout(() => { shiftEntryOverlay.hidden = true; }, 250);
+  }
+  document.getElementById('tilePrimaryShift').addEventListener('click', openShiftEntry);
+  document.getElementById('shiftEntryClose').addEventListener('click', closeShiftEntry);
+
+  document.getElementById('shiftChooseDocument').addEventListener('click', () => {
+    closeShiftEntry();
+    openShiftDocument();
+  });
+
+  function openShiftLocalInfo(){
+    shiftLocalInfoOverlay.hidden = false;
+    requestAnimationFrame(() => shiftLocalInfoOverlay.classList.add('shown'));
+  }
+  function closeShiftLocalInfo(){
+    shiftLocalInfoOverlay.classList.remove('shown');
+    setTimeout(() => { shiftLocalInfoOverlay.hidden = true; }, 250);
+  }
+  const shiftLocalInfoBtn = document.getElementById('shiftLocalInfoBtn');
+  shiftLocalInfoBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openShiftLocalInfo();
+  });
+  shiftLocalInfoBtn.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); openShiftLocalInfo(); }
+  });
+  document.getElementById('shiftLocalInfoClose').addEventListener('click', closeShiftLocalInfo);
+  document.getElementById('shiftLocalInfoConfirm').addEventListener('click', closeShiftLocalInfo);
+
+  // TODO: заменить на реальный username бота перед публикацией — отсюда
+  // строится диплинк ?startgroup=..., который в самом Telegram открывает
+  // штатный выбор группового чата для добавления бота (аналог
+  // "Добавить ISOLATION в группу"), без какого-либо участия фронтенда
+  // Mini App в самом добавлении.
+  const BOT_USERNAME = 'IsolationGameBot';
+
+  document.getElementById('shiftChooseLocal').addEventListener('click', () => {
+    closeShiftEntry();
+
+    if (tg && typeof tg.exitFullscreen === 'function') {
+      try { tg.exitFullscreen(); } catch (e) {}
+    }
+
+    if (tg && typeof tg.openTelegramLink === 'function') {
+      // ?startgroup=... — официальный способ Telegram открыть выбор группы
+      // для добавления бота, без похода на бэкенд Mini App API.
+      tg.openTelegramLink('https://t.me/' + BOT_USERNAME + '?startgroup=shift');
+      if (typeof tg.close === 'function') {
+        try { tg.close(); } catch (e) {}
+      }
+    }
+    // Вне Telegram (обычный браузер, превью) сделать тут нечего — ссылка
+    // на группу Telegram недоступна вне самого приложения.
+  });
+
+  // =========================================================
+  //  FIELD PICKER — плавающее окно выбора для полей бланка заявки.
+  //  Один переиспользуемый узел на все поля: список вариантов ИЛИ поле
+  //  ввода кода допуска подставляются перед показом, положение считается
+  //  от места нажатия и зажимается в границы экрана.
+  // =========================================================
+  const fieldPickerScrim = document.getElementById('fieldPickerScrim');
+  const fieldPicker = document.getElementById('fieldPicker');
+  const fieldPickerList = document.getElementById('fieldPickerList');
+  const fieldPickerInputWrap = document.getElementById('fieldPickerInputWrap');
+  const fieldPickerInput = document.getElementById('fieldPickerInput');
+  const fieldPickerHint = document.getElementById('fieldPickerHint');
+  const fieldPickerConfirm = document.getElementById('fieldPickerConfirm');
+
+  let fieldPickerSubmitHandler = null;
+
+  function positionFieldPicker(x, y){
+    // Открываем рядом с местом нажатия, зажимая в границы экрана — окно
+    // уже отрендерено (но ещё opacity:0), поэтому offsetWidth/Height
+    // известны точно, без угадывания.
+    const margin = 10;
+    const w = fieldPicker.offsetWidth;
+    const h = fieldPicker.offsetHeight;
+    let left = x - w / 2;
+    left = Math.max(margin, Math.min(left, window.innerWidth - w - margin));
+    let top = y + 14;
+    if (top + h > window.innerHeight - margin) {
+      top = y - h - 14;
+    }
+    top = Math.max(margin, Math.min(top, window.innerHeight - h - margin));
+    fieldPicker.style.left = left + 'px';
+    fieldPicker.style.top = top + 'px';
+  }
+
+  function closeFieldPicker(){
+    fieldPicker.classList.remove('shown');
+    fieldPickerScrim.hidden = true;
+    setTimeout(() => {
+      fieldPicker.hidden = true;
+      fieldPickerList.innerHTML = '';
+      fieldPickerSubmitHandler = null;
+    }, 150);
+  }
+  fieldPickerScrim.addEventListener('click', closeFieldPicker);
+
+  // mode: 'list' — options: [{value,label}], currentValue, onSelect(value,label)
+  // mode: 'input' — placeholder, hint, initialValue, onSubmit(value)
+  function openFieldPicker(x, y, config){
+    fieldPickerList.innerHTML = '';
+    if (config.mode === 'list') {
+      fieldPickerList.hidden = false;
+      fieldPickerInputWrap.hidden = true;
+      config.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'field-picker-option' + (opt.value === config.currentValue ? ' active' : '');
+        btn.textContent = opt.label;
+        btn.addEventListener('click', () => {
+          config.onSelect(opt.value, opt.label);
+          closeFieldPicker();
+        });
+        fieldPickerList.appendChild(btn);
+      });
+    } else {
+      fieldPickerList.hidden = true;
+      fieldPickerInputWrap.hidden = false;
+      fieldPickerInput.value = config.initialValue || '';
+      fieldPickerInput.placeholder = config.placeholder || '';
+      fieldPickerHint.textContent = config.hint || '';
+      fieldPickerSubmitHandler = () => {
+        const val = fieldPickerInput.value.trim();
+        if (!val) return;
+        config.onSubmit(val);
+        closeFieldPicker();
+      };
+    }
+
+    fieldPickerScrim.hidden = false;
+    fieldPicker.hidden = false;
+    fieldPicker.classList.remove('shown');
+    positionFieldPicker(x, y);
+    requestAnimationFrame(() => {
+      fieldPicker.classList.add('shown');
+      if (config.mode === 'input') fieldPickerInput.focus();
+    });
+  }
+
+  fieldPickerConfirm.addEventListener('click', () => {
+    if (fieldPickerSubmitHandler) fieldPickerSubmitHandler();
+  });
+  fieldPickerInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && fieldPickerSubmitHandler) { e.preventDefault(); fieldPickerSubmitHandler(); }
+  });
+
+  // =========================================================
+  //  ЗАЯВКА НА РАСПРЕДЕЛЕНИЕ — сама форма. Три поля:
+  //   1) ТИП НАЗНАЧЕНИЯ — всегда список из трёх атмосферных вариантов.
+  //   2) зависит от типа: РОЛЬ (список) для одиночной вахты, КОД ДОПУСКА
+  //      (ввод текста) для формирования/присоединения к экипажу.
+  //   3) РЕЖИМ ИГРЫ (список) — только при формировании экипажа.
+  //  Кнопка "ПОДАТЬ В ДИСПЕТЧЕРСКУЮ" пока ничего не отправляет — это
+  //  следующий этап разработки, см. комментарий у самой кнопки в HTML.
+  // =========================================================
+  const DOC_TYPE_OPTIONS = [
+    { value: 'solo',   label: 'АВТОНОМНАЯ ВАХТА' },
+    { value: 'create', label: 'ФОРМИРОВАНИЕ ЭКИПАЖА' },
+    { value: 'join',   label: 'ПРИСОЕДИНЕНИЕ К ЭКИПАЖУ' },
+  ];
+  const DOC_ROLE_OPTIONS = [
+    { value: 'staff',      label: 'ПЕРСОНАЛ' },
+    { value: 'liquidator', label: 'ЛИКВИДАТОР' },
+    { value: 'random',     label: 'СЛУЧАЙНАЯ' },
+  ];
+  const DOC_MODE_OPTIONS = [
+    { value: 'classic',       label: 'КЛАССИЧЕСКИЙ' },
+    { value: 'international', label: 'МЕЖДУНАРОДНЫЙ' },
+  ];
+
+  const docFieldType = document.getElementById('docFieldType');
+  const docFieldTypeValue = document.getElementById('docFieldTypeValue');
+  const docFieldSecondary = document.getElementById('docFieldSecondary');
+  const docFieldSecondaryLabel = document.getElementById('docFieldSecondaryLabel');
+  const docFieldSecondaryValue = document.getElementById('docFieldSecondaryValue');
+  const docFieldMode = document.getElementById('docFieldMode');
+  const docFieldModeValue = document.getElementById('docFieldModeValue');
+  const docSubmitBtn = document.getElementById('docSubmitBtn');
+
+  let docState = { type: null, role: null, password: '', mode: null };
+
+  function setFieldValue(valueEl, label){
+    // Первый текстовый узел несёт подпись, SVG-стрелка (.doc-field-caret)
+    // остаётся последним ребёнком — поэтому подменяем именно firstChild,
+    // а не весь innerHTML, чтобы не потерять иконку.
+    valueEl.childNodes[0].textContent = label;
+    valueEl.classList.remove('placeholder');
+  }
+  function resetFieldValue(valueEl){
+    valueEl.childNodes[0].textContent = 'ВЫБРАТЬ';
+    valueEl.classList.add('placeholder');
+  }
+
+  function resetDocForm(){
+    docState = { type: null, role: null, password: '', mode: null };
+    resetFieldValue(docFieldTypeValue);
+    resetFieldValue(docFieldSecondaryValue);
+    resetFieldValue(docFieldModeValue);
+    docFieldSecondary.hidden = true;
+    docFieldMode.hidden = true;
+    docFieldSecondaryLabel.textContent = 'РОЛЬ';
+  }
+
+  docFieldType.addEventListener('click', (e) => {
+    openFieldPicker(e.clientX, e.clientY, {
+      mode: 'list',
+      options: DOC_TYPE_OPTIONS,
+      currentValue: docState.type,
+      onSelect: (value, label) => {
+        const changed = docState.type !== value;
+        docState.type = value;
+        setFieldValue(docFieldTypeValue, label);
+
+        if (changed) {
+          docState.role = null;
+          docState.password = '';
+          docState.mode = null;
+          resetFieldValue(docFieldSecondaryValue);
+          resetFieldValue(docFieldModeValue);
+        }
+
+        if (value === 'solo') {
+          docFieldSecondaryLabel.textContent = 'РОЛЬ';
+          docFieldSecondary.hidden = false;
+          docFieldMode.hidden = true;
+        } else if (value === 'create') {
+          docFieldSecondaryLabel.textContent = 'КОД ДОПУСКА';
+          docFieldSecondary.hidden = false;
+          docFieldMode.hidden = false;
+        } else {
+          docFieldSecondaryLabel.textContent = 'КОД ДОПУСКА';
+          docFieldSecondary.hidden = false;
+          docFieldMode.hidden = true;
+        }
+      },
+    });
+  });
+
+  docFieldSecondary.addEventListener('click', (e) => {
+    if (docState.type === 'solo') {
+      openFieldPicker(e.clientX, e.clientY, {
+        mode: 'list',
+        options: DOC_ROLE_OPTIONS,
+        currentValue: docState.role,
+        onSelect: (value, label) => {
+          docState.role = value;
+          setFieldValue(docFieldSecondaryValue, label);
+        },
+      });
+    } else if (docState.type === 'create') {
+      openFieldPicker(e.clientX, e.clientY, {
+        mode: 'input',
+        initialValue: docState.password,
+        placeholder: 'НАПРИМЕР: NORA-27',
+        hint: 'Придумайте код допуска — его нужно будет сообщить остальным участникам экипажа.',
+        onSubmit: (value) => {
+          docState.password = value;
+          setFieldValue(docFieldSecondaryValue, value);
+        },
+      });
+    } else if (docState.type === 'join') {
+      openFieldPicker(e.clientX, e.clientY, {
+        mode: 'input',
+        initialValue: docState.password,
+        placeholder: 'КОД ДОПУСКА',
+        hint: 'Введите код допуска, который вам передал капитан экипажа.',
+        onSubmit: (value) => {
+          docState.password = value;
+          setFieldValue(docFieldSecondaryValue, value);
+        },
+      });
+    }
+  });
+
+  docFieldMode.addEventListener('click', (e) => {
+    openFieldPicker(e.clientX, e.clientY, {
+      mode: 'list',
+      options: DOC_MODE_OPTIONS,
+      currentValue: docState.mode,
+      onSelect: (value, label) => {
+        docState.mode = value;
+        setFieldValue(docFieldModeValue, label);
+      },
+    });
+  });
+
+  // Следующий этап разработки — сейчас кнопка ничего не отправляет.
+  docSubmitBtn.addEventListener('click', () => {});
 
   // =========================================================
   // =========================================================
