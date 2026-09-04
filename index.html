@@ -893,12 +893,19 @@
   }
   /* Mobile-only bump: fires when the real (px) container is narrow — i.e. the
      phone stage, capped at 520px — but not on the PC stage, whose .screen
-     container is far wider. Keeps the desktop version untouched. */
+     container is far wider. Keeps the desktop version untouched.
+     Sized at the midpoint between the original values and the first pass
+     (old=0%, first pass=100% -> this is 50%). */
   @container (max-width: 600px){
-    .empty-state{ gap:3.4cqw; padding:6cqw 4cqw; }
-    .empty-state .title{ font-size:4.6cqw; }
-    .empty-state .desc{ font-size:3.4cqw; line-height:1.5; max-width:88cqw; }
-    .empty-state .tag-line{ font-size:2.6cqw; }
+    .empty-state{ gap:3cqw; padding:6cqw 4.5cqw; }
+    .empty-state .title{ font-size:3.6cqw; }
+    .empty-state .desc{ font-size:2.7cqw; line-height:1.52; max-width:80cqw; }
+    .empty-state .tag-line{ font-size:2cqw; }
+    #databaseScreen .back-row{
+      margin-top:2cqw; padding:2.2cqw 2.6cqw; gap:2.2cqw; border-radius:1.1cqw;
+    }
+    #databaseScreen .back-row svg{ width:5.2cqw; height:5.2cqw; min-width:18px; min-height:18px; }
+    #databaseScreen .back-row span{ font-size:3.4cqw; }
   }
   .profile-id{
     flex:0 0 auto;
@@ -1060,31 +1067,38 @@
      icons and toggle switches (real tap targets), plus roomier rows. Scoped
      to #settingsScreen so the shared .profile-section-label / .switch rules
      don't spill into Профиль before that screen gets the same pass. The PC
-     stage's container is wide enough that this query never fires there. */
+     stage's container is wide enough that this query never fires there.
+     Sized at the midpoint between the original values and the first pass
+     (old=0%, first pass=100% -> this is 50%). */
   @container (max-width: 600px){
     #settingsScreen .profile-section-label{
-      font-size:3cqw; margin-top:4.4cqw; padding-bottom:1.2cqw;
+      font-size:2.4cqw; margin-top:4cqw; padding-bottom:1cqw;
     }
     #settingsScreen .settings-row,
     #settingsScreen .settings-row-link{
-      padding:3.6cqw 0.6cqw; gap:2cqw;
+      padding:2.9cqw 0.5cqw; gap:1.8cqw;
     }
-    #settingsScreen .settings-label{ font-size:3.8cqw; }
-    #settingsScreen .settings-value{ font-size:3.2cqw; }
+    #settingsScreen .settings-label{ font-size:3cqw; }
+    #settingsScreen .settings-value{ font-size:2.55cqw; }
     #settingsScreen .settings-arrow{
-      width:5.6cqw; height:5.6cqw; min-width:20px; min-height:20px;
+      width:4.6cqw; height:4.6cqw; min-width:16px; min-height:16px;
     }
     #settingsScreen .switch{
-      width:13cqw; height:7cqw; min-width:46px; min-height:25px;
+      width:10.7cqw; height:5.8cqw; min-width:39px; min-height:22px;
     }
-    #settingsScreen .switch-track{ border-radius:4cqw; }
+    #settingsScreen .switch-track{ border-radius:3.5cqw; }
     #settingsScreen .switch-thumb{
-      left:0.7cqw;
-      width:5.4cqw; height:5.4cqw; min-width:19px; min-height:19px;
+      left:0.6cqw;
+      width:4.3cqw; height:4.3cqw; min-width:16px; min-height:16px;
     }
     #settingsScreen .switch input:checked ~ .switch-track .switch-thumb{
-      left:calc(100% - 5.4cqw - 0.7cqw);
+      left:calc(100% - 4.3cqw - 0.6cqw);
     }
+    #settingsScreen .back-row{
+      margin-top:2cqw; padding:2.2cqw 2.6cqw; gap:2.2cqw; border-radius:1.1cqw;
+    }
+    #settingsScreen .back-row svg{ width:5.2cqw; height:5.2cqw; min-width:18px; min-height:18px; }
+    #settingsScreen .back-row span{ font-size:3.4cqw; }
   }
   /* ================= MAIL SCREEN ("ПОЧТА") ================= */
   .mail-content{
