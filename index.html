@@ -1431,7 +1431,7 @@
     overflow:hidden;
     border:1px solid var(--scr-line-strong);
     border-radius:1cqw;
-    background:#0c1826;
+    background:radial-gradient(circle at 50% 50%, #0b4169 0%, #062c4e 55%, #031f39 100%);
     touch-action:none;
     cursor:grab;
   }
@@ -1485,26 +1485,34 @@
     border:1px solid rgba(255,255,255,0.4);
   }
 
+  .station-bottombar{ }
+  .bottombar--stations{ border-top:none; padding-top:0; gap:1.2cqw; }
   .station-bar-btn{
-    display:flex; align-items:center; gap:0.8cqw;
-    background:transparent; border:none;
+    flex:1 1 0; min-width:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:0.8cqw;
+    padding:1.6cqw 0.8cqw;
+    border:1px solid var(--scr-line);
+    border-radius:0.8cqw;
+    background:rgba(255,255,255,0.02);
     font-family:'IBM VGA 8x16',monospace;
-    font-size:1.9cqw; letter-spacing:0.04em;
+    font-size:1.6cqw; letter-spacing:0.03em;
     color:var(--scr-text);
+    text-align:center;
     cursor:pointer;
-    padding:1cqw;
   }
-  .station-bar-btn svg{ flex:none; width:4cqw; height:4cqw; min-width:16px; min-height:16px; }
+  .station-bar-btn svg{ flex:none; width:5cqw; height:5cqw; min-width:18px; min-height:18px; }
   .station-bar-btn:active{ filter:brightness(0.8); }
   .station-bar-btn--danger{ color:#f2a3a3; }
+  .station-bar-btn--danger svg{ color:#f2a3a3; }
 
-  .rename-window--wide{ max-width:520px; }
+  .rename-window--wide{ max-width:760px; }
   .rename-body--scroll{ max-height:56vh; overflow-y:auto; }
-  .danger-item{ margin-bottom:3.2cqw; }
-  .danger-item:last-child{ margin-bottom:0; }
+  .danger-row{ display:flex; flex-wrap:wrap; gap:2.4cqw; align-items:flex-start; }
+  .danger-item{ flex:1 1 200px; min-width:200px; }
   .danger-item-title{
     font-family:'IBM VGA 8x16',monospace;
-    font-size:2.1cqw; font-weight:700; letter-spacing:0.03em;
+    font-size:1.9cqw; font-weight:700; letter-spacing:0.03em;
     color:var(--scr-amber);
     margin-bottom:1cqw;
   }
@@ -2436,15 +2444,17 @@
         </div>
       </div>
 
-      <div class="bottombar">
+      <div class="bottombar bottombar--stations">
         <button class="station-bar-btn" id="stationsBackBtn" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 18l-6-6 6-6"/></svg>
           <span>НАЗАД В МЕНЮ</span>
         </button>
         <button class="station-bar-btn" id="stationInfoBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16.5"/><circle cx="12" cy="7.6" r="0.9" fill="currentColor" stroke="none"/></svg>
           <span>ИНФОРМАЦИЯ</span>
         </button>
         <button class="station-bar-btn station-bar-btn--danger" id="stationDangerBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3.5L21.5 20H2.5L12 3.5Z" stroke-linejoin="round"/><line x1="12" y1="9.8" x2="12" y2="14.6"/><circle cx="12" cy="17.3" r="0.9" fill="currentColor" stroke="none"/></svg>
           <span>ОПАСНОСТЬ</span>
         </button>
       </div>
@@ -2462,20 +2472,22 @@
           <button class="rename-close" id="stationDangerClose" type="button" aria-label="Закрыть">✕</button>
         </div>
         <div class="rename-body rename-body--scroll">
-          <div class="danger-item">
-            <div class="danger-item-title">👤 ВЗЛОМ КОСТЮМОВ</div>
-            <p class="rename-warn-text">На 30 секунд все костюмы персонала становятся неотличимы друг от друга — опознать никого нельзя. Вместо этого на экране появляется трёхзначный номер: он держится, пока владелец стоит на месте, и меняется заново, стоит ему перейти в другую комнату.</p>
-            <p class="rename-warn-text danger-fix">Чинится само — ждать ремонта не нужно, просто переждать 30 секунд.</p>
-          </div>
-          <div class="danger-item">
-            <div class="danger-item-title">🛠️ ВЗЛОМ ЗАДАНИЙ</div>
-            <p class="rename-warn-text">Задания блокируются у всего персонала на неопределённый срок — новые не выдаются, пока неполадка не устранена.</p>
-            <p class="rename-warn-text danger-fix">Чинится в «Техобслуживании» — как только кто-то устранит там неполадку, список заданий обновится заново.</p>
-          </div>
-          <div class="danger-item">
-            <div class="danger-item-title">🛰️ ОТСТЫКОВКА ОТСЕКА</div>
-            <p class="rename-warn-text">Один из четырёх отсеков станции физически отделяется: попасть внутрь или выйти наружу нельзя, пока не завершится пристыковка (около 2,5 минут). Труп внутри отсека нельзя объявить, пока станция не пристыкуется обратно.</p>
-            <p class="rename-warn-text danger-fix">Ускоряется в «Центральном узле: Реактор и управление». Доступен нападающему только один раз за смену.</p>
+          <div class="danger-row">
+            <div class="danger-item">
+              <div class="danger-item-title">ВЗЛОМ КОСТЮМОВ</div>
+              <p class="rename-warn-text">На 30 секунд все костюмы персонала становятся неотличимы друг от друга — опознать никого нельзя. Вместо этого на экране появляется трёхзначный номер: он держится, пока владелец стоит на месте, и меняется заново при переходе в другую комнату.</p>
+              <p class="rename-warn-text danger-fix">Чинится само — просто переждать 30 секунд.</p>
+            </div>
+            <div class="danger-item">
+              <div class="danger-item-title">ВЗЛОМ ЗАДАНИЙ</div>
+              <p class="rename-warn-text">Задания блокируются у всего персонала на неопределённый срок — новые не выдаются, пока неполадка не устранена.</p>
+              <p class="rename-warn-text danger-fix">Чинится в «Техобслуживании» — после ремонта список заданий обновится заново.</p>
+            </div>
+            <div class="danger-item">
+              <div class="danger-item-title">ОТСТЫКОВКА ОТСЕКА</div>
+              <p class="rename-warn-text">Один из четырёх отсеков физически отделяется: попасть внутрь или выйти наружу нельзя, пока не завершится пристыковка (около 2,5 минут). Труп внутри нельзя объявить до пристыковки.</p>
+              <p class="rename-warn-text danger-fix">Ускоряется в «Центральном узле». Доступна только один раз за смену.</p>
+            </div>
           </div>
         </div>
         <div class="rename-actions">
