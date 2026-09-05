@@ -1425,7 +1425,7 @@
      растянутым по максимуму, но так, чтобы станция только-только вписывалась
      в экран целиком (см. initStationMap в JS); дальше приблизить можно
      жестом (pinch/колесо), и тогда уже есть куда панорамировать. ================= */
-  .station-map-wrap{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; padding:1cqw 1.6cqw 1.6cqw; }
+  .station-map-wrap{ position:relative; flex:1 1 auto; min-height:0; display:flex; flex-direction:column; padding:1cqw 1.6cqw 1.6cqw; }
   .station-map-viewport{
     position:relative; flex:1 1 auto; min-height:0;
     overflow:hidden;
@@ -1506,8 +1506,11 @@
   .station-bar-btn--danger{ color:#f2a3a3; }
   .station-bar-btn--danger svg{ color:#f2a3a3; }
 
-  .rename-window--wide{ max-width:1040px; }
-  .rename-body--scroll{ max-height:64vh; overflow-y:auto; }
+  .rename-window.rename-window--wide{
+    max-width:1040px; max-height:100%;
+    display:flex; flex-direction:column;
+  }
+  .rename-body--scroll{ flex:1 1 auto; min-height:0; overflow-y:auto; }
   .danger-row{ display:flex; gap:2.2cqw; align-items:flex-start; }
   .danger-item{ flex:1 1 0; min-width:0; }
   .danger-item-title{
@@ -2444,6 +2447,44 @@
 
           <div class="station-map-hint" id="stationMapHint">ПЕРЕТАЩИТЕ ИЛИ СВЕДИТЕ ПАЛЬЦЫ, ЧТОБЫ ПРИБЛИЗИТЬ</div>
         </div>
+
+        <!-- ================= STATION DANGER ("ОПАСНОСТЬ") — большое окно со
+             списком всех 3 саботажей станции: что происходит и как чинится.
+             Тексты сверены с handlers/sabotage.py и game/sabotage.py
+             (реальные описания и тайминги), пересказаны короче и без
+             жаргона. Лежит внутри .station-map-wrap (а не на весь экран),
+             чтобы окно оставалось в границах территории карты, а не лезло
+             на верхнюю/нижнюю панели терминала. ================= -->
+        <div class="rename-overlay rename-overlay--wide" id="stationDangerOverlay" hidden>
+          <div class="rename-window rename-window--wide">
+            <div class="rename-titlebar">
+              <span class="rename-titlebar-text">⚠ ОПАСНОСТЬ НА СТАНЦИИ</span>
+              <button class="rename-close" id="stationDangerClose" type="button" aria-label="Закрыть">✕</button>
+            </div>
+            <div class="rename-body rename-body--scroll">
+              <div class="danger-row">
+                <div class="danger-item">
+                  <div class="danger-item-title">ВЗЛОМ КОСТЮМОВ</div>
+                  <p class="rename-warn-text">На 30 секунд все костюмы персонала становятся неотличимы друг от друга — опознать никого нельзя. Вместо этого на экране появляется трёхзначный номер: он держится, пока владелец стоит на месте, и меняется заново при переходе в другую комнату.</p>
+                  <p class="rename-warn-text danger-fix">Чинится само — просто переждать 30 секунд.</p>
+                </div>
+                <div class="danger-item">
+                  <div class="danger-item-title">ВЗЛОМ ЗАДАНИЙ</div>
+                  <p class="rename-warn-text">Задания блокируются у всего персонала на неопределённый срок — новые не выдаются, пока неполадка не устранена.</p>
+                  <p class="rename-warn-text danger-fix">Чинится в «Техобслуживании» — после ремонта список заданий обновится заново.</p>
+                </div>
+                <div class="danger-item">
+                  <div class="danger-item-title">ОТСТЫКОВКА ОТСЕКА</div>
+                  <p class="rename-warn-text">Один из четырёх отсеков физически отделяется: попасть внутрь или выйти наружу нельзя, пока не завершится пристыковка (около 2,5 минут). Труп внутри нельзя объявить до пристыковки.</p>
+                  <p class="rename-warn-text danger-fix">Ускоряется в «Центральном узле». Доступна только один раз за смену.</p>
+                </div>
+              </div>
+            </div>
+            <div class="rename-actions">
+              <button class="rename-btn primary" id="stationDangerConfirm" type="button">ПОНЯТНО</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="bottombar bottombar--stations">
@@ -2459,42 +2500,6 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3.5L21.5 20H2.5L12 3.5Z" stroke-linejoin="round"/><line x1="12" y1="9.8" x2="12" y2="14.6"/><circle cx="12" cy="17.3" r="0.9" fill="currentColor" stroke="none"/></svg>
           <span>ОПАСНОСТЬ</span>
         </button>
-      </div>
-    </div>
-
-    <!-- ================= STATION DANGER ("ОПАСНОСТЬ") — большое окно со
-         списком всех 3 саботажей станции: что происходит и как чинится.
-         Тексты сверены с handlers/sabotage.py и game/sabotage.py (реальные
-         описания и тайминги саботажей), просто пересказаны короче и без
-         технического жаргона. ================= -->
-    <div class="rename-overlay rename-overlay--wide" id="stationDangerOverlay" hidden>
-      <div class="rename-window rename-window--wide">
-        <div class="rename-titlebar">
-          <span class="rename-titlebar-text">⚠ ОПАСНОСТЬ НА СТАНЦИИ</span>
-          <button class="rename-close" id="stationDangerClose" type="button" aria-label="Закрыть">✕</button>
-        </div>
-        <div class="rename-body rename-body--scroll">
-          <div class="danger-row">
-            <div class="danger-item">
-              <div class="danger-item-title">ВЗЛОМ КОСТЮМОВ</div>
-              <p class="rename-warn-text">На 30 секунд все костюмы персонала становятся неотличимы друг от друга — опознать никого нельзя. Вместо этого на экране появляется трёхзначный номер: он держится, пока владелец стоит на месте, и меняется заново при переходе в другую комнату.</p>
-              <p class="rename-warn-text danger-fix">Чинится само — просто переждать 30 секунд.</p>
-            </div>
-            <div class="danger-item">
-              <div class="danger-item-title">ВЗЛОМ ЗАДАНИЙ</div>
-              <p class="rename-warn-text">Задания блокируются у всего персонала на неопределённый срок — новые не выдаются, пока неполадка не устранена.</p>
-              <p class="rename-warn-text danger-fix">Чинится в «Техобслуживании» — после ремонта список заданий обновится заново.</p>
-            </div>
-            <div class="danger-item">
-              <div class="danger-item-title">ОТСТЫКОВКА ОТСЕКА</div>
-              <p class="rename-warn-text">Один из четырёх отсеков физически отделяется: попасть внутрь или выйти наружу нельзя, пока не завершится пристыковка (около 2,5 минут). Труп внутри нельзя объявить до пристыковки.</p>
-              <p class="rename-warn-text danger-fix">Ускоряется в «Центральном узле». Доступна только один раз за смену.</p>
-            </div>
-          </div>
-        </div>
-        <div class="rename-actions">
-          <button class="rename-btn primary" id="stationDangerConfirm" type="button">ПОНЯТНО</button>
-        </div>
       </div>
     </div>
 
