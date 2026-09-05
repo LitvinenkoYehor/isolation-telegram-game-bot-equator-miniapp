@@ -1506,18 +1506,18 @@
   .station-bar-btn--danger{ color:#f2a3a3; }
   .station-bar-btn--danger svg{ color:#f2a3a3; }
 
-  .rename-window--wide{ max-width:760px; }
-  .rename-body--scroll{ max-height:56vh; overflow-y:auto; }
-  .danger-row{ display:flex; gap:1.6cqw; align-items:flex-start; }
+  .rename-window--wide{ max-width:1040px; }
+  .rename-body--scroll{ max-height:64vh; overflow-y:auto; }
+  .danger-row{ display:flex; gap:2.2cqw; align-items:flex-start; }
   .danger-item{ flex:1 1 0; min-width:0; }
   .danger-item-title{
     font-family:'IBM VGA 8x16',monospace;
-    font-size:1.7cqw; font-weight:700; letter-spacing:0.02em;
+    font-size:2.3cqw; font-weight:700; letter-spacing:0.02em;
     color:var(--scr-amber);
-    margin-bottom:1cqw;
+    margin-bottom:1.4cqw;
   }
-  .danger-item .rename-warn-text{ font-size:1.55cqw; line-height:1.4; }
-  .danger-fix{ color:var(--scr-cyan); margin-top:1cqw; }
+  .danger-item .rename-warn-text{ font-size:2.1cqw; line-height:1.5; }
+  .danger-fix{ color:var(--scr-cyan); margin-top:1.4cqw; }
 
   .station-map-hint{
     position:absolute; left:50%; bottom:1.6cqw; z-index:5;
@@ -1662,6 +1662,7 @@
   }
   .rename-overlay[hidden]{ display:none; }
   .rename-overlay.shown{ opacity:1; }
+  .rename-overlay--wide{ padding:2cqw; }
 
   .rename-window{
     width:100%; max-width:340px;
@@ -2466,7 +2467,7 @@
          Тексты сверены с handlers/sabotage.py и game/sabotage.py (реальные
          описания и тайминги саботажей), просто пересказаны короче и без
          технического жаргона. ================= -->
-    <div class="rename-overlay" id="stationDangerOverlay" hidden>
+    <div class="rename-overlay rename-overlay--wide" id="stationDangerOverlay" hidden>
       <div class="rename-window rename-window--wide">
         <div class="rename-titlebar">
           <span class="rename-titlebar-text">⚠ ОПАСНОСТЬ НА СТАНЦИИ</span>
