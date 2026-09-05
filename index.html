@@ -1508,14 +1508,15 @@
 
   .rename-window--wide{ max-width:760px; }
   .rename-body--scroll{ max-height:56vh; overflow-y:auto; }
-  .danger-row{ display:flex; flex-wrap:wrap; gap:2.4cqw; align-items:flex-start; }
-  .danger-item{ flex:1 1 200px; min-width:200px; }
+  .danger-row{ display:flex; gap:1.6cqw; align-items:flex-start; }
+  .danger-item{ flex:1 1 0; min-width:0; }
   .danger-item-title{
     font-family:'IBM VGA 8x16',monospace;
-    font-size:1.9cqw; font-weight:700; letter-spacing:0.03em;
+    font-size:1.7cqw; font-weight:700; letter-spacing:0.02em;
     color:var(--scr-amber);
     margin-bottom:1cqw;
   }
+  .danger-item .rename-warn-text{ font-size:1.55cqw; line-height:1.4; }
   .danger-fix{ color:var(--scr-cyan); margin-top:1cqw; }
 
   .station-map-hint{
@@ -2432,7 +2433,7 @@
 </svg>
           </div>
 
-          <div class="station-info-panel" id="stationInfoPanel" hidden>
+          <div class="station-info-panel" id="stationInfoPanel">
             <div class="station-info-title">КОСМИЧЕСКАЯ СТАНЦИЯ «АСТРАЛ-1»</div>
             <div class="station-info-row"><span class="station-info-swatch" style="background:#3f6fb0"></span>ЖИЛОЙ МОДУЛЬ</div>
             <div class="station-info-row"><span class="station-info-swatch" style="background:#3f9066"></span>НАУЧНЫЙ ОТСЕК</div>
@@ -3801,6 +3802,9 @@
     mainMenu.hidden = true;
     stationsScreen.hidden = false;
     stationsScreen.classList.add('reveal');
+    // "Информация" всегда включена по умолчанию при входе в раздел — даже
+    // если в прошлый визит игрок её скрывал кнопкой.
+    stationInfoPanel.hidden = false;
     if (!stationMapReady) {
       stationMapReady = true;
       requestAnimationFrame(initStationMap);
