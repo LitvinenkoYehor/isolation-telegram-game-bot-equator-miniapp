@@ -837,6 +837,11 @@
     text-align:left;
   }
   .back-row:active{ background:rgba(255,255,255,0.05); }
+  /* authored display:flex above always beats the browser's own
+     [hidden]{display:none} (same origin-cascade issue as .doc-field
+     elsewhere) — needed now that shiftDocumentBack gets hidden via JS
+     during startSoloShiftSequence(). */
+  .back-row[hidden]{ display:none; }
   .back-row svg{
     width:3.6cqw; height:3.6cqw; min-width:13px; min-height:13px;
     color:var(--scr-cyan); flex:0 0 auto;
@@ -1343,6 +1348,10 @@
     -webkit-overflow-scrolling:touch;
     overscroll-behavior:contain;
   }
+  /* same origin-cascade issue as .doc-field/.back-row — authored
+     display:flex above needs an explicit override to actually hide when
+     startSoloShiftSequence() sets docWrapEl.hidden = true. */
+  .doc-wrap[hidden]{ display:none; }
   .doc-wrap::-webkit-scrollbar{ width:3px; }
   .doc-wrap::-webkit-scrollbar-thumb{ background:var(--scr-line-strong); border-radius:2px; }
   .doc-wrap::-webkit-scrollbar-track{ background:transparent; }
@@ -1923,7 +1932,7 @@
   .role-reveal-label.shown{ opacity:1; }
   .role-reveal-title{
     max-width:92vw;
-    font-size:clamp(114px,22.5vw,240px);
+    font-size:clamp(76px,15vw,160px);
     font-weight:700;
     letter-spacing:0.05em;
     line-height:1.05;
