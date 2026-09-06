@@ -1420,42 +1420,62 @@
 
   /* ---- ОЖИДАНИЕ ("ПОДАТЬ В ДИСПЕТЧЕРСКУЮ") — заменяет .doc-wrap целиком:
      бланк и кнопка прячутся, остаются только шапка/подвал терминала, а тут
-     крутится полосатый лоадер и статусный текст ("ОЖИДАЙТЕ" -> "ЗАЯВКА
-     ПРИНЯТА..."). Всё ещё внутри .screen — терминал наружу пока не выходит,
-     это происходит только на следующем шаге (.fullscreen-fade). ---- */
+     крутится радиальный спиннер (8 лучей, один яркий + затухающий "хвост",
+     создающий эффект вращения) и статусный текст ("ОЖИДАЙТЕ" -> "ЗАЯВКА
+     ПРИНЯТА..."), при котором спиннер сменяется статичной галочкой. Всё ещё
+     внутри .screen — терминал наружу пока не выходит, это происходит только
+     на следующем шаге (.fullscreen-fade). ---- */
   .doc-progress{
     flex:1 1 auto; min-height:0;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:2.6cqw;
+    gap:3.2cqw;
   }
   .doc-progress[hidden]{ display:none; }
-  .doc-progress-bars{
-    display:flex; align-items:flex-end; justify-content:center;
-    gap:1.1cqw;
-    height:6.4cqw; min-height:22px;
+
+  .doc-progress-spinner{
+    position:relative;
+    width:9cqw; height:9cqw; min-width:48px; min-height:48px;
   }
-  .doc-progress-bars .bar{
-    width:1.3cqw; min-width:5px;
-    height:35%;
-    border-radius:999px;
+  .doc-progress-spinner[hidden]{ display:none; }
+  .doc-progress-spinner .spoke{
+    position:absolute;
+    top:0; left:50%;
+    width:11%; height:32%;
+    margin-left:-5.5%;
+    border-radius:1px;
     background:var(--scr-cyan);
-    box-shadow:var(--phosphor);
-    animation:docProgressPulse 1.05s ease-in-out infinite;
+    transform-origin:50% 166.7%;
+    animation:docSpinnerFade 1s linear infinite;
   }
-  .doc-progress-bars .bar:nth-child(1){ animation-delay:0s; }
-  .doc-progress-bars .bar:nth-child(2){ animation-delay:0.13s; }
-  .doc-progress-bars .bar:nth-child(3){ animation-delay:0.26s; }
-  .doc-progress-bars .bar:nth-child(4){ animation-delay:0.39s; }
-  .doc-progress-bars .bar:nth-child(5){ animation-delay:0.52s; }
-  @keyframes docProgressPulse{
-    0%,100%{ height:32%; opacity:0.55; }
-    50%{ height:100%; opacity:1; }
+  .doc-progress-spinner .spoke:nth-child(1){ transform:rotate(0deg);   animation-delay:0s; }
+  .doc-progress-spinner .spoke:nth-child(2){ transform:rotate(45deg); animation-delay:-0.875s; }
+  .doc-progress-spinner .spoke:nth-child(3){ transform:rotate(90deg); animation-delay:-0.75s; }
+  .doc-progress-spinner .spoke:nth-child(4){ transform:rotate(135deg);animation-delay:-0.625s; }
+  .doc-progress-spinner .spoke:nth-child(5){ transform:rotate(180deg);animation-delay:-0.5s; }
+  .doc-progress-spinner .spoke:nth-child(6){ transform:rotate(225deg);animation-delay:-0.375s; }
+  .doc-progress-spinner .spoke:nth-child(7){ transform:rotate(270deg);animation-delay:-0.25s; }
+  .doc-progress-spinner .spoke:nth-child(8){ transform:rotate(315deg);animation-delay:-0.125s; }
+  @keyframes docSpinnerFade{
+    0%{ opacity:1; }
+    100%{ opacity:0.18; }
   }
+
+  .doc-progress-check{
+    width:9cqw; height:9cqw; min-width:48px; min-height:48px;
+    color:var(--scr-green);
+    filter:drop-shadow(0 0 6px rgba(127,211,155,0.45));
+  }
+  .doc-progress-check[hidden]{ display:none; }
+
   .doc-progress-text{
-    max-width:80%;
-    font-size:1.7cqw; letter-spacing:0.06em;
+    max-width:88%;
+    font-size:2.8cqw; min-height:1em;
+    letter-spacing:0.05em;
     text-align:center; line-height:1.5;
     color:var(--scr-text-dim);
+  }
+  @media (max-width:520px){
+    .doc-progress-text{ font-size:16px; }
   }
 
   /* ================= STATION MAP ("СТАНЦИИ") — чертёж станции (SVG из
@@ -1890,8 +1910,11 @@
     transition:opacity 0.9s ease;
   }
   .role-reveal-scene.shown{ opacity:1; }
+  /* используется только на переходе роль -> задача роли (см. JS), чтобы
+     этот конкретный кросс-фейд был вдвое медленнее обычного появления */
+  .role-reveal-scene--slow{ transition:opacity 1.8s ease; }
   .role-reveal-label{
-    font-size:clamp(14px,2.1vw,20px);
+    font-size:clamp(21px,3.15vw,30px);
     letter-spacing:0.14em;
     color:var(--scr-text-dim);
     opacity:0;
@@ -1899,10 +1922,12 @@
   }
   .role-reveal-label.shown{ opacity:1; }
   .role-reveal-title{
-    font-size:clamp(38px,7.5vw,80px);
+    max-width:92vw;
+    font-size:clamp(114px,22.5vw,240px);
     font-weight:700;
-    letter-spacing:0.07em;
-    line-height:1.1;
+    letter-spacing:0.05em;
+    line-height:1.05;
+    overflow-wrap:break-word;
     opacity:0;
     transition:opacity 0.9s ease;
   }
@@ -2958,9 +2983,13 @@
       <!-- Показывается вместо .doc-wrap после нажатия "ПОДАТЬ В ДИСПЕТЧЕРСКУЮ".
            См. JS: startSoloShiftSequence(). -->
       <div class="doc-progress" id="docProgress" hidden>
-        <div class="doc-progress-bars" aria-hidden="true">
-          <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+        <div class="doc-progress-spinner" id="docProgressSpinner" aria-hidden="true">
+          <span class="spoke"></span><span class="spoke"></span><span class="spoke"></span><span class="spoke"></span>
+          <span class="spoke"></span><span class="spoke"></span><span class="spoke"></span><span class="spoke"></span>
         </div>
+        <svg class="doc-progress-check" id="docProgressCheck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden aria-hidden="true">
+          <path d="M4 12.5l5.5 5.5L20 6.5"/>
+        </svg>
         <div class="doc-progress-text" id="docProgressText">ОЖИДАЙТЕ</div>
       </div>
 
@@ -4489,6 +4518,8 @@
   const docWrapEl = shiftDocumentScreen.querySelector('.doc-wrap');
   const shiftDocumentBackBtn = document.getElementById('shiftDocumentBack');
   const docProgress = document.getElementById('docProgress');
+  const docProgressSpinner = document.getElementById('docProgressSpinner');
+  const docProgressCheck = document.getElementById('docProgressCheck');
   const docProgressText = document.getElementById('docProgressText');
   const fullscreenFade = document.getElementById('fullscreenFade');
   const roleReveal = document.getElementById('roleReveal');
@@ -4503,13 +4534,15 @@
     docWrapEl.hidden = false;
     shiftDocumentBackBtn.hidden = false;
     docProgress.hidden = true;
+    docProgressSpinner.hidden = false;
+    docProgressCheck.hidden = true;
 
     fullscreenFade.classList.remove('shown');
     fullscreenFade.hidden = true;
 
     roleReveal.hidden = true;
-    roleRevealScene1.classList.remove('shown');
-    roleRevealScene2.classList.remove('shown');
+    roleRevealScene1.classList.remove('shown', 'role-reveal-scene--slow');
+    roleRevealScene2.classList.remove('shown', 'role-reveal-scene--slow');
     roleRevealLabel.classList.remove('shown');
     roleRevealTitle.classList.remove('shown', 'staff', 'liquidator');
     roleRevealTitle.textContent = '';
@@ -4522,13 +4555,19 @@
     const assignedRole = resolveAssignedRole(roleValue);
     const info = ROLE_REVEAL_INFO[assignedRole];
 
-    // Этап 1 — бланк исчезает, остаётся шапка/подвал терминала.
+    // Этап 1 — бланк исчезает, остаётся шапка/подвал терминала; в центре —
+    // вращающийся спиннер и статус "ОЖИДАЙТЕ".
     docWrapEl.hidden = true;
     shiftDocumentBackBtn.hidden = true;
+    docProgressSpinner.hidden = false;
+    docProgressCheck.hidden = true;
     docProgressText.textContent = 'ОЖИДАЙТЕ';
     docProgress.hidden = false;
 
     await randDelay(3000, 5000);
+    // Спиннер сменяется статичной галочкой — без анимации, просто факт.
+    docProgressSpinner.hidden = true;
+    docProgressCheck.hidden = false;
     docProgressText.textContent = 'ЗАЯВКА ПРИНЯТА. ОЖИДАЙТЕ НАЧАЛО СМЕНЫ.';
 
     await randDelay(3000, 5000);
@@ -4543,23 +4582,31 @@
     // заменится на ожидание её фактического завершения.
     await delay(1800);
 
-    // Этап 4 — объявление роли.
+    // Этап 4 — объявление роли. Текст роли выставляется здесь же, ДО показа
+    // сцены — иначе высота блока меняется в момент появления и подпись
+    // "ВАША РОЛЬ:" визуально "подпрыгивает"; так весь блок статичен с самого
+    // начала, меняется только прозрачность.
+    roleRevealTitle.textContent = info.title;
+    roleRevealTitle.classList.add(info.className);
+
     roleReveal.hidden = false;
     requestAnimationFrame(() => roleRevealScene1.classList.add('shown'));
     await delay(60);
     roleRevealLabel.classList.add('shown');
 
     await delay(2000);
-    roleRevealTitle.textContent = info.title;
-    roleRevealTitle.classList.add(info.className);
     roleRevealTitle.classList.add('shown');
 
     await randDelay(3000, 4000);
 
-    // Этап 5 — плавный переход к тому, что делать этой роли.
+    // Этап 5 — плавный переход к тому, что делать этой роли. Именно этот
+    // кросс-фейд — вдвое медленнее обычного появления сцен (см.
+    // .role-reveal-scene--slow).
     roleRevealTag.textContent = info.title;
     roleRevealTag.classList.add(info.className);
     roleRevealGoal.textContent = info.goal;
+    roleRevealScene1.classList.add('role-reveal-scene--slow');
+    roleRevealScene2.classList.add('role-reveal-scene--slow');
     roleRevealScene2.classList.add('shown');
     roleRevealScene1.classList.remove('shown');
   }
