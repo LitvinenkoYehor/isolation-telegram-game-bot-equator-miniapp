@@ -4560,64 +4560,91 @@
     roleRevealGoal.textContent = '';
   }
 
+  // Двойной requestAnimationFrame вместо одинарного: одного кадра иногда не
+  // хватает, чтобы браузер успел применить снятие [hidden] (display:none ->
+  // display:block) ДО того, как добавится класс "shown" — тогда обе смены
+  // стиля попадают в один и тот же кадр, и CSS-transition просто не
+  // запускается (элемент мгновенно становится непрозрачным без анимации,
+  // а иногда — пока не случится следующий reflow — не становится вообще).
+  // Именно это и выглядело как "затемнение не срабатывает". Два rAF
+  // гарантируют, что между снятием [hidden] и добавлением "shown" прошёл
+  // минимум один полностью отрисованный кадр.
+  function nextFrame(){
+    return new Promise((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(resolve));
+    });
+  }
+
   async function startSoloShiftSequence(roleValue){
-    const assignedRole = resolveAssignedRole(roleValue);
-    const info = ROLE_REVEAL_INFO[assignedRole];
+    try {
+      const assignedRole = resolveAssignedRole(roleValue);
+      const info = ROLE_REVEAL_INFO[assignedRole];
 
-    // Этап 1 — бланк исчезает, остаётся шапка/подвал терминала; в центре —
-    // вращающийся спиннер и статус "ОЖИДАЙТЕ".
-    docWrapEl.hidden = true;
-    shiftDocumentBackBtn.hidden = true;
-    docProgressSpinner.hidden = false;
-    docProgressCheck.hidden = true;
-    docProgressText.textContent = 'ОЖИДАЙТЕ';
-    docProgress.hidden = false;
+      // Этап 1 — бланк исчезает, остаётся шапка/подвал терминала; в центре —
+      // вращающийся спиннер и статус "ОЖИДАЙТЕ".
+      docWrapEl.hidden = true;
+      shiftDocumentBackBtn.hidden = true;
+      docProgressSpinner.hidden = false;
+      docProgressCheck.hidden = true;
+      docProgressText.textContent = 'ОЖИДАЙТЕ';
+      docProgress.hidden = false;
 
-    await randDelay(3000, 5000);
-    // Спиннер сменяется статичной галочкой — без анимации, просто факт.
-    docProgressSpinner.hidden = true;
-    docProgressCheck.hidden = false;
-    docProgressText.textContent = 'ЗАЯВКА ПРИНЯТА. ОЖИДАЙТЕ НАЧАЛО СМЕНЫ.';
+      await randDelay(3000, 5000);
+      // Спиннер сменяется статичной галочкой — без анимации, просто факт.
+      docProgressSpinner.hidden = true;
+      docProgressCheck.hidden = false;
+      docProgressText.textContent = 'ЗАЯВКА ПРИНЯТА. ОЖИДАЙТЕ НАЧАЛО СМЕНЫ.';
 
-    await randDelay(3000, 5000);
+      await randDelay(3000, 5000);
 
-    // Этап 2 — экран гаснет целиком, уже за пределами квадрата терминала.
-    fullscreenFade.hidden = false;
-    requestAnimationFrame(() => fullscreenFade.classList.add('shown'));
-    await delay(1700); // должно совпадать с CSS-transition у .fullscreen-fade
+      // Этап 2 — экран гаснет целиком, уже за пределами квадрата терминала.
+      fullscreenFade.hidden = false;
+      await nextFrame();
+      fullscreenFade.classList.add('shown');
+      await delay(1700); // должно совпадать с CSS-transition у .fullscreen-fade
 
-    // Этап 3 — пауза/загрузка партии. Сейчас чисто по времени; когда
-    // появится реальная загрузка (сервер, ассеты сессии), await здесь
-    // заменится на ожидание её фактического завершения.
-    await delay(1800);
+      // Этап 3 — пауза/загрузка партии. Сейчас чисто по времени; когда
+      // появится реальная загрузка (сервер, ассеты сессии), await здесь
+      // заменится на ожидание её фактического завершения.
+      await delay(1800);
 
-    // Этап 4 — объявление роли. Текст роли выставляется здесь же, ДО показа
-    // сцены — иначе высота блока меняется в момент появления и подпись
-    // "ВАША РОЛЬ:" визуально "подпрыгивает"; так весь блок статичен с самого
-    // начала, меняется только прозрачность.
-    roleRevealTitle.textContent = info.title;
-    roleRevealTitle.classList.add(info.className);
+      // Этап 4 — объявление роли. Текст роли выставляется здесь же, ДО показа
+      // сцены — иначе высота блока меняется в момент появления и подпись
+      // "ВАША РОЛЬ:" визуально "подпрыгивает"; так весь блок статичен с самого
+      // начала, меняется только прозрачность.
+      roleRevealTitle.textContent = info.title;
+      roleRevealTitle.classList.add(info.className);
 
-    roleReveal.hidden = false;
-    requestAnimationFrame(() => roleRevealScene1.classList.add('shown'));
-    await delay(60);
-    roleRevealLabel.classList.add('shown');
+      roleReveal.hidden = false;
+      await nextFrame();
+      roleRevealScene1.classList.add('shown');
+      await delay(60);
+      roleRevealLabel.classList.add('shown');
 
-    await delay(2000);
-    roleRevealTitle.classList.add('shown');
+      await delay(2000);
+      roleRevealTitle.classList.add('shown');
 
-    await randDelay(3000, 4000);
+      await randDelay(3000, 4000);
 
-    // Этап 5 — плавный переход к тому, что делать этой роли. Именно этот
-    // кросс-фейд — вдвое медленнее обычного появления сцен (см.
-    // .role-reveal-scene--slow).
-    roleRevealTag.textContent = info.title;
-    roleRevealTag.classList.add(info.className);
-    roleRevealGoal.textContent = info.goal;
-    roleRevealScene1.classList.add('role-reveal-scene--slow');
-    roleRevealScene2.classList.add('role-reveal-scene--slow');
-    roleRevealScene2.classList.add('shown');
-    roleRevealScene1.classList.remove('shown');
+      // Этап 5 — плавный переход к тому, что делать этой роли. Именно этот
+      // кросс-фейд — вдвое медленнее обычного появления сцен (см.
+      // .role-reveal-scene--slow).
+      roleRevealTag.textContent = info.title;
+      roleRevealTag.classList.add(info.className);
+      roleRevealGoal.textContent = info.goal;
+      roleRevealScene1.classList.add('role-reveal-scene--slow');
+      roleRevealScene2.classList.add('role-reveal-scene--slow');
+      roleRevealScene2.classList.add('shown');
+      roleRevealScene1.classList.remove('shown');
+    } catch (err) {
+      // Если что-то в середине последовательности сломалось (например,
+      // неожиданное значение роли) — экран не должен зависать на полпути:
+      // затемнение форсированно доводится до конца, а ошибка уходит в
+      // консоль для отладки, а не проглатывается молча.
+      console.error('startSoloShiftSequence failed:', err);
+      fullscreenFade.hidden = false;
+      fullscreenFade.classList.add('shown');
+    }
   }
 
   docSubmitBtn.addEventListener('click', () => {
