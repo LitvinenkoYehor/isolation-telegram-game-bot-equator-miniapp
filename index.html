@@ -1418,6 +1418,46 @@
   }
   .doc-submit:active{ filter:brightness(0.85); }
 
+  /* ---- ОЖИДАНИЕ ("ПОДАТЬ В ДИСПЕТЧЕРСКУЮ") — заменяет .doc-wrap целиком:
+     бланк и кнопка прячутся, остаются только шапка/подвал терминала, а тут
+     крутится полосатый лоадер и статусный текст ("ОЖИДАЙТЕ" -> "ЗАЯВКА
+     ПРИНЯТА..."). Всё ещё внутри .screen — терминал наружу пока не выходит,
+     это происходит только на следующем шаге (.fullscreen-fade). ---- */
+  .doc-progress{
+    flex:1 1 auto; min-height:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:2.6cqw;
+  }
+  .doc-progress[hidden]{ display:none; }
+  .doc-progress-bars{
+    display:flex; align-items:flex-end; justify-content:center;
+    gap:1.1cqw;
+    height:6.4cqw; min-height:22px;
+  }
+  .doc-progress-bars .bar{
+    width:1.3cqw; min-width:5px;
+    height:35%;
+    border-radius:999px;
+    background:var(--scr-cyan);
+    box-shadow:var(--phosphor);
+    animation:docProgressPulse 1.05s ease-in-out infinite;
+  }
+  .doc-progress-bars .bar:nth-child(1){ animation-delay:0s; }
+  .doc-progress-bars .bar:nth-child(2){ animation-delay:0.13s; }
+  .doc-progress-bars .bar:nth-child(3){ animation-delay:0.26s; }
+  .doc-progress-bars .bar:nth-child(4){ animation-delay:0.39s; }
+  .doc-progress-bars .bar:nth-child(5){ animation-delay:0.52s; }
+  @keyframes docProgressPulse{
+    0%,100%{ height:32%; opacity:0.55; }
+    50%{ height:100%; opacity:1; }
+  }
+  .doc-progress-text{
+    max-width:80%;
+    font-size:1.7cqw; letter-spacing:0.06em;
+    text-align:center; line-height:1.5;
+    color:var(--scr-text-dim);
+  }
+
   /* ================= STATION MAP ("СТАНЦИИ") — чертёж станции (SVG из
      Figma, вставлен как есть), и свободная камера над ним: вьюпорт
      обрезает лишнее (overflow:hidden), а сам чертёж — просто большой слой
@@ -1816,6 +1856,72 @@
     background:#000;
   }
   .terminal-off[hidden]{ display:none; }
+
+  /* =========================================================
+     SHIFT START SEQUENCE — эти два слоя fixed на весь вьюпорт, а не на
+     .stage/.screen: именно здесь игра физически выходит за рамки
+     квадратного терминала (см. HTML-комментарий над .fullscreen-fade).
+     ========================================================= */
+  .fullscreen-fade{
+    position:fixed; inset:0; z-index:1000;
+    background:#000;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 1.6s ease;
+  }
+  .fullscreen-fade[hidden]{ display:none; }
+  .fullscreen-fade.shown{ opacity:1; pointer-events:auto; }
+
+  .role-reveal{
+    position:fixed; inset:0; z-index:1001;
+    font-family:'IBM VGA 8x16',monospace;
+    -webkit-font-smoothing:none;
+    color:var(--scr-text);
+    pointer-events:none;
+  }
+  .role-reveal[hidden]{ display:none; }
+  .role-reveal-scene{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:22px;
+    text-align:center;
+    padding:0 24px;
+    opacity:0;
+    transition:opacity 0.9s ease;
+  }
+  .role-reveal-scene.shown{ opacity:1; }
+  .role-reveal-label{
+    font-size:clamp(14px,2.1vw,20px);
+    letter-spacing:0.14em;
+    color:var(--scr-text-dim);
+    opacity:0;
+    transition:opacity 0.8s ease;
+  }
+  .role-reveal-label.shown{ opacity:1; }
+  .role-reveal-title{
+    font-size:clamp(38px,7.5vw,80px);
+    font-weight:700;
+    letter-spacing:0.07em;
+    line-height:1.1;
+    opacity:0;
+    transition:opacity 0.9s ease;
+  }
+  .role-reveal-title.shown{ opacity:1; }
+  .role-reveal-title.staff{ color:var(--scr-cyan); text-shadow:var(--phosphor); }
+  .role-reveal-title.liquidator{ color:#ff6b6b; text-shadow:0 0 12px rgba(255,90,90,0.45); }
+  .role-reveal-tag{
+    font-size:clamp(16px,2.6vw,26px);
+    font-weight:700;
+    letter-spacing:0.1em;
+  }
+  .role-reveal-tag.staff{ color:var(--scr-cyan); text-shadow:var(--phosphor); }
+  .role-reveal-tag.liquidator{ color:#ff6b6b; text-shadow:0 0 12px rgba(255,90,90,0.45); }
+  .role-reveal-goal{
+    max-width:640px;
+    font-size:clamp(15px,2vw,22px);
+    line-height:1.6;
+    color:var(--scr-text);
+  }
 
   /* short "reboot" boot-log replay after a successful rename — reuses the
      same #gateBoot layer/markup as the very first login, just retriggered */
@@ -2464,19 +2570,19 @@
             <div class="rename-body rename-body--scroll">
               <div class="danger-row">
                 <div class="danger-item">
-                  <div class="danger-item-title">ВЗЛОМ КОСТЮМОВ</div>
-                  <p class="rename-warn-text">На 30 секунд все костюмы персонала становятся неотличимы друг от друга — опознать никого нельзя. Вместо этого на экране появляется трёхзначный номер: он держится, пока владелец стоит на месте, и меняется заново при переходе в другую комнату.</p>
-                  <p class="rename-warn-text danger-fix">Чинится само — просто переждать 30 секунд.</p>
+                  <div class="danger-item-title">ОТКАЗ ИДЕНТИФИКАЦИИ СКАФАНДРОВ</div>
+                  <p class="rename-warn-text">Зафиксирован сбой в системе опознавания скафандров. В течение 30 секунд опознать персонал невозможно — вместо личных данных на дисплее отображается временный трёхзначный код. Код сохраняется, пока владелец стоит на месте, и меняется при переходе в другое помещение.</p>
+                  <p class="rename-warn-text danger-fix">Устраняется автоматически. Вмешательство экипажа не требуется — достаточно переждать 30 секунд.</p>
                 </div>
                 <div class="danger-item">
-                  <div class="danger-item-title">ВЗЛОМ ЗАДАНИЙ</div>
-                  <p class="rename-warn-text">Задания блокируются у всего персонала на неопределённый срок — новые не выдаются, пока неполадка не устранена.</p>
-                  <p class="rename-warn-text danger-fix">Чинится в «Техобслуживании» — после ремонта список заданий обновится заново.</p>
+                  <div class="danger-item-title">ОТКАЗ СИСТЕМЫ НАРЯДОВ</div>
+                  <p class="rename-warn-text">Система распределения нарядов вышла из строя. Новые задания не выдаются никому из личного состава, пока неисправность не устранена.</p>
+                  <p class="rename-warn-text danger-fix">Устраняется в отсеке «Техобслуживание». После ремонта список нарядов будет сформирован заново.</p>
                 </div>
                 <div class="danger-item">
-                  <div class="danger-item-title">ОТСТЫКОВКА ОТСЕКА</div>
-                  <p class="rename-warn-text">Один из четырёх отсеков физически отделяется: попасть внутрь или выйти наружу нельзя, пока не завершится пристыковка (около 2,5 минут). Труп внутри нельзя объявить до пристыковки.</p>
-                  <p class="rename-warn-text danger-fix">Ускоряется в «Центральном узле». Доступна только один раз за смену.</p>
+                  <div class="danger-item-title">АВАРИЙНАЯ РАССТЫКОВКА ОТСЕКА</div>
+                  <p class="rename-warn-text">Один из четырёх отсеков станции принудительно отделён. На время манёвра (около 2,5 минуты) доступ внутрь и эвакуация оттуда невозможны. Погибшие в отсеке не могут быть освидетельствованы до завершения повторной стыковки.</p>
+                  <p class="rename-warn-text danger-fix">Ускоряется из «Центрального узла». Доступно не более одного раза за смену.</p>
                 </div>
               </div>
             </div>
@@ -2849,6 +2955,15 @@
         <button class="doc-submit" id="docSubmitBtn" type="button">ПОДАТЬ В ДИСПЕТЧЕРСКУЮ</button>
       </div>
 
+      <!-- Показывается вместо .doc-wrap после нажатия "ПОДАТЬ В ДИСПЕТЧЕРСКУЮ".
+           См. JS: startSoloShiftSequence(). -->
+      <div class="doc-progress" id="docProgress" hidden>
+        <div class="doc-progress-bars" aria-hidden="true">
+          <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+        </div>
+        <div class="doc-progress-text" id="docProgressText">ОЖИДАЙТЕ</div>
+      </div>
+
       <div class="bottombar">
         <div class="icon-btn" title="Разделы">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -3160,6 +3275,24 @@
     <!-- ================= TERMINAL OFF — экран "гаснет" во время перезапуска ================= -->
     <div class="terminal-off" id="terminalOff" hidden></div>
 
+  </div>
+</div>
+
+<!-- ================= SHIFT START SEQUENCE — эти два слоя НЕ внутри .screen/.stage:
+     они fixed на весь вьюпорт и физически выходят за рамки терминала. Именно
+     сюда происходит переход после затемнения в ЗАЯВКЕ НА РАСПРЕДЕЛЕНИЕ, когда
+     игра "вылезает" из квадратного экрана терминала наружу. См. JS:
+     startSoloShiftSequence(). ================= -->
+<div class="fullscreen-fade" id="fullscreenFade" hidden></div>
+
+<div class="role-reveal" id="roleReveal" hidden>
+  <div class="role-reveal-scene" id="roleRevealScene1">
+    <div class="role-reveal-label" id="roleRevealLabel">ВАША РОЛЬ:</div>
+    <div class="role-reveal-title" id="roleRevealTitle"></div>
+  </div>
+  <div class="role-reveal-scene" id="roleRevealScene2">
+    <div class="role-reveal-tag" id="roleRevealTag"></div>
+    <div class="role-reveal-goal" id="roleRevealGoal"></div>
   </div>
 </div>
 
@@ -3986,6 +4119,7 @@
   //     as the other menu-nested screens above.
   function openShiftDocument(){
     resetDocForm();
+    resetShiftStartSequence();
     mainMenu.classList.remove('reveal');
     mainMenu.hidden = true;
     shiftDocumentScreen.hidden = false;
@@ -4313,8 +4447,129 @@
     });
   });
 
-  // Следующий этап разработки — сейчас кнопка ничего не отправляет.
-  docSubmitBtn.addEventListener('click', () => {});
+  // =========================================================
+  //  НАЧАЛО СМЕНЫ ("АВТОНОМНАЯ ВАХТА") — то, что происходит после
+  //  "ПОДАТЬ В ДИСПЕТЧЕРСКУЮ" для одиночной вахты. Пока реализован только
+  //  этот путь (type === 'solo'); ФОРМИРОВАНИЕ/ПРИСОЕДИНЕНИЕ К ЭКИПАЖУ —
+  //  следующий этап разработки.
+  //
+  //  Этапы:
+  //   1) бланк прячется, в терминале остаются только шапка/подвал —
+  //      крутится полосатый лоадер, снизу текст "ОЖИДАЙТЕ".
+  //   2) через 3-5 сек текст меняется на "ЗАЯВКА ПРИНЯТА...".
+  //   3) ещё через 3-5 сек весь экран (уже не только терминал — весь
+  //      вьюпорт, см. .fullscreen-fade) плавно гаснет в чёрный.
+  //   4) пауза — здесь в будущем будет реальная загрузка партии/сервера.
+  //   5) объявление роли: сперва подпись "ВАША РОЛЬ:", через 2 сек — сама
+  //      роль крупно; затем плавный переход к тому, что нужно делать.
+  // =========================================================
+  function delay(ms){ return new Promise((resolve) => setTimeout(resolve, ms)); }
+  function randDelay(minMs, maxMs){ return delay(minMs + Math.random() * (maxMs - minMs)); }
+
+  const ROLE_REVEAL_INFO = {
+    staff: {
+      title: 'ПЕРСОНАЛ',
+      className: 'staff',
+      goal: 'Выполняйте задания станции и вычислите Ликвидатора среди экипажа, прежде чем он расправится с вами.',
+    },
+    liquidator: {
+      title: 'ЛИКВИДАТОР',
+      className: 'liquidator',
+      goal: 'Устраняйте персонал и срывайте работу станции, не позволив экипажу себя разоблачить.',
+    },
+  };
+
+  // "НА УСМОТРЕНИЕ ДИСПЕТЧЕРСКОЙ" — сервера для реального распределения
+  // пока нет, поэтому назначение здесь просто разыгрывается на клиенте.
+  function resolveAssignedRole(roleValue){
+    if (roleValue === 'random') return Math.random() < 0.5 ? 'staff' : 'liquidator';
+    return roleValue;
+  }
+
+  const docWrapEl = shiftDocumentScreen.querySelector('.doc-wrap');
+  const shiftDocumentBackBtn = document.getElementById('shiftDocumentBack');
+  const docProgress = document.getElementById('docProgress');
+  const docProgressText = document.getElementById('docProgressText');
+  const fullscreenFade = document.getElementById('fullscreenFade');
+  const roleReveal = document.getElementById('roleReveal');
+  const roleRevealScene1 = document.getElementById('roleRevealScene1');
+  const roleRevealScene2 = document.getElementById('roleRevealScene2');
+  const roleRevealLabel = document.getElementById('roleRevealLabel');
+  const roleRevealTitle = document.getElementById('roleRevealTitle');
+  const roleRevealTag = document.getElementById('roleRevealTag');
+  const roleRevealGoal = document.getElementById('roleRevealGoal');
+
+  function resetShiftStartSequence(){
+    docWrapEl.hidden = false;
+    shiftDocumentBackBtn.hidden = false;
+    docProgress.hidden = true;
+
+    fullscreenFade.classList.remove('shown');
+    fullscreenFade.hidden = true;
+
+    roleReveal.hidden = true;
+    roleRevealScene1.classList.remove('shown');
+    roleRevealScene2.classList.remove('shown');
+    roleRevealLabel.classList.remove('shown');
+    roleRevealTitle.classList.remove('shown', 'staff', 'liquidator');
+    roleRevealTitle.textContent = '';
+    roleRevealTag.classList.remove('staff', 'liquidator');
+    roleRevealTag.textContent = '';
+    roleRevealGoal.textContent = '';
+  }
+
+  async function startSoloShiftSequence(roleValue){
+    const assignedRole = resolveAssignedRole(roleValue);
+    const info = ROLE_REVEAL_INFO[assignedRole];
+
+    // Этап 1 — бланк исчезает, остаётся шапка/подвал терминала.
+    docWrapEl.hidden = true;
+    shiftDocumentBackBtn.hidden = true;
+    docProgressText.textContent = 'ОЖИДАЙТЕ';
+    docProgress.hidden = false;
+
+    await randDelay(3000, 5000);
+    docProgressText.textContent = 'ЗАЯВКА ПРИНЯТА. ОЖИДАЙТЕ НАЧАЛО СМЕНЫ.';
+
+    await randDelay(3000, 5000);
+
+    // Этап 2 — экран гаснет целиком, уже за пределами квадрата терминала.
+    fullscreenFade.hidden = false;
+    requestAnimationFrame(() => fullscreenFade.classList.add('shown'));
+    await delay(1700); // должно совпадать с CSS-transition у .fullscreen-fade
+
+    // Этап 3 — пауза/загрузка партии. Сейчас чисто по времени; когда
+    // появится реальная загрузка (сервер, ассеты сессии), await здесь
+    // заменится на ожидание её фактического завершения.
+    await delay(1800);
+
+    // Этап 4 — объявление роли.
+    roleReveal.hidden = false;
+    requestAnimationFrame(() => roleRevealScene1.classList.add('shown'));
+    await delay(60);
+    roleRevealLabel.classList.add('shown');
+
+    await delay(2000);
+    roleRevealTitle.textContent = info.title;
+    roleRevealTitle.classList.add(info.className);
+    roleRevealTitle.classList.add('shown');
+
+    await randDelay(3000, 4000);
+
+    // Этап 5 — плавный переход к тому, что делать этой роли.
+    roleRevealTag.textContent = info.title;
+    roleRevealTag.classList.add(info.className);
+    roleRevealGoal.textContent = info.goal;
+    roleRevealScene2.classList.add('shown');
+    roleRevealScene1.classList.remove('shown');
+  }
+
+  docSubmitBtn.addEventListener('click', () => {
+    // Пока обрабатывается только АВТОНОМНАЯ ВАХТА с выбранной ролью —
+    // ФОРМИРОВАНИЕ/ПРИСОЕДИНЕНИЕ К ЭКИПАЖУ ждут следующего этапа.
+    if (docState.type !== 'solo' || !docState.role) return;
+    startSoloShiftSequence(docState.role);
+  });
 
   // =========================================================
   //  DOC FIELD INFO — окна-пояснения ("i") к трём этапам бланка заявки.
