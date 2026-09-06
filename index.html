@@ -1487,6 +1487,158 @@
     .doc-progress-text{ font-size:16px; }
   }
 
+  /* ================= ЭКИПАЖ / ЛОББИ (PC) ================= */
+  .crew-lobby-wrap{
+    flex:1 1 auto; min-height:0;
+    display:flex; flex-direction:column; gap:1.2cqw;
+    padding:0.4cqw 0.2cqw 1cqw;
+  }
+  .crew-lobby-heading{
+    display:flex; align-items:flex-end; justify-content:space-between; gap:2cqw;
+    padding-bottom:1.2cqw;
+  }
+  .crew-lobby-title{
+    font-size:2.4cqw; font-weight:700; letter-spacing:0.05em;
+    color:#eaf5ff; text-shadow:var(--phosphor);
+  }
+  .crew-lobby-code{
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.45cqw; letter-spacing:0.12em; color:var(--scr-amber);
+  }
+  .crew-lobby-grid{
+    flex:1 1 auto; min-height:0;
+    display:grid; grid-template-columns:minmax(0,2fr) minmax(190px,1fr);
+  }
+  .crew-panel{
+    min-height:0;
+    border:1px solid var(--scr-line-strong);
+    background:rgba(2,26,48,0.42);
+  }
+  .crew-players-panel{
+    display:flex; flex-direction:column;
+    border-radius:0.8cqw 0 0 0.8cqw;
+    overflow:hidden;
+  }
+  .crew-info-panel{
+    display:flex; flex-direction:column;
+    margin-left:-1px;
+    border-radius:0 0.8cqw 0.8cqw 0;
+  }
+  .crew-panel-title{
+    flex:none;
+    padding:1.25cqw 1.5cqw;
+    border-bottom:1px solid var(--scr-line-strong);
+    background:rgba(143,214,255,0.06);
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.35cqw; letter-spacing:0.12em; color:var(--scr-text-dim);
+  }
+  .crew-players{
+    flex:1 1 auto; min-height:0; overflow-y:auto;
+  }
+  .crew-player-row{
+    min-height:5.1cqw;
+    display:flex; align-items:center; gap:1.2cqw;
+    padding:1cqw 1.5cqw;
+    border-bottom:1px solid var(--scr-line);
+    font-family:'IBM VGA 8x16',monospace;
+  }
+  .crew-player-index{ width:2.3cqw; color:var(--scr-text-dim); font-size:1.25cqw; }
+  .crew-player-name{
+    min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    font-size:1.7cqw; letter-spacing:0.04em; color:#eaf5ff;
+  }
+  .crew-player-badge{
+    margin-left:auto; flex:none;
+    padding:0.35cqw 0.65cqw;
+    border:1px solid rgba(232,181,106,0.55); border-radius:0.35cqw;
+    font-size:1.05cqw; letter-spacing:0.08em; color:var(--scr-amber);
+  }
+  .crew-empty{
+    padding:3cqw 2cqw; text-align:center;
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.45cqw; line-height:1.5; color:var(--scr-text-dim);
+  }
+  .crew-pending-group{ border-top:1px solid var(--scr-line-strong); }
+  .crew-pending-title{
+    padding:0.9cqw 1.5cqw;
+    background:rgba(232,181,106,0.06);
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.15cqw; letter-spacing:0.1em; color:var(--scr-amber);
+  }
+  .crew-pending-row{
+    display:flex; align-items:center; gap:0.7cqw;
+    padding:0.8cqw 1.5cqw; border-top:1px solid var(--scr-line);
+  }
+  .crew-pending-name{
+    flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    font-family:'IBM VGA 8x16',monospace; font-size:1.35cqw;
+  }
+  .crew-mini-btn{
+    flex:none; padding:0.55cqw 0.8cqw;
+    border:1px solid var(--scr-line-strong); border-radius:0.35cqw;
+    background:rgba(255,255,255,0.04); color:var(--scr-text);
+    font-family:'IBM VGA 8x16',monospace; font-size:1.1cqw; cursor:pointer;
+  }
+  .crew-mini-btn.accept{ border-color:rgba(127,211,155,0.65); color:var(--scr-green); }
+  .crew-mini-btn.decline{ border-color:rgba(255,154,138,0.55); color:#ff9a8a; }
+  .crew-info-list{ display:flex; flex-direction:column; }
+  .crew-info-row{
+    padding:1.45cqw 1.55cqw;
+    border-bottom:1px solid var(--scr-line);
+  }
+  .crew-info-label{
+    margin-bottom:0.45cqw;
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.05cqw; letter-spacing:0.1em; color:var(--scr-text-dim);
+  }
+  .crew-info-value{
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.55cqw; line-height:1.25; color:var(--scr-cyan);
+  }
+  .crew-info-value.closed{ color:var(--scr-amber); }
+  .crew-lobby-actions{
+    margin-top:auto;
+    display:flex; flex-direction:column; gap:0.8cqw;
+    padding:1.3cqw;
+  }
+  .crew-action-btn{
+    width:100%; padding:1.35cqw 0.8cqw;
+    border:1px solid var(--scr-line-strong); border-radius:0.55cqw;
+    background:rgba(255,255,255,0.045); color:#eaf5ff;
+    font-family:inherit; font-size:1.45cqw; font-weight:600;
+    letter-spacing:0.05em; cursor:pointer;
+  }
+  .crew-action-btn.primary{
+    border-color:var(--scr-cyan);
+    background:rgba(143,214,255,0.11);
+  }
+  .crew-action-btn.danger{ border-color:rgba(255,154,138,0.55); color:#ffb2a7; }
+  .crew-action-btn:disabled{ opacity:0.42; cursor:default; }
+  .crew-lobby-status{
+    min-height:1.5em;
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:1.25cqw; letter-spacing:0.04em; color:var(--scr-text-dim);
+  }
+  .crew-lobby-status.error{ color:#ff9a8a; }
+  .crew-settings-state{ color:var(--scr-amber); }
+  .crew-kick-list{
+    max-height:34cqw; overflow-y:auto;
+    display:flex; flex-direction:column; gap:0.8cqw;
+    padding:2.2cqw 3.6cqw 0;
+  }
+  .crew-kick-btn{
+    width:100%; padding:1.4cqw 1.2cqw; text-align:left;
+    border:1px solid rgba(255,154,138,0.5); border-radius:0.5cqw;
+    background:rgba(255,154,138,0.06); color:#ffb2a7;
+    font-family:'IBM VGA 8x16',monospace; font-size:1.45cqw; cursor:pointer;
+  }
+
+  @media (max-width:700px){
+    .crew-lobby-grid{ grid-template-columns:1fr; overflow-y:auto; }
+    .crew-info-panel{ margin-left:0; margin-top:-1px; border-radius:0 0 0.8cqw 0.8cqw; }
+    .crew-players-panel{ min-height:42cqw; border-radius:0.8cqw 0.8cqw 0 0; }
+  }
+
   /* ================= STATION MAP ("СТАНЦИИ") — чертёж станции (SVG из
      Figma, вставлен как есть), и свободная камера над ним: вьюпорт
      обрезает лишнее (overflow:hidden), а сам чертёж — просто большой слой
@@ -3017,6 +3169,137 @@
       </div>
     </div>
 
+    <!-- ================= ЛОББИ ЭКИПАЖА ================= -->
+    <div class="screen-content" id="crewLobbyScreen" hidden>
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <div class="brand-text">
+            <div class="b1">EQUATOR</div>
+            <div class="b2">STATION</div>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="clock" id="clockCrew">14:28</div>
+          <div class="icon-btn" title="Системы станции">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <rect x="3" y="4" width="18" height="5" rx="1"/>
+              <rect x="3" y="15" width="18" height="5" rx="1"/>
+              <circle cx="7" cy="6.5" r="0.7" fill="currentColor" stroke="none"/>
+              <circle cx="7" cy="17.5" r="0.7" fill="currentColor" stroke="none"/>
+              <line x1="11" y1="6.5" x2="17" y2="6.5"/>
+              <line x1="11" y1="17.5" x2="17" y2="17.5"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="crew-lobby-wrap">
+        <div class="crew-lobby-heading">
+          <div class="crew-lobby-title" id="crewLobbyTitle">ЛОББИ ЭКИПАЖА</div>
+          <div class="crew-lobby-code" id="crewLobbyCode">КОД ДОПУСКА: —</div>
+        </div>
+
+        <div class="crew-lobby-grid">
+          <section class="crew-panel crew-players-panel">
+            <div class="crew-panel-title">СОСТАВ ЭКИПАЖА</div>
+            <div class="crew-players" id="crewPlayersList"></div>
+            <div class="crew-pending-group" id="crewPendingGroup" hidden>
+              <div class="crew-pending-title">ЗАПРОСЫ НА ПРИСОЕДИНЕНИЕ</div>
+              <div id="crewPendingList"></div>
+            </div>
+          </section>
+
+          <aside class="crew-panel crew-info-panel">
+            <div class="crew-panel-title">ПАРАМЕТРЫ СМЕНЫ</div>
+            <div class="crew-info-list">
+              <div class="crew-info-row">
+                <div class="crew-info-label">ПРОТОКОЛ ЗАСЕДАНИЙ</div>
+                <div class="crew-info-value" id="crewModeValue">КЛАССИЧЕСКИЙ</div>
+              </div>
+              <div class="crew-info-row">
+                <div class="crew-info-label">КОЛИЧЕСТВО ИГРОКОВ</div>
+                <div class="crew-info-value" id="crewCountValue">0 / 12</div>
+              </div>
+              <div class="crew-info-row">
+                <div class="crew-info-label">СТАНЦИЯ</div>
+                <div class="crew-info-value" id="crewStationValue">АСТРАЛ-1</div>
+              </div>
+              <div class="crew-info-row" id="crewAccessStateRow" hidden>
+                <div class="crew-info-label">ДОСТУП</div>
+                <div class="crew-info-value" id="crewAccessState">ОТКРЫТ</div>
+              </div>
+            </div>
+            <div class="crew-lobby-actions">
+              <button class="crew-action-btn primary" id="crewStartBtn" type="button" hidden>НАЧАТЬ СМЕНУ</button>
+              <button class="crew-action-btn" id="crewSettingsBtn" type="button" hidden>НАСТРОЙКИ СМЕНЫ</button>
+              <button class="crew-action-btn danger" id="crewLeaveBtn" type="button" hidden>ПОКИНУТЬ СМЕНУ</button>
+            </div>
+          </aside>
+        </div>
+        <div class="crew-lobby-status" id="crewLobbyStatus">СИНХРОНИЗАЦИЯ С ДИСПЕТЧЕРСКОЙ...</div>
+      </div>
+
+      <div class="bottombar">
+        <div class="icon-btn" title="Разделы">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <polygon points="12 3 21 8 12 13 3 8 12 3"/>
+            <polyline points="3 12 12 17 21 12"/>
+            <polyline points="3 16 12 21 21 16"/>
+          </svg>
+        </div>
+        <div class="tag">EQUATOR-01 // SEC-B</div>
+        <div class="icon-btn" title="Ещё">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="rename-overlay" id="crewSettingsOverlay" hidden>
+      <div class="rename-window">
+        <div class="rename-titlebar">
+          <span class="rename-titlebar-text">НАСТРОЙКИ СМЕНЫ</span>
+          <button class="rename-close" id="crewSettingsClose" type="button" aria-label="Закрыть">✕</button>
+        </div>
+        <div class="rename-actions stacked">
+          <button class="rename-btn" id="crewToggleClosedBtn" type="button">ЗАКРЫТИЕ ЛОББИ: <span class="crew-settings-state">ВЫКЛ.</span></button>
+          <button class="rename-btn" id="crewToggleModeBtn" type="button">СМЕНА ПРОТОКОЛА ЗАСЕДАНИЙ</button>
+          <button class="rename-btn" id="crewKickOpenBtn" type="button">ИСКЛЮЧИТЬ СОТРУДНИКА</button>
+          <button class="rename-btn primary" id="crewCancelBtn" type="button">ОТМЕНИТЬ СМЕНУ</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="rename-overlay" id="crewKickOverlay" hidden>
+      <div class="rename-window">
+        <div class="rename-titlebar">
+          <span class="rename-titlebar-text">ИСКЛЮЧИТЬ СОТРУДНИКА</span>
+          <button class="rename-close" id="crewKickClose" type="button" aria-label="Закрыть">✕</button>
+        </div>
+        <div class="crew-kick-list" id="crewKickList"></div>
+        <div class="rename-actions">
+          <button class="rename-btn" id="crewKickBack" type="button">НАЗАД</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="rename-overlay" id="crewNoticeOverlay" hidden>
+      <div class="rename-window">
+        <div class="rename-titlebar">
+          <span class="rename-titlebar-text">СООБЩЕНИЕ ДИСПЕТЧЕРСКОЙ</span>
+        </div>
+        <div class="rename-body">
+          <div class="rename-warn-row">
+            <span class="rename-warn-icon">!</span>
+            <p class="rename-warn-text" id="crewNoticeText"></p>
+          </div>
+        </div>
+        <div class="rename-actions">
+          <button class="rename-btn primary" id="crewNoticeConfirm" type="button">ПОНЯТНО</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ================= FIELD PICKER — плавающее окно выбора для полей бланка
          заявки; появляется рядом с местом нажатия (см. JS: openFieldPicker/
          closeFieldPicker). Один переиспользуемый узел на все поля бланка —
@@ -3410,6 +3693,8 @@
     if (clock6) clock6.textContent = time;
     const clock7 = document.getElementById('clock7');
     if (clock7) clock7.textContent = time;
+    const clockCrew = document.getElementById('clockCrew');
+    if (clockCrew) clockCrew.textContent = time;
   }
   tick();
   setInterval(tick, 15000);
@@ -3446,6 +3731,7 @@
   const databaseScreen = document.getElementById('databaseScreen');
   const stationsScreen = document.getElementById('stationsScreen');
   const shiftDocumentScreen = document.getElementById('shiftDocumentScreen');
+  const crewLobbyScreen = document.getElementById('crewLobbyScreen');
   // Profile/Settings/Mail/Database switch to instantly (no boot animation to time against),
   // so their wallpaper can just be shown right away.
   profileScreen.querySelectorAll('.screen-watermark').forEach(w => w.classList.add('wp-shown'));
@@ -3904,6 +4190,7 @@
     // flickering on (flickerOn animation is .18s, plus a small settle beat)
     setTimeout(() => {
       mainMenu.querySelectorAll('.screen-watermark').forEach(w => w.classList.add('wp-shown'));
+      resumeActiveLobby();
     }, finalDelay + 260);
   }
 
@@ -4452,8 +4739,8 @@
       openFieldPicker(e.clientX, e.clientY, {
         mode: 'input',
         initialValue: docState.password,
-        placeholder: 'НАПРИМЕР: NORA-27',
-        hint: 'Придумайте код допуска — его нужно будет сообщить остальным участникам экипажа.',
+        placeholder: 'НАПРИМЕР: A5T7R',
+        hint: 'Ровно 5 латинских букв и/или цифр. Регистр важен; сообщите код остальным участникам.',
         onSubmit: (value) => {
           docState.password = value;
           setFieldValue(docFieldSecondaryValue, value);
@@ -4464,7 +4751,7 @@
         mode: 'input',
         initialValue: docState.password,
         placeholder: 'КОД ДОПУСКА',
-        hint: 'Введите код допуска, который вам передал капитан экипажа.',
+        hint: 'Введите 5-символьный код допуска, который вам передал капитан экипажа.',
         onSubmit: (value) => {
           docState.password = value;
           setFieldValue(docFieldSecondaryValue, value);
@@ -4483,6 +4770,389 @@
         setFieldValue(docFieldModeValue, label);
       },
     });
+  });
+
+  // =========================================================
+  //  ЭКИПАЖ / ЛОББИ — реальный общий контур с Telegram-ботом.
+  // =========================================================
+  const crewPlayersList = document.getElementById('crewPlayersList');
+  const crewPendingGroup = document.getElementById('crewPendingGroup');
+  const crewPendingList = document.getElementById('crewPendingList');
+  const crewLobbyTitle = document.getElementById('crewLobbyTitle');
+  const crewLobbyCode = document.getElementById('crewLobbyCode');
+  const crewModeValue = document.getElementById('crewModeValue');
+  const crewCountValue = document.getElementById('crewCountValue');
+  const crewStationValue = document.getElementById('crewStationValue');
+  const crewLobbyStatus = document.getElementById('crewLobbyStatus');
+  const crewStartBtn = document.getElementById('crewStartBtn');
+  const crewSettingsBtn = document.getElementById('crewSettingsBtn');
+  const crewLeaveBtn = document.getElementById('crewLeaveBtn');
+  const crewSettingsOverlay = document.getElementById('crewSettingsOverlay');
+  const crewKickOverlay = document.getElementById('crewKickOverlay');
+  const crewNoticeOverlay = document.getElementById('crewNoticeOverlay');
+  const crewNoticeText = document.getElementById('crewNoticeText');
+  const crewToggleClosedBtn = document.getElementById('crewToggleClosedBtn');
+  const crewToggleModeBtn = document.getElementById('crewToggleModeBtn');
+  const crewKickList = document.getElementById('crewKickList');
+
+  let currentLobby = null;
+  let crewPollTimer = null;
+  let crewPollBusy = false;
+  let crewActionBusy = false;
+  let cancelArmedUntil = 0;
+
+  function openCrewOverlay(overlay){
+    overlay.hidden = false;
+    requestAnimationFrame(() => overlay.classList.add('shown'));
+  }
+  function closeCrewOverlay(overlay){
+    overlay.classList.remove('shown');
+    setTimeout(() => { overlay.hidden = true; }, 250);
+  }
+  function showCrewNotice(message){
+    crewNoticeText.textContent = message;
+    openCrewOverlay(crewNoticeOverlay);
+  }
+  document.getElementById('crewNoticeConfirm').addEventListener('click', () => {
+    closeCrewOverlay(crewNoticeOverlay);
+  });
+
+  function lobbyErrorMessage(status, data){
+    const error = data && data.error;
+    if (error === 'invalid_password') return 'Код допуска должен состоять ровно из 5 латинских букв и/или цифр. Регистр букв важен.';
+    if (error === 'password_taken') return 'Этот код допуска уже используется другим экипажем.';
+    if (error === 'not_found') return 'Экипаж с таким кодом допуска не найден.';
+    if (error === 'already_in_lobby') return 'Вы уже состоите в другом формирующемся экипаже.';
+    if (error === 'already_playing') return 'Вы уже находитесь на активной смене.';
+    if (error === 'lobby_full') return 'В экипаже уже достигнут предел: ' + ((data && data.max_players) || 12) + ' сотрудников.';
+    if (error === 'not_enough_players') return 'Для начала смены нужно минимум ' + data.min_players + ' сотрудника. Сейчас: ' + data.count + '.';
+    if (error === 'request_gone') return 'Этот запрос на присоединение уже обработан или отозван.';
+    if (error === 'launch_failed') return 'Диспетчерская не смогла запустить смену. Убедитесь, что все участники открывали личный чат с ботом.';
+    if (status === 401) return 'Не удалось подтвердить сеанс Telegram. Закройте и снова откройте Mini App.';
+    if (error === 'preview_unavailable') return 'Формирование реального экипажа доступно только внутри Telegram Mini App.';
+    return 'Не удалось связаться с диспетчерской. Проверьте соединение и повторите попытку.';
+  }
+
+  async function lobbyRequest(path, payload, method){
+    const initData = tg && tg.initData ? tg.initData : '';
+    if (!initData) {
+      return { ok:false, status:0, data:{ error:'preview_unavailable' } };
+    }
+    const requestMethod = method || 'POST';
+    try {
+      const options = { method:requestMethod, headers:{ 'Content-Type':'application/json' } };
+      let url = apiUrl(path);
+      if (requestMethod === 'GET') {
+        url += '?initData=' + encodeURIComponent(initData);
+      } else {
+        options.body = JSON.stringify(Object.assign({ initData }, payload || {}));
+      }
+      const res = await fetch(url, options);
+      const data = await res.json().catch(() => ({}));
+      return { ok:res.ok, status:res.status, data };
+    } catch (e) {
+      console.error('Lobby API failed:', e);
+      return { ok:false, status:0, data:{} };
+    }
+  }
+
+  function setCrewStatus(text, isError){
+    crewLobbyStatus.textContent = text || '';
+    crewLobbyStatus.classList.toggle('error', Boolean(isError));
+  }
+
+  function makeCrewPlayerRow(player, index){
+    const row = document.createElement('div');
+    row.className = 'crew-player-row';
+    const number = document.createElement('span');
+    number.className = 'crew-player-index';
+    number.textContent = String(index + 1).padStart(2, '0');
+    const name = document.createElement('span');
+    name.className = 'crew-player-name';
+    name.textContent = player.name;
+    row.append(number, name);
+    if (player.is_host) {
+      const badge = document.createElement('span');
+      badge.className = 'crew-player-badge';
+      badge.textContent = 'КАПИТАН';
+      row.appendChild(badge);
+    }
+    return row;
+  }
+
+  function renderPendingRequests(lobby){
+    const pending = lobby.is_host && Array.isArray(lobby.pending) ? lobby.pending : [];
+    crewPendingList.innerHTML = '';
+    crewPendingGroup.hidden = pending.length === 0;
+    pending.forEach((request) => {
+      const row = document.createElement('div');
+      row.className = 'crew-pending-row';
+      const name = document.createElement('span');
+      name.className = 'crew-pending-name';
+      name.textContent = request.name;
+      const accept = document.createElement('button');
+      accept.className = 'crew-mini-btn accept';
+      accept.type = 'button';
+      accept.textContent = 'ПРИНЯТЬ';
+      accept.addEventListener('click', () => actOnPending(request.id, 'approve'));
+      const decline = document.createElement('button');
+      decline.className = 'crew-mini-btn decline';
+      decline.type = 'button';
+      decline.textContent = 'ОТКЛОНИТЬ';
+      decline.addEventListener('click', () => actOnPending(request.id, 'decline'));
+      row.append(name, accept, decline);
+      crewPendingList.appendChild(row);
+    });
+  }
+
+  function renderCrewLobby(lobby){
+    currentLobby = lobby;
+    crewStartBtn.disabled = false;
+    crewSettingsBtn.disabled = false;
+    crewLeaveBtn.disabled = false;
+    crewLobbyTitle.textContent = lobby.status === 'pending'
+      ? 'ЗАПРОС НА ПРИСОЕДИНЕНИЕ'
+      : (lobby.is_host ? 'ФОРМИРОВАНИЕ ЭКИПАЖА' : 'ЭКИПАЖ СФОРМИРОВАН');
+    crewLobbyCode.textContent = 'КОД ДОПУСКА: ' + lobby.password;
+    crewModeValue.textContent = lobby.mode === 'international' ? 'МЕЖДУНАРОДНЫЙ' : 'КЛАССИЧЕСКИЙ';
+    crewCountValue.textContent = lobby.count + ' / ' + lobby.max_players;
+    crewStationValue.textContent = lobby.station || 'АСТРАЛ-1';
+
+    crewPlayersList.innerHTML = '';
+    (lobby.participants || []).forEach((player, index) => {
+      crewPlayersList.appendChild(makeCrewPlayerRow(player, index));
+    });
+    if (!lobby.participants || lobby.participants.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'crew-empty';
+      empty.textContent = 'ОЖИДАНИЕ РЕШЕНИЯ КАПИТАНА...';
+      crewPlayersList.appendChild(empty);
+    }
+    renderPendingRequests(lobby);
+
+    crewStartBtn.hidden = !lobby.is_host;
+    crewSettingsBtn.hidden = !lobby.is_host;
+    crewLeaveBtn.hidden = lobby.is_host;
+    crewLeaveBtn.textContent = lobby.status === 'pending' ? 'ОТОЗВАТЬ ЗАЯВКУ' : 'ПОКИНУТЬ СМЕНУ';
+    crewToggleClosedBtn.innerHTML = 'ЗАКРЫТИЕ ЛОББИ: <span class="crew-settings-state">' + (lobby.is_closed ? 'ВКЛ.' : 'ВЫКЛ.') + '</span>';
+    crewToggleModeBtn.textContent = 'СМЕНА ПРОТОКОЛА: ' + (lobby.mode === 'international' ? 'МЕЖДУНАРОДНЫЙ' : 'КЛАССИЧЕСКИЙ');
+    setCrewStatus(
+      lobby.status === 'pending'
+        ? 'ЗАПРОС ПЕРЕДАН КАПИТАНУ. ОЖИДАЙТЕ РЕШЕНИЯ.'
+        : (lobby.is_closed ? 'ЛОББИ ЗАКРЫТО. НОВЫЕ СОТРУДНИКИ ТРЕБУЮТ ПОДТВЕРЖДЕНИЯ.' : 'ОЖИДАНИЕ ФОРМИРОВАНИЯ ЭКИПАЖА.'),
+      false
+    );
+  }
+
+  function stopCrewPolling(){
+    if (crewPollTimer) clearInterval(crewPollTimer);
+    crewPollTimer = null;
+    crewPollBusy = false;
+  }
+
+  function startCrewPolling(){
+    stopCrewPolling();
+    crewPollTimer = setInterval(refreshCrewLobby, 1800);
+  }
+
+  function showCrewLobby(lobby){
+    closeFieldPicker();
+    shiftDocumentScreen.classList.remove('reveal');
+    shiftDocumentScreen.hidden = true;
+    mainMenu.classList.remove('reveal');
+    mainMenu.hidden = true;
+    crewLobbyScreen.hidden = false;
+    crewLobbyScreen.classList.add('reveal');
+    renderCrewLobby(lobby);
+    startCrewPolling();
+  }
+
+  function returnCrewToMenu(message){
+    stopCrewPolling();
+    currentLobby = null;
+    closeCrewOverlay(crewSettingsOverlay);
+    closeCrewOverlay(crewKickOverlay);
+    crewLobbyScreen.classList.remove('reveal');
+    crewLobbyScreen.hidden = true;
+    mainMenu.hidden = false;
+    mainMenu.classList.add('reveal');
+    if (message) showCrewNotice(message);
+  }
+
+  function startCrewShiftSequence(role){
+    stopCrewPolling();
+    currentLobby = null;
+    crewLobbyScreen.classList.remove('reveal');
+    crewLobbyScreen.hidden = true;
+    resetShiftStartSequence();
+    shiftDocumentScreen.hidden = false;
+    shiftDocumentScreen.classList.add('reveal');
+    startSoloShiftSequence(role);
+  }
+
+  function handleLobbyStatus(data){
+    if (!data) return;
+    if (data.status === 'lobby' || data.status === 'pending') {
+      if (crewLobbyScreen.hidden) showCrewLobby(data);
+      else renderCrewLobby(data);
+      return;
+    }
+    if (data.status === 'starting') {
+      setCrewStatus('ДИСПЕТЧЕРСКАЯ ФОРМИРУЕТ СМЕНУ. НЕ ЗАКРЫВАЙТЕ ТЕРМИНАЛ.', false);
+      crewStartBtn.disabled = true;
+      crewSettingsBtn.disabled = true;
+      crewLeaveBtn.disabled = true;
+      return;
+    }
+    if (data.status === 'started' && data.role) {
+      startCrewShiftSequence(data.role);
+      return;
+    }
+    if (data.status === 'kicked') returnCrewToMenu('ВАС ИЗГНАЛИ ИЗ СМЕНЫ. ДОПУСК К ЭКИПАЖУ ОТОЗВАН.');
+    else if (data.status === 'cancelled') returnCrewToMenu('КАПИТАН ОТМЕНИЛ СМЕНУ. ВЫ ВОЗВРАЩЕНЫ В ГЛАВНОЕ МЕНЮ.');
+    else if (data.status === 'declined') returnCrewToMenu('КАПИТАН ОТКЛОНИЛ ВАШ ЗАПРОС НА ПРИСОЕДИНЕНИЕ.');
+    else if (data.status === 'launch_failed') returnCrewToMenu('НЕ УДАЛОСЬ ЗАПУСТИТЬ СМЕНУ. ОТКРОЙТЕ ЛИЧНЫЙ ЧАТ С БОТОМ И ПОВТОРИТЕ ПОПЫТКУ.');
+    else if (data.status === 'none' && currentLobby) returnCrewToMenu('ЛОББИ БОЛЬШЕ НЕДОСТУПНО.');
+  }
+
+  async function refreshCrewLobby(){
+    if (crewPollBusy || crewActionBusy) return;
+    crewPollBusy = true;
+    const result = await lobbyRequest('/api/lobby/status', null, 'GET');
+    crewPollBusy = false;
+    if (result.ok) handleLobbyStatus(result.data);
+  }
+
+  async function resumeActiveLobby(){
+    if (!(tg && tg.initData) || !crewLobbyScreen.hidden) return;
+    const result = await lobbyRequest('/api/lobby/status', null, 'GET');
+    if (result.ok && ['lobby','pending','starting','started','kicked','cancelled','declined','launch_failed'].includes(result.data.status)) {
+      handleLobbyStatus(result.data);
+    }
+  }
+
+  async function submitCrewDocument(){
+    if (!/^[A-Za-z0-9]{5}$/.test(docState.password || '')) {
+      showCrewNotice(lobbyErrorMessage(400, { error:'invalid_password' }));
+      return;
+    }
+    if (docState.type === 'create' && !docState.mode) {
+      showCrewNotice('Выберите протокол заседаний перед подачей документа.');
+      return;
+    }
+    docSubmitBtn.disabled = true;
+    const oldText = docSubmitBtn.textContent;
+    docSubmitBtn.textContent = 'ПРОВЕРКА ДОПУСКА...';
+    const path = docState.type === 'create' ? '/api/lobby/create' : '/api/lobby/join';
+    const result = await lobbyRequest(path, {
+      password:docState.password,
+      mode:docState.mode || 'classic'
+    });
+    docSubmitBtn.disabled = false;
+    docSubmitBtn.textContent = oldText;
+    if (!result.ok) {
+      showCrewNotice(lobbyErrorMessage(result.status, result.data));
+      return;
+    }
+    showCrewLobby(result.data);
+  }
+
+  async function runCrewAction(path, payload, onSuccess){
+    if (crewActionBusy) return;
+    crewActionBusy = true;
+    const result = await lobbyRequest(path, payload || {});
+    crewActionBusy = false;
+    if (!result.ok) {
+      setCrewStatus(lobbyErrorMessage(result.status, result.data), true);
+      return false;
+    }
+    if (result.data && result.data.status) handleLobbyStatus(result.data);
+    if (onSuccess) onSuccess(result.data);
+    return true;
+  }
+
+  async function actOnPending(userId, action){
+    await runCrewAction('/api/lobby/pending', { user_id:userId, action });
+  }
+
+  crewStartBtn.addEventListener('click', async () => {
+    setCrewStatus('ДИСПЕТЧЕРСКАЯ ФОРМИРУЕТ СМЕНУ...', false);
+    crewStartBtn.disabled = true;
+    const ok = await runCrewAction('/api/lobby/start', {});
+    if (!ok) crewStartBtn.disabled = false;
+  });
+
+  crewLeaveBtn.addEventListener('click', async () => {
+    const ok = await runCrewAction('/api/lobby/leave', {}, () => {
+      returnCrewToMenu(currentLobby && currentLobby.status === 'pending' ? 'ЗАПРОС НА ПРИСОЕДИНЕНИЕ ОТОЗВАН.' : 'ВЫ ПОКИНУЛИ СМЕНУ.');
+    });
+    if (!ok) crewLeaveBtn.disabled = false;
+  });
+
+  crewSettingsBtn.addEventListener('click', () => openCrewOverlay(crewSettingsOverlay));
+  document.getElementById('crewSettingsClose').addEventListener('click', () => closeCrewOverlay(crewSettingsOverlay));
+
+  crewToggleClosedBtn.addEventListener('click', async () => {
+    if (!currentLobby) return;
+    await runCrewAction('/api/lobby/closed', { closed:!currentLobby.is_closed });
+  });
+  crewToggleModeBtn.addEventListener('click', async () => {
+    if (!currentLobby) return;
+    await runCrewAction('/api/lobby/mode', {
+      mode:currentLobby.mode === 'international' ? 'classic' : 'international'
+    });
+  });
+
+  function renderKickList(){
+    crewKickList.innerHTML = '';
+    const others = currentLobby
+      ? (currentLobby.participants || []).filter(player => !player.is_host)
+      : [];
+    if (!others.length) {
+      const empty = document.createElement('div');
+      empty.className = 'crew-empty';
+      empty.textContent = 'НЕТ СОТРУДНИКОВ ДЛЯ ИСКЛЮЧЕНИЯ.';
+      crewKickList.appendChild(empty);
+      return;
+    }
+    others.forEach((player) => {
+      const button = document.createElement('button');
+      button.className = 'crew-kick-btn';
+      button.type = 'button';
+      button.textContent = 'ИСКЛЮЧИТЬ // ' + player.name;
+      button.addEventListener('click', async () => {
+        const ok = await runCrewAction('/api/lobby/kick', { user_id:player.id });
+        if (ok) renderKickList();
+      });
+      crewKickList.appendChild(button);
+    });
+  }
+  document.getElementById('crewKickOpenBtn').addEventListener('click', () => {
+    closeCrewOverlay(crewSettingsOverlay);
+    renderKickList();
+    openCrewOverlay(crewKickOverlay);
+  });
+  document.getElementById('crewKickClose').addEventListener('click', () => closeCrewOverlay(crewKickOverlay));
+  document.getElementById('crewKickBack').addEventListener('click', () => {
+    closeCrewOverlay(crewKickOverlay);
+    setTimeout(() => openCrewOverlay(crewSettingsOverlay), 260);
+  });
+
+  document.getElementById('crewCancelBtn').addEventListener('click', async (event) => {
+    const button = event.currentTarget;
+    if (Date.now() > cancelArmedUntil) {
+      cancelArmedUntil = Date.now() + 4000;
+      button.textContent = 'ПОДТВЕРДИТЕ ОТМЕНУ';
+      setTimeout(() => {
+        if (Date.now() >= cancelArmedUntil) button.textContent = 'ОТМЕНИТЬ СМЕНУ';
+      }, 4100);
+      return;
+    }
+    cancelArmedUntil = 0;
+    const ok = await runCrewAction('/api/lobby/cancel', {}, () => {
+      returnCrewToMenu('СМЕНА ОТМЕНЕНА.');
+    });
+    if (!ok) button.textContent = 'ОТМЕНИТЬ СМЕНУ';
   });
 
   // =========================================================
@@ -4648,10 +5318,13 @@
   }
 
   docSubmitBtn.addEventListener('click', () => {
-    // Пока обрабатывается только АВТОНОМНАЯ ВАХТА с выбранной ролью —
-    // ФОРМИРОВАНИЕ/ПРИСОЕДИНЕНИЕ К ЭКИПАЖУ ждут следующего этапа.
-    if (docState.type !== 'solo' || !docState.role) return;
-    startSoloShiftSequence(docState.role);
+    if (docState.type === 'solo' && docState.role) {
+      startSoloShiftSequence(docState.role);
+      return;
+    }
+    if (docState.type === 'create' || docState.type === 'join') {
+      submitCrewDocument();
+    }
   });
 
   // =========================================================
