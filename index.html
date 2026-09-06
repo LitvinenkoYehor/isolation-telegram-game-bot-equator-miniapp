@@ -417,7 +417,6 @@
     font-size:3cqw;
     letter-spacing:0.06em;
     text-align:center;
-    text-transform:uppercase;
     color:var(--scr-cyan);
     background:rgba(0,0,0,0.28);
     border:1px solid var(--scr-line-strong);
@@ -1498,12 +1497,12 @@
     padding-bottom:1.2cqw;
   }
   .crew-lobby-title{
-    font-size:2.4cqw; font-weight:700; letter-spacing:0.05em;
+    font-size:3cqw; font-weight:700; letter-spacing:0.05em;
     color:#eaf5ff; text-shadow:var(--phosphor);
   }
   .crew-lobby-code{
     font-family:'IBM VGA 8x16',monospace;
-    font-size:1.45cqw; letter-spacing:0.12em; color:var(--scr-amber);
+    font-size:1.8cqw; letter-spacing:0.1em; color:var(--scr-amber);
   }
   .crew-lobby-grid{
     flex:1 1 auto; min-height:0;
@@ -1530,40 +1529,40 @@
     border-bottom:1px solid var(--scr-line-strong);
     background:rgba(143,214,255,0.06);
     font-family:'IBM VGA 8x16',monospace;
-    font-size:1.35cqw; letter-spacing:0.12em; color:var(--scr-text-dim);
+    font-size:1.65cqw; letter-spacing:0.1em; color:var(--scr-text-dim);
   }
   .crew-players{
     flex:1 1 auto; min-height:0; overflow-y:auto;
   }
   .crew-player-row{
-    min-height:5.1cqw;
+    min-height:5.6cqw;
     display:flex; align-items:center; gap:1.2cqw;
     padding:1cqw 1.5cqw;
     border-bottom:1px solid var(--scr-line);
     font-family:'IBM VGA 8x16',monospace;
   }
-  .crew-player-index{ width:2.3cqw; color:var(--scr-text-dim); font-size:1.25cqw; }
+  .crew-player-index{ width:2.7cqw; color:var(--scr-text-dim); font-size:1.5cqw; }
   .crew-player-name{
     min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-    font-size:1.7cqw; letter-spacing:0.04em; color:#eaf5ff;
+    font-size:2.1cqw; letter-spacing:0.035em; color:#eaf5ff;
   }
   .crew-player-badge{
     margin-left:auto; flex:none;
     padding:0.35cqw 0.65cqw;
     border:1px solid rgba(232,181,106,0.55); border-radius:0.35cqw;
-    font-size:1.05cqw; letter-spacing:0.08em; color:var(--scr-amber);
+    font-size:1.3cqw; letter-spacing:0.07em; color:var(--scr-amber);
   }
   .crew-empty{
     padding:3cqw 2cqw; text-align:center;
     font-family:'IBM VGA 8x16',monospace;
-    font-size:1.45cqw; line-height:1.5; color:var(--scr-text-dim);
+    font-size:1.75cqw; line-height:1.45; color:var(--scr-text-dim);
   }
   .crew-pending-group{ border-top:1px solid var(--scr-line-strong); }
   .crew-pending-title{
     padding:0.9cqw 1.5cqw;
     background:rgba(232,181,106,0.06);
     font-family:'IBM VGA 8x16',monospace;
-    font-size:1.15cqw; letter-spacing:0.1em; color:var(--scr-amber);
+    font-size:1.4cqw; letter-spacing:0.09em; color:var(--scr-amber);
   }
   .crew-pending-row{
     display:flex; align-items:center; gap:0.7cqw;
@@ -1571,13 +1570,13 @@
   }
   .crew-pending-name{
     flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-    font-family:'IBM VGA 8x16',monospace; font-size:1.35cqw;
+    font-family:'IBM VGA 8x16',monospace; font-size:1.65cqw;
   }
   .crew-mini-btn{
     flex:none; padding:0.55cqw 0.8cqw;
     border:1px solid var(--scr-line-strong); border-radius:0.35cqw;
     background:rgba(255,255,255,0.04); color:var(--scr-text);
-    font-family:'IBM VGA 8x16',monospace; font-size:1.1cqw; cursor:pointer;
+    font-family:'IBM VGA 8x16',monospace; font-size:1.3cqw; cursor:pointer;
   }
   .crew-mini-btn.accept{ border-color:rgba(127,211,155,0.65); color:var(--scr-green); }
   .crew-mini-btn.decline{ border-color:rgba(255,154,138,0.55); color:#ff9a8a; }
@@ -1589,11 +1588,11 @@
   .crew-info-label{
     margin-bottom:0.45cqw;
     font-family:'IBM VGA 8x16',monospace;
-    font-size:1.05cqw; letter-spacing:0.1em; color:var(--scr-text-dim);
+    font-size:1.3cqw; letter-spacing:0.085em; color:var(--scr-text-dim);
   }
   .crew-info-value{
     font-family:'IBM VGA 8x16',monospace;
-    font-size:1.55cqw; line-height:1.25; color:var(--scr-cyan);
+    font-size:1.9cqw; line-height:1.22; color:var(--scr-cyan);
   }
   .crew-info-value.closed{ color:var(--scr-amber); }
   .crew-lobby-actions{
@@ -1605,7 +1604,7 @@
     width:100%; padding:1.35cqw 0.8cqw;
     border:1px solid var(--scr-line-strong); border-radius:0.55cqw;
     background:rgba(255,255,255,0.045); color:#eaf5ff;
-    font-family:inherit; font-size:1.45cqw; font-weight:600;
+    font-family:inherit; font-size:1.75cqw; font-weight:600;
     letter-spacing:0.05em; cursor:pointer;
   }
   .crew-action-btn.primary{
@@ -1617,7 +1616,7 @@
   .crew-lobby-status{
     min-height:1.5em;
     font-family:'IBM VGA 8x16',monospace;
-    font-size:1.25cqw; letter-spacing:0.04em; color:var(--scr-text-dim);
+    font-size:1.5cqw; letter-spacing:0.035em; color:var(--scr-text-dim);
   }
   .crew-lobby-status.error{ color:#ff9a8a; }
   .crew-settings-state{ color:var(--scr-amber); }
@@ -1630,7 +1629,7 @@
     width:100%; padding:1.4cqw 1.2cqw; text-align:left;
     border:1px solid rgba(255,154,138,0.5); border-radius:0.5cqw;
     background:rgba(255,154,138,0.06); color:#ffb2a7;
-    font-family:'IBM VGA 8x16',monospace; font-size:1.45cqw; cursor:pointer;
+    font-family:'IBM VGA 8x16',monospace; font-size:1.75cqw; cursor:pointer;
   }
 
   @media (max-width:700px){
@@ -4952,7 +4951,7 @@
 
   function startCrewPolling(){
     stopCrewPolling();
-    crewPollTimer = setInterval(refreshCrewLobby, 1800);
+    crewPollTimer = setInterval(refreshCrewLobby, 900);
   }
 
   function showCrewLobby(lobby){
@@ -4977,6 +4976,37 @@
     mainMenu.hidden = false;
     mainMenu.classList.add('reveal');
     if (message) showCrewNotice(message);
+  }
+
+  // Событие, пришедшее пока игрок действительно смотрит лобби, закрывает
+  // лобби и возвращает его в меню. Запоздалое событие (например, Mini App
+  // успели перезапустить и открыть другой раздел) только показывает
+  // нормальное системное окно поверх ТЕКУЩЕГО экрана — навигацию не трогает.
+  function handleCrewExitNotice(message){
+    const lobbyWasVisible = !crewLobbyScreen.hidden;
+    stopCrewPolling();
+    currentLobby = null;
+    closeCrewOverlay(crewSettingsOverlay);
+    closeCrewOverlay(crewKickOverlay);
+    if (lobbyWasVisible) {
+      crewLobbyScreen.classList.remove('reveal');
+      crewLobbyScreen.hidden = true;
+      mainMenu.hidden = false;
+      mainMenu.classList.add('reveal');
+    }
+    showCrewNotice(message);
+  }
+
+  function handleSilentHostCancel(){
+    const lobbyWasVisible = !crewLobbyScreen.hidden;
+    stopCrewPolling();
+    currentLobby = null;
+    if (lobbyWasVisible) {
+      crewLobbyScreen.classList.remove('reveal');
+      crewLobbyScreen.hidden = true;
+      mainMenu.hidden = false;
+      mainMenu.classList.add('reveal');
+    }
   }
 
   function startCrewShiftSequence(role){
@@ -5008,11 +5038,12 @@
       startCrewShiftSequence(data.role);
       return;
     }
-    if (data.status === 'kicked') returnCrewToMenu('ВАС ИЗГНАЛИ ИЗ СМЕНЫ. ДОПУСК К ЭКИПАЖУ ОТОЗВАН.');
-    else if (data.status === 'cancelled') returnCrewToMenu('КАПИТАН ОТМЕНИЛ СМЕНУ. ВЫ ВОЗВРАЩЕНЫ В ГЛАВНОЕ МЕНЮ.');
-    else if (data.status === 'declined') returnCrewToMenu('КАПИТАН ОТКЛОНИЛ ВАШ ЗАПРОС НА ПРИСОЕДИНЕНИЕ.');
-    else if (data.status === 'launch_failed') returnCrewToMenu('НЕ УДАЛОСЬ ЗАПУСТИТЬ СМЕНУ. ОТКРОЙТЕ ЛИЧНЫЙ ЧАТ С БОТОМ И ПОВТОРИТЕ ПОПЫТКУ.');
-    else if (data.status === 'none' && currentLobby) returnCrewToMenu('ЛОББИ БОЛЬШЕ НЕДОСТУПНО.');
+    if (data.status === 'kicked') handleCrewExitNotice('ВАС ИЗГНАЛИ ИЗ СМЕНЫ. ДОПУСК К ЭКИПАЖУ ОТОЗВАН.');
+    else if (data.status === 'cancelled') handleCrewExitNotice('КАПИТАН ОТМЕНИЛ СМЕНУ.');
+    else if (data.status === 'declined') handleCrewExitNotice('КАПИТАН ОТКЛОНИЛ ВАШ ЗАПРОС НА ПРИСОЕДИНЕНИЕ.');
+    else if (data.status === 'launch_failed') handleCrewExitNotice('НЕ УДАЛОСЬ ЗАПУСТИТЬ СМЕНУ. ОТКРОЙТЕ ЛИЧНЫЙ ЧАТ С БОТОМ И ПОВТОРИТЕ ПОПЫТКУ.');
+    else if (data.status === 'host_cancelled') handleSilentHostCancel();
+    else if (data.status === 'none' && currentLobby) handleCrewExitNotice('ЛОББИ БОЛЬШЕ НЕДОСТУПНО.');
   }
 
   async function refreshCrewLobby(){
@@ -5026,10 +5057,14 @@
   async function resumeActiveLobby(){
     if (!(tg && tg.initData) || !crewLobbyScreen.hidden) return;
     const result = await lobbyRequest('/api/lobby/status', null, 'GET');
-    if (result.ok && ['lobby','pending','starting','started','kicked','cancelled','declined','launch_failed'].includes(result.data.status)) {
+    if (result.ok && ['lobby','pending','starting','started','kicked','cancelled','declined','launch_failed','host_cancelled'].includes(result.data.status)) {
       handleLobbyStatus(result.data);
     }
   }
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && currentLobby && !crewLobbyScreen.hidden) refreshCrewLobby();
+  });
 
   async function submitCrewDocument(){
     if (!/^[A-Za-z0-9]{5}$/.test(docState.password || '')) {
@@ -5150,7 +5185,7 @@
     }
     cancelArmedUntil = 0;
     const ok = await runCrewAction('/api/lobby/cancel', {}, () => {
-      returnCrewToMenu('СМЕНА ОТМЕНЕНА.');
+      returnCrewToMenu();
     });
     if (!ok) button.textContent = 'ОТМЕНИТЬ СМЕНУ';
   });
