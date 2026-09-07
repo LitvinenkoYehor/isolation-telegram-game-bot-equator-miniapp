@@ -2131,12 +2131,21 @@
   .admin-sandbox-status.error{ color:#ff9a8a; }
 
   .game-screen{ background:linear-gradient(180deg,rgba(2,17,31,.98),rgba(1,11,21,.99)); }
+  .game-screen.game-desktop{
+    position:fixed; inset:0; z-index:100; width:100vw; height:100dvh;
+    box-sizing:border-box; container-type:inline-size; overflow:hidden;
+    padding:clamp(14px,1.25vw,24px) clamp(16px,1.55vw,30px) clamp(12px,1vw,20px);
+    border:clamp(5px,.55vw,10px) solid #151e26; border-radius:clamp(0px,.55vw,10px);
+    box-shadow:inset 0 0 55px rgba(0,0,0,.64),inset 0 0 0 1px rgba(151,220,242,.16);
+  }
+  .game-panel-toggles{ display:flex; align-items:center; gap:.55cqw; }
   .game-topbar-action{
     padding:.75cqw 1.25cqw; border:1px solid var(--scr-line); border-radius:.4cqw;
     background:transparent; color:var(--scr-text-dim); cursor:pointer;
     font:700 1.35cqw/1 'IBM VGA 8x16',monospace; letter-spacing:.08em;
   }
   .game-topbar-action:hover{ color:var(--scr-cyan); border-color:var(--scr-cyan); }
+  .game-topbar-action.active{ color:var(--scr-cyan); border-color:rgba(76,210,244,.58); background:rgba(76,210,244,.08); }
   .game-workspace{
     flex:1 1 auto; min-height:0; display:grid;
     grid-template-columns:minmax(0,1fr) 27cqw; grid-template-rows:minmax(0,1fr) 14cqw;
@@ -2156,16 +2165,27 @@
   .game-map-layer svg{ display:block; width:1200px; height:820px; overflow:visible; }
   .game-map-edges line{ stroke:rgba(113,210,239,.25); stroke-width:8; stroke-linecap:round; }
   .game-map-edges line.active{ stroke:rgba(113,210,239,.8); filter:drop-shadow(0 0 7px rgba(76,210,244,.8)); }
-  .game-room{ cursor:default; transform-box:fill-box; transform-origin:center; transition:opacity .22s ease,filter .22s ease; }
-  .game-room .room-shell{ stroke-width:2.5; rx:9; vector-effect:non-scaling-stroke; }
-  .game-room .room-code{ fill:rgba(255,255,255,.58); font:700 12px 'IBM VGA 8x16',monospace; letter-spacing:.12em; }
-  .game-room .room-name{ fill:#e6f7ff; font:700 15px 'IBM VGA 8x16',monospace; text-anchor:middle; pointer-events:none; }
-  .game-room.distant{ opacity:.2; filter:saturate(.35); }
-  .game-room.neighbor{ cursor:pointer; animation:neighborPulse 1.8s ease-in-out infinite; }
-  .game-room.neighbor:hover{ filter:brightness(1.34) drop-shadow(0 0 10px rgba(89,218,255,.55)); }
-  .game-room.current{ opacity:1; filter:brightness(1.25) drop-shadow(0 0 12px rgba(79,220,255,.8)); }
-  .game-room.selected{ animation:none; filter:brightness(1.5) drop-shadow(0 0 16px rgba(255,191,77,.95)); }
-  @keyframes neighborPulse{ 0%,100%{opacity:.58;filter:brightness(.9)} 50%{opacity:1;filter:brightness(1.22) drop-shadow(0 0 8px rgba(76,210,244,.45))} }
+  .game-room{ cursor:default; transform-box:fill-box; transform-origin:center; transition:opacity .22s ease; }
+  .game-room .room-shell{ stroke-width:2.5; rx:9; vector-effect:non-scaling-stroke; transition:filter .18s ease; }
+  .game-room .room-code{ fill:rgba(235,246,250,.68); font:700 12px 'IBM VGA 8x16',monospace; letter-spacing:.12em; pointer-events:none; }
+  .game-room .room-name{
+    fill:#f1f7f8; stroke:rgba(0,7,12,.92); stroke-width:3px; paint-order:stroke fill;
+    font:700 15px 'IBM VGA 8x16',monospace; text-anchor:middle; pointer-events:none;
+  }
+  .game-room.distant{ opacity:.24; }
+  .game-room.distant .room-shell{ filter:saturate(.38) brightness(.72); }
+  .game-room.neighbor{ cursor:pointer; opacity:.72; }
+  .game-room.neighbor .room-shell{ animation:neighborPulse 2.15s ease-in-out infinite; }
+  .game-room.neighbor:hover{ opacity:.9; }
+  .game-room.neighbor:hover .room-shell{ filter:brightness(1.1) drop-shadow(0 0 5px rgba(89,218,255,.34)); }
+  .game-room.current{ opacity:1; }
+  .game-room.current .room-shell{ filter:brightness(1.08) drop-shadow(0 0 7px rgba(79,220,255,.48)); }
+  .game-room.selected{ opacity:1; }
+  .game-room.selected .room-shell{ animation:none; filter:brightness(1.12) drop-shadow(0 0 8px rgba(255,191,77,.58)); }
+  @keyframes neighborPulse{
+    0%,100%{filter:brightness(.86) drop-shadow(0 0 1px rgba(76,210,244,.12))}
+    50%{filter:brightness(1.04) drop-shadow(0 0 4px rgba(76,210,244,.28))}
+  }
   .player-marker{ pointer-events:none; filter:drop-shadow(0 0 8px rgba(255,255,255,.9)); }
   .player-marker .marker-ring{ fill:#071520; stroke:#fff; stroke-width:3; vector-effect:non-scaling-stroke; }
   .player-marker .marker-core{ fill:var(--scr-cyan); }
@@ -2213,6 +2233,51 @@
   .game-log-line{ display:grid; grid-template-columns:5.5cqw 1fr; gap:.8cqw; margin:.25cqw 0; color:var(--scr-text-dim); font:1.25cqw/1.25 'IBM VGA 8x16',monospace; }
   .game-log-line time{ color:rgba(103,210,239,.5); }
   .game-log-line strong{ color:var(--scr-text); font-weight:400; }
+  .game-screen.hide-info .game-workspace{ grid-template-columns:minmax(0,1fr); }
+  .game-screen.hide-info .game-side-panel{ display:none; }
+  .game-screen.hide-log .game-workspace{ grid-template-rows:minmax(0,1fr); }
+  .game-screen.hide-log .game-log{ display:none; }
+  .game-screen.game-desktop .topbar{ padding-bottom:clamp(10px,.75vw,15px); }
+  .game-screen.game-desktop .brand{ gap:clamp(9px,.75vw,14px); }
+  .game-screen.game-desktop .brand-mark{ width:clamp(36px,2.6vw,50px); height:clamp(36px,2.6vw,50px); }
+  .game-screen.game-desktop .brand-text .b1{ font-size:clamp(22px,1.65vw,32px); text-shadow:0 0 3px rgba(143,214,255,.26); }
+  .game-screen.game-desktop .brand-text .b2{ font-size:clamp(12px,.9vw,17px); }
+  .game-screen.game-desktop .topbar-right{ gap:clamp(8px,.75vw,14px); }
+  .game-screen.game-desktop .game-panel-toggles{ gap:clamp(5px,.4vw,8px); }
+  .game-screen.game-desktop .game-topbar-action{ padding:9px 13px; border-radius:5px; font-size:clamp(12px,.72vw,15px); }
+  .game-screen.game-desktop .clock{ min-width:5ch; font-size:clamp(21px,1.45vw,28px); }
+  .game-screen.game-desktop .game-workspace{
+    grid-template-columns:minmax(0,1fr) clamp(330px,25vw,480px);
+    grid-template-rows:minmax(0,1fr) clamp(155px,19vh,220px);
+    gap:clamp(9px,.75vw,15px); padding:clamp(10px,.8vw,16px) 0 0;
+  }
+  .game-screen.game-desktop.hide-info .game-workspace{ grid-template-columns:minmax(0,1fr); }
+  .game-screen.game-desktop.hide-log .game-workspace{ grid-template-rows:minmax(0,1fr); }
+  .game-screen.game-desktop .game-map-panel,
+  .game-screen.game-desktop .game-side-panel,
+  .game-screen.game-desktop .game-log{ border-radius:8px; }
+  .game-screen.game-desktop .game-map-label{ left:14px; top:14px; padding:9px 12px; font-size:14px; }
+  .game-screen.game-desktop .game-map-label strong{ margin-bottom:4px; font-size:18px; }
+  .game-screen.game-desktop .game-zoom-controls{ right:12px; top:12px; gap:6px; }
+  .game-screen.game-desktop .game-zoom-btn{ width:40px; height:40px; border-radius:5px; font-size:22px; }
+  .game-screen.game-desktop .game-move-card{ width:min(360px,38vw); padding:16px; border-radius:7px; }
+  .game-screen.game-desktop .game-move-card-title{ font-size:18px; }
+  .game-screen.game-desktop .game-move-card-copy{ margin:8px 0 13px; font-size:16px; }
+  .game-screen.game-desktop .game-move-confirm{ padding:12px; font-size:16px; }
+  .game-screen.game-desktop .game-transit-box{ min-width:320px; padding:20px 26px; font-size:20px; }
+  .game-screen.game-desktop .game-side-panel{ padding:clamp(18px,1.25vw,25px); }
+  .game-screen.game-desktop .game-side-kicker{ font-size:clamp(15px,.9vw,18px); }
+  .game-screen.game-desktop .game-side-title{ margin:10px 0 12px; font-size:clamp(24px,1.5vw,30px); }
+  .game-screen.game-desktop .game-side-desc{ font-size:clamp(18px,1.05vw,21px); line-height:1.48; }
+  .game-screen.game-desktop .game-status-list{ margin-top:18px; }
+  .game-screen.game-desktop .game-status-row{ gap:14px; padding:12px 0; font-size:clamp(16px,.9vw,18px); }
+  .game-screen.game-desktop .game-action-disabled{ margin-top:16px; padding:13px; font-size:15px; }
+  .game-screen.game-desktop .game-log-head{ padding:9px 14px; font-size:clamp(14px,.8vw,16px); }
+  .game-screen.game-desktop .game-log-lines{ padding:9px 14px; }
+  .game-screen.game-desktop .game-log-line{
+    grid-template-columns:64px 1fr; gap:12px; margin:4px 0;
+    font-size:clamp(17px,1vw,20px); line-height:1.34;
+  }
   @media(max-width:700px){
     .game-workspace{ grid-template-columns:minmax(0,1fr) 30cqw; grid-template-rows:minmax(0,1fr) 18cqw; }
     .game-side-desc{ font-size:1.55cqw; }
@@ -3655,6 +3720,10 @@
           <div class="brand-text"><div class="b1">АСТРАЛ-1</div><div class="b2">КАРТА СМЕНЫ</div></div>
         </div>
         <div class="topbar-right">
+          <div class="game-panel-toggles" aria-label="Панели интерфейса">
+            <button class="game-topbar-action active" id="gameToggleInfo" type="button" aria-pressed="true" title="Показать или скрыть информацию">ИНФО</button>
+            <button class="game-topbar-action active" id="gameToggleLog" type="button" aria-pressed="true" title="Показать или скрыть журнал">ЖУРНАЛ</button>
+          </div>
           <button class="game-topbar-action" id="gameMenuBtn" type="button">В МЕНЮ</button>
           <div class="clock" id="clockGame">14:28</div>
         </div>
@@ -3820,7 +3889,10 @@
     return coarsePointer || narrowViewport;
   }
 
-  const IS_DESKTOP = !detectIsMobile();
+  // `desktop=1` нужен только для точного PC-предпросмотра в узкой панели
+  // разработки; в Telegram режим по-прежнему определяется платформой.
+  const FORCE_DESKTOP_PREVIEW = new URLSearchParams(location.search).get('desktop') === '1';
+  const IS_DESKTOP = FORCE_DESKTOP_PREVIEW || !detectIsMobile();
 
   if (IS_DESKTOP && deviceStageEl && deviceBgImg) {
     deviceStageEl.classList.add('pc');
@@ -4451,14 +4523,45 @@
   const gameTransit = document.getElementById('gameTransit');
   const gameTransitText = document.getElementById('gameTransitText');
   const gameLogLines = document.getElementById('gameLogLines');
+  const gameToggleInfo = document.getElementById('gameToggleInfo');
+  const gameToggleLog = document.getElementById('gameToggleLog');
   const adminSandboxStart = document.getElementById('adminSandboxStart');
   const adminSandboxStatus = document.getElementById('adminSandboxStatus');
+
+  if (IS_DESKTOP) {
+    gameScreen.classList.add('game-desktop');
+    document.body.appendChild(gameScreen);
+  }
 
   let gameStateData = null;
   let selectedGameRoomId = null;
   let gameMapReady = false;
   let gameScale = 1, gameMinScale = 1, gameMaxScale = 1, gameTx = 0, gameTy = 0;
   let offlineGameSession = null;
+  const gamePanelState = {info:true,log:true};
+
+  try {
+    const savedGamePanels = JSON.parse(localStorage.getItem('isolation_game_panels_v1') || '{}');
+    if (typeof savedGamePanels.info === 'boolean') gamePanelState.info = savedGamePanels.info;
+    if (typeof savedGamePanels.log === 'boolean') gamePanelState.log = savedGamePanels.log;
+  } catch (error) {}
+
+  function applyGamePanelState(refocus){
+    gameScreen.classList.toggle('hide-info',!gamePanelState.info);
+    gameScreen.classList.toggle('hide-log',!gamePanelState.log);
+    gameToggleInfo.classList.toggle('active',gamePanelState.info);
+    gameToggleLog.classList.toggle('active',gamePanelState.log);
+    gameToggleInfo.setAttribute('aria-pressed',String(gamePanelState.info));
+    gameToggleLog.setAttribute('aria-pressed',String(gamePanelState.log));
+    gameToggleInfo.title = (gamePanelState.info ? 'Скрыть' : 'Показать') + ' информацию';
+    gameToggleLog.title = (gamePanelState.log ? 'Скрыть' : 'Показать') + ' журнал';
+    try { localStorage.setItem('isolation_game_panels_v1',JSON.stringify(gamePanelState)); } catch (error) {}
+    if (refocus && gameStateData) requestAnimationFrame(function(){ focusGameRoom(gameStateData.player.room_id); });
+  }
+
+  gameToggleInfo.addEventListener('click',function(){ gamePanelState.info = !gamePanelState.info; applyGamePanelState(true); });
+  gameToggleLog.addEventListener('click',function(){ gamePanelState.log = !gamePanelState.log; applyGamePanelState(true); });
+  applyGamePanelState(false);
 
   function offlineGameState(){
     if (offlineGameSession) return offlineGameSession;
@@ -4723,6 +4826,7 @@
     mainMenu.hidden = true;
     gameScreen.hidden = false;
     gameScreen.classList.add('reveal');
+    applyGamePanelState(false);
     renderGameMap();
     if (!gameMapReady) {
       gameMapReady = true;
@@ -4797,11 +4901,14 @@
   });
 
   gameMapViewport.addEventListener('click',function(event){
-    if (event.target === gameMapViewport || event.target === gameMapSvg) {
-      selectedGameRoomId = null;
-      gameMoveCard.hidden = true;
-      renderGameMap();
-    }
+    if (gamePointerMoved) return;
+    const target = event.target instanceof Element ? event.target : null;
+    if (target && target.closest('.game-room,.game-zoom-controls,.game-move-card,.game-transit')) return;
+    selectedGameRoomId = null;
+    gameMoveCard.hidden = true;
+    // Не пересоздаём SVG: иначе анимация всех соседей начинается заново
+    // при каждом клике по пустому месту карты.
+    gameMapSvg.querySelectorAll('.game-room.selected').forEach(function(room){ room.classList.remove('selected'); });
   });
 
   const gamePointers = new Map();
@@ -4823,6 +4930,12 @@
   });
   gameMapViewport.addEventListener('pointermove',function(event){
     if (!gamePointers.has(event.pointerId)) return;
+    // Если pointerup произошёл уже за пределами карты, buttons — надёжная
+    // страховка от "прилипшего" перетаскивания при возвращении курсора.
+    if (event.pointerType === 'mouse' && event.buttons === 0) {
+      resetGamePointers();
+      return;
+    }
     gamePointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
     if (gamePointers.size === 1 && gameDragLast) {
       const dx = event.clientX - gameDragLast.x, dy = event.clientY - gameDragLast.y;
@@ -4847,8 +4960,19 @@
       setTimeout(function(){ gamePointerMoved = false; },0);
     }
   }
-  gameMapViewport.addEventListener('pointerup',endGamePointer);
-  gameMapViewport.addEventListener('pointercancel',endGamePointer);
+  function resetGamePointers(){
+    gamePointers.clear();
+    gameDragLast = null;
+    gamePinchStartDistance = null;
+    gamePinchStartScale = null;
+    gameMapViewport.classList.remove('grabbing');
+    setTimeout(function(){ gamePointerMoved = false; },0);
+  }
+  // Слушаем отпускание на всём окне: мышь может уйти за границы карты.
+  window.addEventListener('pointerup',endGamePointer);
+  window.addEventListener('pointercancel',endGamePointer);
+  window.addEventListener('blur',resetGamePointers);
+  document.addEventListener('visibilitychange',function(){ if (document.hidden) resetGamePointers(); });
   gameMapViewport.addEventListener('wheel',function(event){
     event.preventDefault();
     const rect = gameMapViewport.getBoundingClientRect();
