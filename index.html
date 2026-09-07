@@ -2108,6 +2108,118 @@
     color:var(--scr-text);
   }
 
+  /* ================= EARLY GAME / ADMIN EMPTY SHIFT =================
+     Карта собрана из семантических SVG-узлов, а не из одной
+     картинки: цвета, размеры, подписи и связи можно менять
+     независимо. Камера живёт в #gameMapLayer, как и в экране
+     чертежа станции выше. */
+  .admin-sandbox-section[hidden]{ display:none; }
+  .admin-sandbox-card{
+    padding:2.2cqw; border:1px solid rgba(255,191,77,.48); border-radius:.8cqw;
+    background:linear-gradient(135deg,rgba(255,191,77,.09),rgba(255,191,77,.025));
+  }
+  .admin-sandbox-kicker{ color:var(--scr-amber); font:700 1.45cqw/1.2 'IBM VGA 8x16',monospace; letter-spacing:.12em; }
+  .admin-sandbox-copy{ margin:1cqw 0 1.5cqw; color:var(--scr-text-dim); font-size:1.55cqw; line-height:1.45; }
+  .admin-sandbox-btn{
+    width:100%; padding:1.45cqw 1.8cqw; border:1px solid var(--scr-amber); border-radius:.45cqw;
+    background:rgba(255,191,77,.08); color:var(--scr-amber); cursor:pointer;
+    font:700 1.75cqw/1 'IBM VGA 8x16',monospace; letter-spacing:.055em; text-align:left;
+  }
+  .admin-sandbox-btn:hover{ background:rgba(255,191,77,.16); }
+  .admin-sandbox-btn:disabled{ opacity:.45; cursor:wait; }
+  .admin-sandbox-status{ min-height:1.4em; margin-top:1cqw; color:var(--scr-text-dim); font-size:1.4cqw; }
+  .admin-sandbox-status.error{ color:#ff9a8a; }
+
+  .game-screen{ background:linear-gradient(180deg,rgba(2,17,31,.98),rgba(1,11,21,.99)); }
+  .game-topbar-action{
+    padding:.75cqw 1.25cqw; border:1px solid var(--scr-line); border-radius:.4cqw;
+    background:transparent; color:var(--scr-text-dim); cursor:pointer;
+    font:700 1.35cqw/1 'IBM VGA 8x16',monospace; letter-spacing:.08em;
+  }
+  .game-topbar-action:hover{ color:var(--scr-cyan); border-color:var(--scr-cyan); }
+  .game-workspace{
+    flex:1 1 auto; min-height:0; display:grid;
+    grid-template-columns:minmax(0,1fr) 27cqw; grid-template-rows:minmax(0,1fr) 14cqw;
+    gap:1cqw; padding:1cqw 1.4cqw 1.3cqw;
+  }
+  .game-map-panel{ position:relative; min-width:0; min-height:0; overflow:hidden; border:1px solid var(--scr-line-strong); border-radius:.8cqw; background:#031a2d; }
+  .game-map-viewport{
+    position:absolute; inset:0; overflow:hidden; touch-action:none; cursor:grab;
+    background:
+      linear-gradient(rgba(62,170,210,.045) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(62,170,210,.045) 1px,transparent 1px),
+      radial-gradient(circle at 50% 48%,#0a3555 0%,#041d33 58%,#020f1c 100%);
+    background-size:3.2cqw 3.2cqw,3.2cqw 3.2cqw,auto;
+  }
+  .game-map-viewport.grabbing{ cursor:grabbing; }
+  .game-map-layer{ position:absolute; width:1200px; height:820px; transform-origin:0 0; will-change:transform; }
+  .game-map-layer svg{ display:block; width:1200px; height:820px; overflow:visible; }
+  .game-map-edges line{ stroke:rgba(113,210,239,.25); stroke-width:8; stroke-linecap:round; }
+  .game-map-edges line.active{ stroke:rgba(113,210,239,.8); filter:drop-shadow(0 0 7px rgba(76,210,244,.8)); }
+  .game-room{ cursor:default; transform-box:fill-box; transform-origin:center; transition:opacity .22s ease,filter .22s ease; }
+  .game-room .room-shell{ stroke-width:2.5; rx:9; vector-effect:non-scaling-stroke; }
+  .game-room .room-code{ fill:rgba(255,255,255,.58); font:700 12px 'IBM VGA 8x16',monospace; letter-spacing:.12em; }
+  .game-room .room-name{ fill:#e6f7ff; font:700 15px 'IBM VGA 8x16',monospace; text-anchor:middle; pointer-events:none; }
+  .game-room.distant{ opacity:.2; filter:saturate(.35); }
+  .game-room.neighbor{ cursor:pointer; animation:neighborPulse 1.8s ease-in-out infinite; }
+  .game-room.neighbor:hover{ filter:brightness(1.34) drop-shadow(0 0 10px rgba(89,218,255,.55)); }
+  .game-room.current{ opacity:1; filter:brightness(1.25) drop-shadow(0 0 12px rgba(79,220,255,.8)); }
+  .game-room.selected{ animation:none; filter:brightness(1.5) drop-shadow(0 0 16px rgba(255,191,77,.95)); }
+  @keyframes neighborPulse{ 0%,100%{opacity:.58;filter:brightness(.9)} 50%{opacity:1;filter:brightness(1.22) drop-shadow(0 0 8px rgba(76,210,244,.45))} }
+  .player-marker{ pointer-events:none; filter:drop-shadow(0 0 8px rgba(255,255,255,.9)); }
+  .player-marker .marker-ring{ fill:#071520; stroke:#fff; stroke-width:3; vector-effect:non-scaling-stroke; }
+  .player-marker .marker-core{ fill:var(--scr-cyan); }
+  .player-marker .marker-arrow{ fill:#fff; }
+  .game-map-label{
+    position:absolute; left:1.2cqw; top:1.2cqw; z-index:7; pointer-events:none;
+    padding:.8cqw 1.1cqw; border-left:2px solid var(--scr-cyan); background:rgba(1,10,18,.72);
+    color:var(--scr-text-dim); font:1.3cqw/1.2 'IBM VGA 8x16',monospace; letter-spacing:.08em;
+  }
+  .game-map-label strong{ display:block; margin-bottom:.35cqw; color:var(--scr-cyan); font-size:1.65cqw; }
+  .game-zoom-controls{ position:absolute; right:1cqw; top:1cqw; z-index:8; display:flex; gap:.45cqw; }
+  .game-zoom-btn{ width:4cqw; height:4cqw; min-width:30px; min-height:30px; border:1px solid var(--scr-line); border-radius:.45cqw; background:rgba(2,13,23,.82); color:var(--scr-text); cursor:pointer; font:700 2cqw 'IBM VGA 8x16',monospace; }
+  .game-move-card{
+    position:absolute; z-index:12; width:min(27cqw,270px); transform:translate(-50%,calc(-100% - 1cqw));
+    padding:1.25cqw; border:1px solid var(--scr-amber); border-radius:.55cqw;
+    background:rgba(4,13,22,.96); box-shadow:0 1cqw 3cqw rgba(0,0,0,.45);
+  }
+  .game-move-card[hidden]{ display:none; }
+  .game-move-card-title{ color:var(--scr-amber); font:700 1.55cqw/1.2 'IBM VGA 8x16',monospace; }
+  .game-move-card-copy{ margin:.55cqw 0 1cqw; color:var(--scr-text-dim); font-size:1.25cqw; line-height:1.35; }
+  .game-move-confirm{ width:100%; padding:1cqw; border:1px solid var(--scr-cyan); border-radius:.35cqw; background:rgba(76,210,244,.1); color:var(--scr-cyan); cursor:pointer; font:700 1.4cqw 'IBM VGA 8x16',monospace; }
+  .game-move-confirm:disabled{ opacity:.42; cursor:wait; }
+  .game-transit{
+    position:absolute; inset:0; z-index:11; display:flex; align-items:center; justify-content:center;
+    background:rgba(1,8,14,.58); backdrop-filter:blur(1.5px); pointer-events:none;
+  }
+  .game-transit[hidden]{ display:none; }
+  .game-transit-box{ min-width:29cqw; padding:1.6cqw 2cqw; border:1px solid var(--scr-cyan); background:rgba(3,18,29,.94); text-align:center; color:var(--scr-cyan); font:700 1.65cqw/1.45 'IBM VGA 8x16',monospace; letter-spacing:.05em; }
+  .game-transit-line{ height:.35cqw; margin-top:1.1cqw; overflow:hidden; background:rgba(76,210,244,.18); }
+  .game-transit-line::after{ content:''; display:block; width:40%; height:100%; background:var(--scr-cyan); animation:transitSweep 1s linear infinite; }
+  @keyframes transitSweep{ from{transform:translateX(-110%)} to{transform:translateX(360%)} }
+
+  .game-side-panel{ min-height:0; overflow:auto; padding:1.4cqw; border:1px solid var(--scr-line); border-radius:.8cqw; background:rgba(4,18,30,.86); }
+  .game-side-kicker{ color:var(--scr-text-dim); font:700 1.2cqw/1 'IBM VGA 8x16',monospace; letter-spacing:.11em; }
+  .game-side-title{ margin:.7cqw 0 .7cqw; color:var(--scr-cyan); font:700 1.9cqw/1.16 'IBM VGA 8x16',monospace; }
+  .game-side-desc{ color:var(--scr-text-dim); font-size:1.38cqw; line-height:1.42; }
+  .game-status-list{ margin-top:1.2cqw; border-top:1px solid var(--scr-line); }
+  .game-status-row{ display:flex; justify-content:space-between; gap:1cqw; padding:.8cqw 0; border-bottom:1px solid var(--scr-line); color:var(--scr-text-dim); font:1.2cqw/1.2 'IBM VGA 8x16',monospace; }
+  .game-status-row strong{ color:var(--scr-text); text-align:right; }
+  .game-action-disabled{ width:100%; margin-top:1.2cqw; padding:1cqw; border:1px solid rgba(255,255,255,.13); background:transparent; color:rgba(255,255,255,.27); font:700 1.25cqw 'IBM VGA 8x16',monospace; }
+  .game-log{ grid-column:1 / -1; min-width:0; min-height:0; display:flex; flex-direction:column; border:1px solid var(--scr-line); border-radius:.8cqw; background:rgba(1,10,17,.96); overflow:hidden; }
+  .game-log-head{ display:flex; justify-content:space-between; padding:.55cqw 1cqw; border-bottom:1px solid var(--scr-line); color:var(--scr-cyan); font:700 1.15cqw/1 'IBM VGA 8x16',monospace; letter-spacing:.1em; }
+  .game-log-head span:last-child{ color:var(--scr-text-dim); }
+  .game-log-lines{ flex:1; min-height:0; overflow-y:auto; padding:.65cqw 1cqw; }
+  .game-log-line{ display:grid; grid-template-columns:5.5cqw 1fr; gap:.8cqw; margin:.25cqw 0; color:var(--scr-text-dim); font:1.25cqw/1.25 'IBM VGA 8x16',monospace; }
+  .game-log-line time{ color:rgba(103,210,239,.5); }
+  .game-log-line strong{ color:var(--scr-text); font-weight:400; }
+  @media(max-width:700px){
+    .game-workspace{ grid-template-columns:minmax(0,1fr) 30cqw; grid-template-rows:minmax(0,1fr) 18cqw; }
+    .game-side-desc{ font-size:1.55cqw; }
+    .game-log-line{ font-size:1.45cqw; }
+    .game-move-card{ width:32cqw; }
+  }
+
   /* short "reboot" boot-log replay after a successful rename — reuses the
      same #gateBoot layer/markup as the very first login, just retriggered */
 </style>
@@ -2527,6 +2639,16 @@
               <input type="checkbox" id="toggleWallpaper">
               <span class="switch-track"><span class="switch-thumb"></span></span>
             </label>
+          </div>
+        </div>
+
+        <div class="admin-sandbox-section" id="adminSandboxSection" hidden>
+          <div class="profile-section-label">АДМИНИСТРАТОР</div>
+          <div class="admin-sandbox-card">
+            <div class="admin-sandbox-kicker">ПУСТАЯ СМЕНА // DEV</div>
+            <p class="admin-sandbox-copy">Немедленно открыть «Астрал-1» без экипажа и без ботов. Режим предназначен для проверки карты и перемещения.</p>
+            <button class="admin-sandbox-btn" id="adminSandboxStart" type="button">▸ НАЧАТЬ В ПОЛНОМ ОДИНОЧЕСТВЕ</button>
+            <div class="admin-sandbox-status" id="adminSandboxStatus" aria-live="polite"></div>
           </div>
         </div>
       </div>
@@ -3525,6 +3647,61 @@
       </div>
     </div>
 
+    <!-- ================= EARLY GAME SCREEN — карта + перемещение ================= -->
+    <div class="screen-content game-screen" id="gameScreen" hidden>
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <div class="brand-text"><div class="b1">АСТРАЛ-1</div><div class="b2">КАРТА СМЕНЫ</div></div>
+        </div>
+        <div class="topbar-right">
+          <button class="game-topbar-action" id="gameMenuBtn" type="button">В МЕНЮ</button>
+          <div class="clock" id="clockGame">14:28</div>
+        </div>
+      </div>
+
+      <div class="game-workspace">
+        <section class="game-map-panel">
+          <div class="game-map-viewport" id="gameMapViewport">
+            <div class="game-map-layer" id="gameMapLayer">
+              <svg id="gameMapSvg" viewBox="0 0 1200 820" role="img" aria-label="Интерактивная карта станции Астрал-1"></svg>
+            </div>
+            <div class="game-map-label"><strong id="gameMapLocation">ЗАГРУЗКА...</strong><span>Выберите пульсирующую комнату</span></div>
+            <div class="game-zoom-controls" aria-label="Масштаб карты">
+              <button class="game-zoom-btn" id="gameZoomOut" type="button" aria-label="Отдалить">−</button>
+              <button class="game-zoom-btn" id="gameZoomReset" type="button" aria-label="Показать всю карту">◇</button>
+              <button class="game-zoom-btn" id="gameZoomIn" type="button" aria-label="Приблизить">+</button>
+            </div>
+            <div class="game-move-card" id="gameMoveCard" hidden>
+              <div class="game-move-card-title" id="gameMoveTitle">ПЕРЕХОД</div>
+              <div class="game-move-card-copy" id="gameMoveCopy"></div>
+              <button class="game-move-confirm" id="gameMoveConfirm" type="button">ПЕРЕЙТИ</button>
+            </div>
+            <div class="game-transit" id="gameTransit" hidden>
+              <div class="game-transit-box"><span id="gameTransitText">ПЕРЕХОД...</span><div class="game-transit-line"></div></div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="game-side-panel">
+          <div class="game-side-kicker">ТЕКУЩАЯ ЛОКАЦИЯ</div>
+          <div class="game-side-title" id="gameRoomTitle">—</div>
+          <div class="game-side-desc" id="gameRoomDescription">Получение данных станции.</div>
+          <div class="game-status-list">
+            <div class="game-status-row"><span>СТАТУС</span><strong id="gamePlayerStatus">НА СВЯЗИ</strong></div>
+            <div class="game-status-row"><span>ЭКИПАЖ</span><strong id="gameCrewCount">1</strong></div>
+            <div class="game-status-row"><span>СОСЕДНИЕ</span><strong id="gameNeighborCount">—</strong></div>
+          </div>
+          <button class="game-action-disabled" type="button" disabled>ДЕЙСТВИЯ В КОМНАТЕ // СКОРО</button>
+        </aside>
+
+        <section class="game-log" aria-label="Журнал событий">
+          <div class="game-log-head"><span>ЖУРНАЛ СТАНЦИИ</span><span>КАНАЛ // ЛОКАЛЬНЫЙ</span></div>
+          <div class="game-log-lines" id="gameLogLines"></div>
+        </section>
+      </div>
+    </div>
+
     <!-- ================= SUPPORT WARNING — "Поддержка проекта" ведёт в Telegram-бот ================= -->
     <div class="rename-overlay" id="supportWarningOverlay" hidden>
       <div class="rename-window">
@@ -3694,6 +3871,8 @@
     if (clock7) clock7.textContent = time;
     const clockCrew = document.getElementById('clockCrew');
     if (clockCrew) clockCrew.textContent = time;
+    const clockGame = document.getElementById('clockGame');
+    if (clockGame) clockGame.textContent = time;
   }
   tick();
   setInterval(tick, 15000);
@@ -3731,6 +3910,7 @@
   const stationsScreen = document.getElementById('stationsScreen');
   const shiftDocumentScreen = document.getElementById('shiftDocumentScreen');
   const crewLobbyScreen = document.getElementById('crewLobbyScreen');
+  const gameScreen = document.getElementById('gameScreen');
   // Profile/Settings/Mail/Database switch to instantly (no boot animation to time against),
   // so their wallpaper can just be shown right away.
   profileScreen.querySelectorAll('.screen-watermark').forEach(w => w.classList.add('wp-shown'));
@@ -3768,13 +3948,14 @@
   // первый вход (гейт "ВВЕДИТЕ ИМЯ").
   function offlineDemoProfile(){
     const isNew = location.search.includes('demo=new');
+    const isAdmin = location.search.includes('demo=admin');
     if (isNew) {
       // Свежий профиль — ровно такие же нули/единицы, какие реальный
       // бэкенд (players_db.get_or_create_profile) отдаёт для только что
       // созданной записи. Никакой ветеранской статистики — иначе гейт
       // ввода имени в предпросмотре путает с уже игравшим "Н. АЛЬТМАН".
       return {
-        name: '', is_new: true,
+        name: '', is_new: true, is_admin: isAdmin,
         level: 1, xp: 0, xp_prev: 0, xp_next: 100,
         games_played: 0, games_won: 0,
         games_played_staff: 0, games_won_staff: 0,
@@ -3785,7 +3966,7 @@
       };
     }
     return {
-      name: 'Н. АЛЬТМАН', is_new: false,
+      name: 'Н. АЛЬТМАН', is_new: false, is_admin: isAdmin,
       level: 7, xp: 2140, xp_prev: 1800, xp_next: 3000,
       games_played: 128, games_won: 94,
       games_played_staff: 76, games_won_staff: 41,
@@ -3876,6 +4057,8 @@
   function populateProfileUI(profile){
     if (!profile) return;
     hudName.textContent = (profile.name || 'ОПЕРАТОР').toUpperCase();
+    const adminSandboxSection = document.getElementById('adminSandboxSection');
+    if (adminSandboxSection) adminSandboxSection.hidden = !profile.is_admin;
 
     const level = profile.level || 1;
     const xp = profile.xp || 0;
@@ -4236,6 +4419,445 @@
   }
   document.getElementById('tileSettings').addEventListener('click', openSettings);
   document.getElementById('settingsBack').addEventListener('click', closeSettings);
+
+  // =========================================================
+  //  EARLY GAME — интерактивная карта «Астрал-1».
+  //  Админская кнопка создаёт реальный GameState на сервере. В обычном
+  //  браузере ?demo=admin включает автономный макет для визуальной проверки.
+  // =========================================================
+  const GAME_MAP_W = 1200, GAME_MAP_H = 820;
+  const GAME_ROOM_POSITIONS = {
+    central_hub:[600,390],
+    corridor_a:[340,390], crew_quarters:[125,205], dining_hall:[115,390], hydroponics:[125,575],
+    corridor_b:[860,390], robotics_lab:[1070,115], xeno_lab:[1080,295], materials_lab:[1080,485], bio_lab:[1065,670],
+    cargo_tech_hub:[600,185], cargo_terminal:[420,82], main_airlock:[210,82], maintenance:[790,82],
+    security_hub:[600,600], security_control:[390,730], armory:[600,745], medbay:[810,730]
+  };
+  const GAME_ROOM_COLORS = {
+    central_hub:'#b88636',
+    corridor_a:'#286798', crew_quarters:'#286798', dining_hall:'#286798', hydroponics:'#286798',
+    corridor_b:'#28764f', robotics_lab:'#28764f', xeno_lab:'#28764f', materials_lab:'#28764f', bio_lab:'#28764f',
+    cargo_tech_hub:'#53636f', cargo_terminal:'#53636f', main_airlock:'#53636f', maintenance:'#53636f',
+    security_hub:'#7f3038', security_control:'#7f3038', armory:'#7f3038', medbay:'#7f3038'
+  };
+
+  const gameMapViewport = document.getElementById('gameMapViewport');
+  const gameMapLayer = document.getElementById('gameMapLayer');
+  const gameMapSvg = document.getElementById('gameMapSvg');
+  const gameMoveCard = document.getElementById('gameMoveCard');
+  const gameMoveTitle = document.getElementById('gameMoveTitle');
+  const gameMoveCopy = document.getElementById('gameMoveCopy');
+  const gameMoveConfirm = document.getElementById('gameMoveConfirm');
+  const gameTransit = document.getElementById('gameTransit');
+  const gameTransitText = document.getElementById('gameTransitText');
+  const gameLogLines = document.getElementById('gameLogLines');
+  const adminSandboxStart = document.getElementById('adminSandboxStart');
+  const adminSandboxStatus = document.getElementById('adminSandboxStatus');
+
+  let gameStateData = null;
+  let selectedGameRoomId = null;
+  let gameMapReady = false;
+  let gameScale = 1, gameMinScale = 1, gameMaxScale = 1, gameTx = 0, gameTy = 0;
+  let offlineGameSession = null;
+
+  function offlineGameState(){
+    if (offlineGameSession) return offlineGameSession;
+    const defs = [
+      ['central_hub','Центральный узел','⚛','Гул реактора пронизывает каждую переборку.'],
+      ['corridor_a','Коридор Центр-А','A','Кольцевой переход в жилой модуль.'],
+      ['crew_quarters','Экипажные каюты','▦','Ряды узких кают для отдыха экипажа.'],
+      ['dining_hall','Обеденный зал','▤','Общий зал и зона отдыха персонала.'],
+      ['hydroponics','Гидропоника','♧','Влажный воздух и ряды зелёных грядок.'],
+      ['corridor_b','Коридор Центр-Б','Б','Кольцевой переход в научный отсек.'],
+      ['robotics_lab','Робототехника','⌁','Манипуляторы и недостроенные дроны.'],
+      ['xeno_lab','Хим-лаб','⚗','Изолированные образцы из глубокого космоса.'],
+      ['materials_lab','Материалы','◇','Прессы и спектрометры работают без остановки.'],
+      ['bio_lab','Био-лаб','✣','Культуры освещены холодным синим светом.'],
+      ['cargo_tech_hub','Технический отсек','⌂','Развилка грузового и технического модуля.'],
+      ['cargo_terminal','Грузовой терминал','▣','Контейнеры, погрузчики и сканеры груза.'],
+      ['main_airlock','Главный шлюз','⇄','Массивные створки стыковочного узла.'],
+      ['maintenance','Техобслуживание','⌘','Диагностические панели и инструменты.'],
+      ['security_hub','Модуль безопасности','⬡','Развилка охраняемого сектора.'],
+      ['security_control','Безопасность','◉','Мониторы наблюдения за отсеками станции.'],
+      ['armory','Арсенал','✦','Запертые шкафы со снаряжением экипажа.'],
+      ['medbay','Медцентр','✚','Сканер жизненных показателей в центре комнаты.']
+    ];
+    const edges = [
+      ['central_hub','corridor_a'],['central_hub','corridor_b'],['central_hub','cargo_tech_hub'],['central_hub','security_hub'],
+      ['corridor_a','crew_quarters'],['corridor_a','dining_hall'],['corridor_a','hydroponics'],
+      ['corridor_b','robotics_lab'],['corridor_b','xeno_lab'],['corridor_b','materials_lab'],['corridor_b','bio_lab'],
+      ['cargo_tech_hub','cargo_terminal'],['cargo_terminal','main_airlock'],['cargo_tech_hub','maintenance'],
+      ['security_hub','security_control'],['security_hub','armory'],['security_hub','medbay']
+    ];
+    const roomMap = {};
+    defs.forEach(function(d){ roomMap[d[0]] = {id:d[0],name:d[1],emoji:d[2],description:d[3],exits:[]}; });
+    edges.forEach(function(e){ roomMap[e[0]].exits.push(e[1]); roomMap[e[1]].exits.push(e[0]); });
+    offlineGameSession = {
+      status:'active', game_id:'demo-admin', station:'АСТРАЛ-1', session_type:'admin_sandbox',
+      player:{id:0,name:(currentProfile && currentProfile.name) || 'ОПЕРАТОР',color:'cyan',color_emoji:'🔵',role:'staff',room_id:'central_hub',view_state:'main',pending_target:null,alive:true},
+      neighbors:roomMap.central_hub.exits.slice(), rooms:Object.values(roomMap)
+    };
+    return offlineGameSession;
+  }
+
+  async function gameApiRequest(path, method, payload){
+    const initData = tg && tg.initData ? tg.initData : '';
+    if (!initData) {
+      const demo = offlineGameState();
+      if (path === '/api/game/move') {
+        const target = payload && payload.target_room;
+        if (!demo.neighbors.includes(target)) return {ok:false,status:409,data:{error:'room_not_neighbor'}};
+        demo.player.view_state = 'transit';
+        demo.player.pending_target = target;
+        await delay(900);
+        const from = demo.player.room_id;
+        demo.player.room_id = target;
+        demo.player.view_state = 'main';
+        demo.player.pending_target = null;
+        demo.neighbors = demo.rooms.find(function(r){ return r.id === target; }).exits.slice();
+        demo.movement = {from:from,to:target,duration_seconds:1};
+      }
+      return {ok:true,status:200,data:demo};
+    }
+    try {
+      const options = {method:method || 'GET',headers:{'Content-Type':'application/json'}};
+      let url = apiUrl(path);
+      if (options.method === 'GET') {
+        url += '?initData=' + encodeURIComponent(initData);
+      } else {
+        options.body = JSON.stringify(Object.assign({initData:initData},payload || {}));
+      }
+      const res = await fetch(url,options);
+      const data = await res.json().catch(function(){ return {}; });
+      return {ok:res.ok,status:res.status,data:data};
+    } catch (error) {
+      console.error('Game API request failed:',error);
+      return {ok:false,status:0,data:{error:'network'}};
+    }
+  }
+
+  function gameRoom(roomId){
+    return gameStateData && gameStateData.rooms.find(function(room){ return room.id === roomId; });
+  }
+
+  function addGameLog(message){
+    const row = document.createElement('div');
+    row.className = 'game-log-line';
+    const now = new Date();
+    const timeEl = document.createElement('time');
+    timeEl.textContent = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    const textEl = document.createElement('strong');
+    textEl.textContent = message;
+    row.append(timeEl,textEl);
+    gameLogLines.appendChild(row);
+    gameLogLines.scrollTop = gameLogLines.scrollHeight;
+  }
+
+  function splitGameRoomName(name){
+    const words = String(name || '').split(/\s+/);
+    const lines = [''];
+    words.forEach(function(word){
+      const current = lines[lines.length - 1];
+      if ((current + ' ' + word).trim().length <= 19 || lines.length === 2) {
+        lines[lines.length - 1] = (current + ' ' + word).trim();
+      } else {
+        lines.push(word);
+      }
+    });
+    if (lines[1] && lines[1].length > 21) lines[1] = lines[1].slice(0,20) + '…';
+    return lines.slice(0,2);
+  }
+
+  function svgEl(name,attributes){
+    const el = document.createElementNS('http://www.w3.org/2000/svg',name);
+    Object.keys(attributes || {}).forEach(function(key){ el.setAttribute(key,attributes[key]); });
+    return el;
+  }
+
+  function openGameMoveCard(roomId,event){
+    if (!gameStateData || !gameStateData.neighbors.includes(roomId)) return;
+    selectedGameRoomId = roomId;
+    const room = gameRoom(roomId);
+    gameMoveTitle.textContent = 'ПЕРЕХОД // ' + room.name.toUpperCase();
+    gameMoveCopy.textContent = room.description;
+    gameMoveCard.hidden = false;
+    const viewportRect = gameMapViewport.getBoundingClientRect();
+    const halfCardWidth = gameMoveCard.offsetWidth / 2;
+    const cardHeight = gameMoveCard.offsetHeight;
+    const x = Math.max(halfCardWidth + 8,Math.min(viewportRect.width - halfCardWidth - 8,event.clientX - viewportRect.left));
+    const y = Math.max(cardHeight + 12,Math.min(viewportRect.height - 8,event.clientY - viewportRect.top));
+    gameMoveCard.style.left = x + 'px';
+    gameMoveCard.style.top = y + 'px';
+    renderGameMap();
+  }
+
+  function renderGameMap(){
+    if (!gameStateData) return;
+    const currentId = gameStateData.player.room_id;
+    const neighbors = new Set(gameStateData.neighbors || []);
+    gameMapSvg.replaceChildren();
+
+    const edgesGroup = svgEl('g',{class:'game-map-edges'});
+    const seenEdges = new Set();
+    gameStateData.rooms.forEach(function(room){
+      room.exits.forEach(function(targetId){
+        const edgeKey = [room.id,targetId].sort().join('|');
+        if (seenEdges.has(edgeKey)) return;
+        seenEdges.add(edgeKey);
+        const a = GAME_ROOM_POSITIONS[room.id], b = GAME_ROOM_POSITIONS[targetId];
+        if (!a || !b) return;
+        const line = svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1]});
+        if (room.id === currentId || targetId === currentId) line.setAttribute('class','active');
+        edgesGroup.appendChild(line);
+      });
+    });
+    gameMapSvg.appendChild(edgesGroup);
+
+    gameStateData.rooms.forEach(function(room,index){
+      const pos = GAME_ROOM_POSITIONS[room.id];
+      if (!pos) return;
+      const group = svgEl('g',{class:'game-room',transform:'translate(' + pos[0] + ' ' + pos[1] + ')','data-room':room.id});
+      if (room.id === currentId) group.classList.add('current');
+      else if (neighbors.has(room.id)) group.classList.add('neighbor');
+      else group.classList.add('distant');
+      if (room.id === selectedGameRoomId) group.classList.add('selected');
+      if (neighbors.has(room.id)) {
+        group.setAttribute('role','button');
+        group.setAttribute('tabindex','0');
+        group.setAttribute('aria-label','Перейти: ' + room.name);
+      }
+      const color = GAME_ROOM_COLORS[room.id] || '#53636f';
+      group.appendChild(svgEl('rect',{class:'room-shell',x:-82,y:-36,width:164,height:72,fill:color,stroke:room.id === currentId ? '#9eeeff' : color}));
+      const code = svgEl('text',{class:'room-code',x:-72,y:-17});
+      code.textContent = String(index + 1).padStart(2,'0') + '  ' + room.emoji;
+      group.appendChild(code);
+      const name = svgEl('text',{class:'room-name',x:0,y:5});
+      splitGameRoomName(room.name).forEach(function(line,lineIndex){
+        const tspan = svgEl('tspan',{x:0,dy:lineIndex === 0 ? 0 : 18});
+        tspan.textContent = line.toUpperCase();
+        name.appendChild(tspan);
+      });
+      group.appendChild(name);
+      if (neighbors.has(room.id)) {
+        group.addEventListener('click',function(event){
+          if (gamePointerMoved) return;
+          event.stopPropagation();
+          openGameMoveCard(room.id,event);
+        });
+        group.addEventListener('keydown',function(event){
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            const rect = group.getBoundingClientRect();
+            openGameMoveCard(room.id,{clientX:rect.left + rect.width / 2,clientY:rect.top});
+          }
+        });
+      }
+      gameMapSvg.appendChild(group);
+    });
+
+    const playerPos = GAME_ROOM_POSITIONS[currentId];
+    if (playerPos) {
+      const marker = svgEl('g',{class:'player-marker',transform:'translate(' + playerPos[0] + ' ' + (playerPos[1] - 50) + ')'});
+      marker.appendChild(svgEl('circle',{class:'marker-ring',cx:0,cy:0,r:15}));
+      marker.appendChild(svgEl('circle',{class:'marker-core',cx:0,cy:0,r:7}));
+      marker.appendChild(svgEl('path',{class:'marker-arrow',d:'M -5 17 L 5 17 L 0 25 Z'}));
+      gameMapSvg.appendChild(marker);
+    }
+
+    const currentRoom = gameRoom(currentId);
+    document.getElementById('gameMapLocation').textContent = currentRoom ? currentRoom.name.toUpperCase() : currentId;
+    document.getElementById('gameRoomTitle').textContent = currentRoom ? currentRoom.emoji + ' ' + currentRoom.name.toUpperCase() : '—';
+    document.getElementById('gameRoomDescription').textContent = currentRoom ? currentRoom.description : '';
+    document.getElementById('gamePlayerStatus').textContent = gameStateData.player.view_state === 'transit' ? 'В ПУТИ' : 'НА СВЯЗИ';
+    document.getElementById('gameCrewCount').textContent = gameStateData.session_type === 'admin_sandbox' ? '1 // ТОЛЬКО ВЫ' : 'АКТИВЕН';
+    document.getElementById('gameNeighborCount').textContent = String(neighbors.size);
+  }
+
+  function applyGameTransform(){
+    const vw = gameMapViewport.clientWidth, vh = gameMapViewport.clientHeight;
+    const lw = GAME_MAP_W * gameScale, lh = GAME_MAP_H * gameScale;
+    gameTx = lw <= vw ? (vw - lw) / 2 : Math.min(0,Math.max(vw - lw,gameTx));
+    gameTy = lh <= vh ? (vh - lh) / 2 : Math.min(0,Math.max(vh - lh,gameTy));
+    gameMapLayer.style.transform = 'translate(' + gameTx + 'px,' + gameTy + 'px) scale(' + gameScale + ')';
+  }
+
+  function fitGameMap(){
+    const vw = gameMapViewport.clientWidth, vh = gameMapViewport.clientHeight;
+    if (!vw || !vh) return;
+    gameMinScale = Math.min(vw / GAME_MAP_W,vh / GAME_MAP_H);
+    gameMaxScale = gameMinScale * 4;
+    gameScale = gameMinScale;
+    gameTx = (vw - GAME_MAP_W * gameScale) / 2;
+    gameTy = (vh - GAME_MAP_H * gameScale) / 2;
+    applyGameTransform();
+  }
+
+  function focusGameRoom(roomId){
+    const position = GAME_ROOM_POSITIONS[roomId];
+    const vw = gameMapViewport.clientWidth, vh = gameMapViewport.clientHeight;
+    if (!position || !vw || !vh) return fitGameMap();
+    gameMinScale = Math.min(vw / GAME_MAP_W,vh / GAME_MAP_H);
+    gameMaxScale = gameMinScale * 4;
+    gameScale = Math.min(gameMaxScale,gameMinScale * 1.8);
+    gameTx = vw / 2 - position[0] * gameScale;
+    gameTy = vh / 2 - position[1] * gameScale;
+    applyGameTransform();
+  }
+
+  function setGameScale(newScale,px,py){
+    newScale = Math.min(gameMaxScale,Math.max(gameMinScale,newScale));
+    const mapX = (px - gameTx) / gameScale, mapY = (py - gameTy) / gameScale;
+    gameScale = newScale;
+    gameTx = px - mapX * gameScale;
+    gameTy = py - mapY * gameScale;
+    applyGameTransform();
+  }
+
+  function showGame(data){
+    gameStateData = data;
+    selectedGameRoomId = null;
+    gameMoveCard.hidden = true;
+    settingsScreen.classList.remove('reveal');
+    settingsScreen.hidden = true;
+    mainMenu.classList.remove('reveal');
+    mainMenu.hidden = true;
+    gameScreen.hidden = false;
+    gameScreen.classList.add('reveal');
+    renderGameMap();
+    if (!gameMapReady) {
+      gameMapReady = true;
+      gameLogLines.replaceChildren();
+      addGameLog('Пустая смена открыта. На станции кроме вас никого нет.');
+      addGameLog('Навигация доступна: ярко пульсируют только соседние помещения.');
+    }
+    requestAnimationFrame(function(){ focusGameRoom(gameStateData.player.room_id); });
+  }
+
+  function gameErrorText(result){
+    const code = result && result.data && result.data.error;
+    if (code === 'admin_only') return 'ДОСТУП РАЗРЕШЁН ТОЛЬКО АДМИНИСТРАТОРУ.';
+    if (code === 'already_playing') return 'СНАЧАЛА ЗАВЕРШИТЕ ТЕКУЩУЮ ПАРТИЮ.';
+    if (code === 'already_in_lobby') return 'СНАЧАЛА ПОКИНЬТЕ ТЕКУЩЕЕ ЛОББИ.';
+    if (code === 'room_not_neighbor') return 'МАРШРУТ УЖЕ НЕДОСТУПЕН. ВЫБЕРИТЕ СОСЕДНЮЮ КОМНАТУ.';
+    if (code === 'already_moving') return 'ПЕРЕХОД УЖЕ ВЫПОЛНЯЕТСЯ.';
+    if (result && result.status === 401) return 'СЕАНС TELEGRAM УСТАРЕЛ. ПЕРЕОТКРОЙТЕ MINI APP.';
+    return 'НЕТ СВЯЗИ С ДИСПЕТЧЕРСКОЙ. ПОПРОБУЙТЕ ЕЩЁ РАЗ.';
+  }
+
+  async function startAdminSandbox(){
+    if (!currentProfile || !currentProfile.is_admin) return;
+    adminSandboxStart.disabled = true;
+    adminSandboxStatus.classList.remove('error');
+    adminSandboxStatus.textContent = 'ПОДГОТОВКА ПУСТОЙ СМЕНЫ...';
+    const result = await gameApiRequest('/api/game/admin-solo/start','POST',{});
+    adminSandboxStart.disabled = false;
+    if (!result.ok) {
+      adminSandboxStatus.classList.add('error');
+      adminSandboxStatus.textContent = gameErrorText(result);
+      return;
+    }
+    adminSandboxStatus.textContent = '';
+    showGame(result.data);
+  }
+
+  adminSandboxStart.addEventListener('click',startAdminSandbox);
+  document.getElementById('gameMenuBtn').addEventListener('click',function(){
+    selectedGameRoomId = null;
+    gameMoveCard.hidden = true;
+    gameScreen.classList.remove('reveal');
+    gameScreen.hidden = true;
+    mainMenu.hidden = false;
+    mainMenu.classList.add('reveal');
+  });
+
+  gameMoveConfirm.addEventListener('click',async function(){
+    const targetId = selectedGameRoomId;
+    const targetRoom = gameRoom(targetId);
+    if (!targetId || !targetRoom) return;
+    gameMoveConfirm.disabled = true;
+    gameMoveCard.hidden = true;
+    gameTransitText.textContent = 'ПЕРЕХОД: ' + targetRoom.name.toUpperCase();
+    gameTransit.hidden = false;
+    addGameLog('Переход в «' + targetRoom.name + '» начат.');
+    const result = await gameApiRequest('/api/game/move','POST',{target_room:targetId});
+    gameMoveConfirm.disabled = false;
+    gameTransit.hidden = true;
+    if (!result.ok) {
+      selectedGameRoomId = null;
+      addGameLog(gameErrorText(result));
+      renderGameMap();
+      return;
+    }
+    gameStateData = result.data;
+    selectedGameRoomId = null;
+    renderGameMap();
+    focusGameRoom(gameStateData.player.room_id);
+    const duration = result.data.movement && result.data.movement.duration_seconds;
+    addGameLog('Вы прибыли в «' + gameRoom(gameStateData.player.room_id).name + '»' + (duration ? ' за ' + duration + ' сек.' : '.'));
+  });
+
+  gameMapViewport.addEventListener('click',function(event){
+    if (event.target === gameMapViewport || event.target === gameMapSvg) {
+      selectedGameRoomId = null;
+      gameMoveCard.hidden = true;
+      renderGameMap();
+    }
+  });
+
+  const gamePointers = new Map();
+  let gameDragLast = null, gamePinchStartDistance = null, gamePinchStartScale = null;
+  let gamePointerMoved = false;
+  function gamePointerDistance(a,b){ return Math.hypot(a.x - b.x,a.y - b.y); }
+  gameMapViewport.addEventListener('pointerdown',function(event){
+    gamePointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+    gamePointerMoved = false;
+    if (gamePointers.size === 1) {
+      gameDragLast = {x:event.clientX,y:event.clientY};
+      gameMapViewport.classList.add('grabbing');
+    } else if (gamePointers.size === 2) {
+      const points = Array.from(gamePointers.values());
+      gamePinchStartDistance = gamePointerDistance(points[0],points[1]);
+      gamePinchStartScale = gameScale;
+      gameDragLast = null;
+    }
+  });
+  gameMapViewport.addEventListener('pointermove',function(event){
+    if (!gamePointers.has(event.pointerId)) return;
+    gamePointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+    if (gamePointers.size === 1 && gameDragLast) {
+      const dx = event.clientX - gameDragLast.x, dy = event.clientY - gameDragLast.y;
+      if (Math.abs(dx) + Math.abs(dy) > 2) gamePointerMoved = true;
+      gameDragLast = {x:event.clientX,y:event.clientY};
+      gameTx += dx; gameTy += dy; applyGameTransform();
+    } else if (gamePointers.size === 2 && gamePinchStartDistance) {
+      gamePointerMoved = true;
+      const points = Array.from(gamePointers.values());
+      const rect = gameMapViewport.getBoundingClientRect();
+      const middle = {x:(points[0].x + points[1].x) / 2 - rect.left,y:(points[0].y + points[1].y) / 2 - rect.top};
+      setGameScale(gamePinchStartScale * gamePointerDistance(points[0],points[1]) / gamePinchStartDistance,middle.x,middle.y);
+    }
+  });
+  function endGamePointer(event){
+    gamePointers.delete(event.pointerId);
+    if (gamePointers.size === 1) gameDragLast = Array.from(gamePointers.values())[0];
+    else if (gamePointers.size === 0) {
+      gameDragLast = null;
+      gamePinchStartDistance = null;
+      gameMapViewport.classList.remove('grabbing');
+      setTimeout(function(){ gamePointerMoved = false; },0);
+    }
+  }
+  gameMapViewport.addEventListener('pointerup',endGamePointer);
+  gameMapViewport.addEventListener('pointercancel',endGamePointer);
+  gameMapViewport.addEventListener('wheel',function(event){
+    event.preventDefault();
+    const rect = gameMapViewport.getBoundingClientRect();
+    setGameScale(gameScale * (event.deltaY < 0 ? 1.13 : 1 / 1.13),event.clientX - rect.left,event.clientY - rect.top);
+  },{passive:false});
+  document.getElementById('gameZoomIn').addEventListener('click',function(){ setGameScale(gameScale * 1.25,gameMapViewport.clientWidth / 2,gameMapViewport.clientHeight / 2); });
+  document.getElementById('gameZoomOut').addEventListener('click',function(){ setGameScale(gameScale / 1.25,gameMapViewport.clientWidth / 2,gameMapViewport.clientHeight / 2); });
+  document.getElementById('gameZoomReset').addEventListener('click',fitGameMap);
+  window.addEventListener('resize',function(){ if (gameMapReady && !gameScreen.hidden) fitGameMap(); });
 
   // --- Database screen ("БАЗА ДАННЫХ") — section not built yet, shows a
   //     placeholder explaining that it's still being filled in. Same
