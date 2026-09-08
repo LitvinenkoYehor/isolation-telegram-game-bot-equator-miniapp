@@ -2167,10 +2167,14 @@
   .game-room .room-art{ opacity:0; pointer-events:none; transition:opacity .2s ease,filter .2s ease; }
   .game-room .room-hit{
     fill:transparent; stroke:transparent; stroke-width:2; vector-effect:non-scaling-stroke;
-    pointer-events:all; transition:stroke .18s ease;
+    pointer-events:none; transition:stroke .18s ease;
   }
   .game-room.neighbor{ cursor:pointer; }
-  .game-room.neighbor .room-art{ animation:neighborPulse 2.15s ease-in-out infinite; }
+  .game-room.neighbor .room-hit{ pointer-events:all; }
+  .game-room.neighbor .room-art{
+    animation:neighborPulse 2.15s ease-in-out infinite;
+    animation-delay:var(--room-pulse-delay,0s);
+  }
   .game-room.neighbor:hover .room-art{ opacity:.9; filter:brightness(1.08) drop-shadow(0 0 4px rgba(89,218,255,.3)); }
   .game-room.neighbor:hover .room-hit{ stroke:rgba(135,229,255,.42); }
   .game-room.current .room-art{ opacity:1; filter:brightness(1.03) drop-shadow(0 0 5px rgba(79,220,255,.34)); }
@@ -4502,39 +4506,40 @@
   };
   // Контуры совпадают с помещениями на исходном плане 1184×814.
   // У одной игровой локации может быть несколько частей (например,
-  // коридор или блок экипажных кают).
+  // три ветви коридора и круглые площадки на их концах).
   const GAME_ROOM_HOTSPOTS = {
     central_hub:[{tag:'circle',cx:591,cy:405,r:94}],
     corridor_a:[
-      {tag:'path',d:'M51 388H498V423H51Z'},
-      {tag:'path',d:'M426 388L429 367L397 346L408 319L228 211L216 221L250 248L389 331L392 367Z'},
-      {tag:'path',d:'M426 423L429 444L408 494L228 598L220 588L250 565L394 451Z'},
-      {tag:'rect',x:158,y:242,width:33,height:326}
+      {tag:'path',d:'M51.5 388.5H498V423.5H51.5Z'},
+      {tag:'circle',cx:25.5,cy:405.5,r:28.5},
+      {tag:'path',d:'M187 184L193.5 190V194L216 221L228 211L408 319L425 291L354 246L217.5 164.5L207 158H200.5L197 170L193 179Z'},
+      {tag:'circle',cx:174.5,cy:158.5,r:28.5},
+      {tag:'path',d:'M408 494L228.5 598L220.5 588L190.5 571L158 568.5V593.5L187 610.5L200 624.5L189.5 632.5L204.5 656.5H234.5L239 644.5L237.5 632.5L426 522.5Z'},
+      {tag:'circle',cx:174.5,cy:657.5,r:29.5}
     ],
-    crew_quarters:[
-      {tag:'path',d:'M51 268L77 242H158V388H51Z'},
-      {tag:'path',d:'M51 423H158V568H78L51 543Z'}
-    ],
+    crew_quarters:[{tag:'path',d:'M51.5 268L77 242.5H158V388.5H51.5Z'}],
     dining_hall:[{tag:'path',d:'M190 257H276L300 283V388H190Z'}],
     hydroponics:[{tag:'path',d:'M190 423H300V533L278 554H190Z'}],
     corridor_b:[
-      {tag:'path',d:'M683 388H1133V423H683Z'},
-      {tag:'path',d:'M758 288L775 319L947 218L970 238L996 256V284L907 284L878 312L791 388H754L748 352Z'},
-      {tag:'path',d:'M754 423H791L878 499L907 527L996 552V580L955 574L947 588L774 492Z'},
-      {tag:'rect',x:996,y:242,width:33,height:338}
+      {tag:'path',d:'M683.5 388H1133V423H683.5Z'},
+      {tag:'circle',cx:1158,cy:405.5,r:28.5},
+      {tag:'path',d:'M758 288.5L962.35 163.5L974.32 156.5L994.8 182L988 192L1027.5 219.5V256.5H996.5V242L969.5 223.5L955.5 210.5L774.5 319Z'},
+      {tag:'circle',cx:1007,cy:157,r:28.5},
+      {tag:'path',d:'M757 522.5L774.5 492L947.5 587.5L955.5 574.5L965.5 567L979 561.5L996.5 554V580L986.5 598L982.5 604L993 611L981 644.5Z'},
+      {tag:'circle',cx:1007,cy:635,r:29}
     ],
-    robotics_lab:[{tag:'path',d:'M878 284H996V388H878Z'}],
-    xeno_lab:[{tag:'path',d:'M1028 284H1106L1133 312V388H1028Z'}],
+    robotics_lab:[{tag:'path',d:'M878.5 284.5L907 256.5H996.5V388.5H878.5Z'}],
+    xeno_lab:[{tag:'path',d:'M1027.5 256.5H1106L1133 284.5V388H1027.5Z'}],
     materials_lab:[{tag:'path',d:'M878 423H996V552H907L878 524Z'}],
     bio_lab:[{tag:'path',d:'M1028 423H1133V542L1107 568H1028Z'}],
-    cargo_tech_hub:[
-      {tag:'path',d:'M574 153H608V312H574Z'},
-      {tag:'path',d:'M435 123H747V201H608V153H574V201H435Z'}
-    ],
+    cargo_tech_hub:[{tag:'path',d:'M573.5 153.5H608V312H574.5V201H573.5Z'}],
     cargo_terminal:[{tag:'path',d:'M709 0H835L839 5V122H709Z'}],
     main_airlock:[{tag:'path',d:'M473 7L480 0H709V123H473Z'}],
     maintenance:[{tag:'path',d:'M796 186L829 245L962 164L930 109H924L864 145L851 122H840L837 161Z'}],
-    security_hub:[{tag:'path',d:'M574 499H608V609H623V752H607V656H574Z'}],
+    security_hub:[
+      {tag:'path',d:'M574 499H608V609H623V656.5H574Z'},
+      {tag:'rect',x:341.5,y:656.5,width:506,height:32}
+    ],
     security_control:[{tag:'path',d:'M623 659H836L847 670V802L836 814H623Z'}],
     armory:[{tag:'path',d:'M474 656H574V688H574V767H612V814H474Z'}],
     medbay:[{tag:'path',d:'M360 656H474V814H418V758H377V776H350L341 758V675Z'}]
@@ -4605,7 +4610,7 @@
       ['xeno_lab','Хим-лаб','⚗','Изолированные образцы из глубокого космоса.'],
       ['materials_lab','Материалы','◇','Прессы и спектрометры работают без остановки.'],
       ['bio_lab','Био-лаб','✣','Культуры освещены холодным синим светом.'],
-      ['cargo_tech_hub','Технический отсек','⌂','Развилка грузового и технического модуля.'],
+      ['cargo_tech_hub','Грузовой и технический отсек','⌂','Развилка грузового и технического модуля.'],
       ['cargo_terminal','Грузовой терминал','▣','Контейнеры, погрузчики и сканеры груза.'],
       ['main_airlock','Главный шлюз','⇄','Массивные створки стыковочного узла.'],
       ['maintenance','Техобслуживание','⌘','Диагностические панели и инструменты.'],
@@ -4619,6 +4624,7 @@
       ['corridor_a','crew_quarters'],['corridor_a','dining_hall'],['corridor_a','hydroponics'],
       ['corridor_b','robotics_lab'],['corridor_b','xeno_lab'],['corridor_b','materials_lab'],['corridor_b','bio_lab'],
       ['cargo_tech_hub','cargo_terminal'],['cargo_terminal','main_airlock'],['cargo_tech_hub','maintenance'],
+      ['cargo_terminal','maintenance'],['maintenance','corridor_b'],
       ['security_hub','security_control'],['security_hub','armory'],['security_hub','medbay']
     ];
     const roomMap = {};
@@ -4741,7 +4747,7 @@
     const definitions = svgEl('defs');
     gameMapSvg.appendChild(definitions);
 
-    gameStateData.rooms.forEach(function(room){
+    gameStateData.rooms.forEach(function(room,roomIndex){
       const pos = GAME_ROOM_POSITIONS[room.id];
       const geometry = GAME_ROOM_HOTSPOTS[room.id];
       if (!pos || !geometry) return;
@@ -4752,6 +4758,7 @@
       definitions.appendChild(clip);
 
       const group = svgEl('g',{class:'game-room','data-room':room.id});
+      group.style.setProperty('--room-pulse-delay',(-roomIndex * .13) + 's');
       if (room.id === currentId) group.classList.add('current');
       else if (neighbors.has(room.id)) group.classList.add('neighbor');
       else group.classList.add('distant');
