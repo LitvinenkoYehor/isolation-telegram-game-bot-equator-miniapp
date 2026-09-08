@@ -2109,10 +2109,9 @@
   }
 
   /* ================= EARLY GAME / ADMIN EMPTY SHIFT =================
-     Карта собрана из семантических SVG-узлов, а не из одной
-     картинки: цвета, размеры, подписи и связи можно менять
-     независимо. Камера живёт в #gameMapLayer, как и в экране
-     чертежа станции выше. */
+     В игре используется тот же детальный SVG, что и в «Станциях».
+     Поверх него лежат семантические контуры помещений: они отвечают
+     за клики, доступность, подсветку и перемещение. */
   .admin-sandbox-section[hidden]{ display:none; }
   .admin-sandbox-card{
     padding:2.2cqw; border:1px solid rgba(255,191,77,.48); border-radius:.8cqw;
@@ -2161,30 +2160,26 @@
     background-size:3.2cqw 3.2cqw,3.2cqw 3.2cqw,auto;
   }
   .game-map-viewport.grabbing{ cursor:grabbing; }
-  .game-map-layer{ position:absolute; width:1200px; height:820px; transform-origin:0 0; will-change:transform; }
-  .game-map-layer svg{ display:block; width:1200px; height:820px; overflow:visible; }
-  .game-map-edges line{ stroke:rgba(113,210,239,.25); stroke-width:8; stroke-linecap:round; }
-  .game-map-edges line.active{ stroke:rgba(113,210,239,.8); filter:drop-shadow(0 0 7px rgba(76,210,244,.8)); }
-  .game-room{ cursor:default; transform-box:fill-box; transform-origin:center; transition:opacity .22s ease; }
-  .game-room .room-shell{ stroke-width:2.5; rx:9; vector-effect:non-scaling-stroke; transition:filter .18s ease; }
-  .game-room .room-code{ fill:rgba(235,246,250,.68); font:700 12px 'IBM VGA 8x16',monospace; letter-spacing:.12em; pointer-events:none; }
-  .game-room .room-name{
-    fill:#f1f7f8; stroke:rgba(0,7,12,.92); stroke-width:3px; paint-order:stroke fill;
-    font:700 15px 'IBM VGA 8x16',monospace; text-anchor:middle; pointer-events:none;
+  .game-map-layer{ position:absolute; width:1184px; height:814px; transform-origin:0 0; will-change:transform; }
+  .game-map-layer svg{ display:block; width:1184px; height:814px; overflow:visible; }
+  .game-station-base{ opacity:.22; filter:saturate(.42) brightness(.58); pointer-events:none; }
+  .game-room{ cursor:default; }
+  .game-room .room-art{ opacity:0; pointer-events:none; transition:opacity .2s ease,filter .2s ease; }
+  .game-room .room-hit{
+    fill:transparent; stroke:transparent; stroke-width:2; vector-effect:non-scaling-stroke;
+    pointer-events:all; transition:stroke .18s ease;
   }
-  .game-room.distant{ opacity:.24; }
-  .game-room.distant .room-shell{ filter:saturate(.38) brightness(.72); }
-  .game-room.neighbor{ cursor:pointer; opacity:.72; }
-  .game-room.neighbor .room-shell{ animation:neighborPulse 2.15s ease-in-out infinite; }
-  .game-room.neighbor:hover{ opacity:.9; }
-  .game-room.neighbor:hover .room-shell{ filter:brightness(1.1) drop-shadow(0 0 5px rgba(89,218,255,.34)); }
-  .game-room.current{ opacity:1; }
-  .game-room.current .room-shell{ filter:brightness(1.08) drop-shadow(0 0 7px rgba(79,220,255,.48)); }
-  .game-room.selected{ opacity:1; }
-  .game-room.selected .room-shell{ animation:none; filter:brightness(1.12) drop-shadow(0 0 8px rgba(255,191,77,.58)); }
+  .game-room.neighbor{ cursor:pointer; }
+  .game-room.neighbor .room-art{ animation:neighborPulse 2.15s ease-in-out infinite; }
+  .game-room.neighbor:hover .room-art{ opacity:.9; filter:brightness(1.08) drop-shadow(0 0 4px rgba(89,218,255,.3)); }
+  .game-room.neighbor:hover .room-hit{ stroke:rgba(135,229,255,.42); }
+  .game-room.current .room-art{ opacity:1; filter:brightness(1.03) drop-shadow(0 0 5px rgba(79,220,255,.34)); }
+  .game-room.current .room-hit{ stroke:rgba(158,238,255,.5); }
+  .game-room.selected .room-art{ animation:none; opacity:1; filter:brightness(1.08) drop-shadow(0 0 7px rgba(255,191,77,.48)); }
+  .game-room.selected .room-hit{ stroke:rgba(255,205,105,.75); }
   @keyframes neighborPulse{
-    0%,100%{filter:brightness(.86) drop-shadow(0 0 1px rgba(76,210,244,.12))}
-    50%{filter:brightness(1.04) drop-shadow(0 0 4px rgba(76,210,244,.28))}
+    0%,100%{opacity:.34;filter:brightness(.82) drop-shadow(0 0 1px rgba(76,210,244,.1))}
+    50%{opacity:.76;filter:brightness(1.02) drop-shadow(0 0 4px rgba(76,210,244,.25))}
   }
   .player-marker{ pointer-events:none; filter:drop-shadow(0 0 8px rgba(255,255,255,.9)); }
   .player-marker .marker-ring{ fill:#071520; stroke:#fff; stroke-width:3; vector-effect:non-scaling-stroke; }
@@ -2770,7 +2765,7 @@
       <div class="station-map-wrap">
         <div class="station-map-viewport" id="stationMapViewport">
           <div class="station-map-layer" id="stationMapLayer">
-<svg width="1184" height="814" viewBox="0 0 1184 814" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg id="astralStationSvg" width="1184" height="814" viewBox="0 0 1184 814" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_0_1)">
 <path d="M623 720H607.5L607 609H574.5V656.5H474.5H397.5V717H474.5V767V813.5H553H611.5V767H607V752L623 751.5V813.5H836L847 802V761.5H850.5V708.5H847.5V670L836 659H623V720Z" fill="#74242C"/>
 <path d="M474.5 813.5V767V717H397.5V656.5H360L341.5 674.5V757.5H349V775L350.5 776.5H375.5L377 775V757.5H417.5V813.5H474.5Z" fill="#74242C"/>
@@ -3733,7 +3728,7 @@
         <section class="game-map-panel">
           <div class="game-map-viewport" id="gameMapViewport">
             <div class="game-map-layer" id="gameMapLayer">
-              <svg id="gameMapSvg" viewBox="0 0 1200 820" role="img" aria-label="Интерактивная карта станции Астрал-1"></svg>
+              <svg id="gameMapSvg" viewBox="0 0 1184 814" role="img" aria-label="Интерактивная карта станции Астрал-1"></svg>
             </div>
             <div class="game-map-label"><strong id="gameMapLocation">ЗАГРУЗКА...</strong><span>Выберите пульсирующую комнату</span></div>
             <div class="game-zoom-controls" aria-label="Масштаб карты">
@@ -4497,25 +4492,58 @@
   //  Админская кнопка создаёт реальный GameState на сервере. В обычном
   //  браузере ?demo=admin включает автономный макет для визуальной проверки.
   // =========================================================
-  const GAME_MAP_W = 1200, GAME_MAP_H = 820;
+  const GAME_MAP_W = 1184, GAME_MAP_H = 814;
   const GAME_ROOM_POSITIONS = {
-    central_hub:[600,390],
-    corridor_a:[340,390], crew_quarters:[125,205], dining_hall:[115,390], hydroponics:[125,575],
-    corridor_b:[860,390], robotics_lab:[1070,115], xeno_lab:[1080,295], materials_lab:[1080,485], bio_lab:[1065,670],
-    cargo_tech_hub:[600,185], cargo_terminal:[420,82], main_airlock:[210,82], maintenance:[790,82],
-    security_hub:[600,600], security_control:[390,730], armory:[600,745], medbay:[810,730]
+    central_hub:[591,405],
+    corridor_a:[405,405], crew_quarters:[105,330], dining_hall:[245,330], hydroponics:[245,490],
+    corridor_b:[780,405], robotics_lab:[937,335], xeno_lab:[1080,335], materials_lab:[937,488], bio_lab:[1080,495],
+    cargo_tech_hub:[591,185], cargo_terminal:[775,70], main_airlock:[590,70], maintenance:[870,175],
+    security_hub:[591,620], security_control:[735,735], armory:[540,735], medbay:[410,735]
   };
-  const GAME_ROOM_COLORS = {
-    central_hub:'#b88636',
-    corridor_a:'#286798', crew_quarters:'#286798', dining_hall:'#286798', hydroponics:'#286798',
-    corridor_b:'#28764f', robotics_lab:'#28764f', xeno_lab:'#28764f', materials_lab:'#28764f', bio_lab:'#28764f',
-    cargo_tech_hub:'#53636f', cargo_terminal:'#53636f', main_airlock:'#53636f', maintenance:'#53636f',
-    security_hub:'#7f3038', security_control:'#7f3038', armory:'#7f3038', medbay:'#7f3038'
+  // Контуры совпадают с помещениями на исходном плане 1184×814.
+  // У одной игровой локации может быть несколько частей (например,
+  // коридор или блок экипажных кают).
+  const GAME_ROOM_HOTSPOTS = {
+    central_hub:[{tag:'circle',cx:591,cy:405,r:94}],
+    corridor_a:[
+      {tag:'path',d:'M51 388H498V423H51Z'},
+      {tag:'path',d:'M426 388L429 367L397 346L408 319L228 211L216 221L250 248L389 331L392 367Z'},
+      {tag:'path',d:'M426 423L429 444L408 494L228 598L220 588L250 565L394 451Z'},
+      {tag:'rect',x:158,y:242,width:33,height:326}
+    ],
+    crew_quarters:[
+      {tag:'path',d:'M51 268L77 242H158V388H51Z'},
+      {tag:'path',d:'M51 423H158V568H78L51 543Z'}
+    ],
+    dining_hall:[{tag:'path',d:'M190 257H276L300 283V388H190Z'}],
+    hydroponics:[{tag:'path',d:'M190 423H300V533L278 554H190Z'}],
+    corridor_b:[
+      {tag:'path',d:'M683 388H1133V423H683Z'},
+      {tag:'path',d:'M758 288L775 319L947 218L970 238L996 256V284L907 284L878 312L791 388H754L748 352Z'},
+      {tag:'path',d:'M754 423H791L878 499L907 527L996 552V580L955 574L947 588L774 492Z'},
+      {tag:'rect',x:996,y:242,width:33,height:338}
+    ],
+    robotics_lab:[{tag:'path',d:'M878 284H996V388H878Z'}],
+    xeno_lab:[{tag:'path',d:'M1028 284H1106L1133 312V388H1028Z'}],
+    materials_lab:[{tag:'path',d:'M878 423H996V552H907L878 524Z'}],
+    bio_lab:[{tag:'path',d:'M1028 423H1133V542L1107 568H1028Z'}],
+    cargo_tech_hub:[
+      {tag:'path',d:'M574 153H608V312H574Z'},
+      {tag:'path',d:'M435 123H747V201H608V153H574V201H435Z'}
+    ],
+    cargo_terminal:[{tag:'path',d:'M709 0H835L839 5V122H709Z'}],
+    main_airlock:[{tag:'path',d:'M473 7L480 0H709V123H473Z'}],
+    maintenance:[{tag:'path',d:'M796 186L829 245L962 164L930 109H924L864 145L851 122H840L837 161Z'}],
+    security_hub:[{tag:'path',d:'M574 499H608V609H623V752H607V656H574Z'}],
+    security_control:[{tag:'path',d:'M623 659H836L847 670V802L836 814H623Z'}],
+    armory:[{tag:'path',d:'M474 656H574V688H574V767H612V814H474Z'}],
+    medbay:[{tag:'path',d:'M360 656H474V814H418V758H377V776H350L341 758V675Z'}]
   };
 
   const gameMapViewport = document.getElementById('gameMapViewport');
   const gameMapLayer = document.getElementById('gameMapLayer');
   const gameMapSvg = document.getElementById('gameMapSvg');
+  const astralStationSvg = document.getElementById('astralStationSvg');
   const gameMoveCard = document.getElementById('gameMoveCard');
   const gameMoveTitle = document.getElementById('gameMoveTitle');
   const gameMoveCopy = document.getElementById('gameMoveCopy');
@@ -4538,6 +4566,7 @@
   let gameMapReady = false;
   let gameScale = 1, gameMinScale = 1, gameMaxScale = 1, gameTx = 0, gameTy = 0;
   let offlineGameSession = null;
+  let gameStationBlueprintUrl = null;
   const gamePanelState = {info:true,log:true};
 
   try {
@@ -4656,25 +4685,27 @@
     gameLogLines.scrollTop = gameLogLines.scrollHeight;
   }
 
-  function splitGameRoomName(name){
-    const words = String(name || '').split(/\s+/);
-    const lines = [''];
-    words.forEach(function(word){
-      const current = lines[lines.length - 1];
-      if ((current + ' ' + word).trim().length <= 19 || lines.length === 2) {
-        lines[lines.length - 1] = (current + ' ' + word).trim();
-      } else {
-        lines.push(word);
-      }
-    });
-    if (lines[1] && lines[1].length > 21) lines[1] = lines[1].slice(0,20) + '…';
-    return lines.slice(0,2);
-  }
-
   function svgEl(name,attributes){
     const el = document.createElementNS('http://www.w3.org/2000/svg',name);
     Object.keys(attributes || {}).forEach(function(key){ el.setAttribute(key,attributes[key]); });
     return el;
+  }
+
+  function getGameStationBlueprintUrl(){
+    if (gameStationBlueprintUrl) return gameStationBlueprintUrl;
+    if (!astralStationSvg) return '';
+    const markup = new XMLSerializer().serializeToString(astralStationSvg);
+    gameStationBlueprintUrl = URL.createObjectURL(new Blob([markup],{type:'image/svg+xml'}));
+    return gameStationBlueprintUrl;
+  }
+
+  function appendGameRoomShape(parent,spec,className){
+    const attributes = {};
+    Object.keys(spec).forEach(function(key){ if (key !== 'tag') attributes[key] = spec[key]; });
+    if (className) attributes.class = className;
+    const shape = svgEl(spec.tag,attributes);
+    parent.appendChild(shape);
+    return shape;
   }
 
   function openGameMoveCard(roomId,event){
@@ -4700,47 +4731,46 @@
     const neighbors = new Set(gameStateData.neighbors || []);
     gameMapSvg.replaceChildren();
 
-    const edgesGroup = svgEl('g',{class:'game-map-edges'});
-    const seenEdges = new Set();
-    gameStateData.rooms.forEach(function(room){
-      room.exits.forEach(function(targetId){
-        const edgeKey = [room.id,targetId].sort().join('|');
-        if (seenEdges.has(edgeKey)) return;
-        seenEdges.add(edgeKey);
-        const a = GAME_ROOM_POSITIONS[room.id], b = GAME_ROOM_POSITIONS[targetId];
-        if (!a || !b) return;
-        const line = svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1]});
-        if (room.id === currentId || targetId === currentId) line.setAttribute('class','active');
-        edgesGroup.appendChild(line);
-      });
+    const blueprintUrl = getGameStationBlueprintUrl();
+    const baseImage = svgEl('image',{
+      class:'game-station-base',x:0,y:0,width:GAME_MAP_W,height:GAME_MAP_H,
+      href:blueprintUrl,preserveAspectRatio:'none'
     });
-    gameMapSvg.appendChild(edgesGroup);
+    gameMapSvg.appendChild(baseImage);
 
-    gameStateData.rooms.forEach(function(room,index){
+    const definitions = svgEl('defs');
+    gameMapSvg.appendChild(definitions);
+
+    gameStateData.rooms.forEach(function(room){
       const pos = GAME_ROOM_POSITIONS[room.id];
-      if (!pos) return;
-      const group = svgEl('g',{class:'game-room',transform:'translate(' + pos[0] + ' ' + pos[1] + ')','data-room':room.id});
+      const geometry = GAME_ROOM_HOTSPOTS[room.id];
+      if (!pos || !geometry) return;
+
+      const clipId = 'game-room-clip-' + room.id;
+      const clip = svgEl('clipPath',{id:clipId,clipPathUnits:'userSpaceOnUse'});
+      geometry.forEach(function(spec){ appendGameRoomShape(clip,spec); });
+      definitions.appendChild(clip);
+
+      const group = svgEl('g',{class:'game-room','data-room':room.id});
       if (room.id === currentId) group.classList.add('current');
       else if (neighbors.has(room.id)) group.classList.add('neighbor');
       else group.classList.add('distant');
       if (room.id === selectedGameRoomId) group.classList.add('selected');
+
+      const title = svgEl('title');
+      title.textContent = room.name;
+      group.appendChild(title);
+      group.appendChild(svgEl('image',{
+        class:'room-art',x:0,y:0,width:GAME_MAP_W,height:GAME_MAP_H,
+        href:blueprintUrl,preserveAspectRatio:'none','clip-path':'url(#' + clipId + ')'
+      }));
+      geometry.forEach(function(spec){ appendGameRoomShape(group,spec,'room-hit'); });
+
       if (neighbors.has(room.id)) {
         group.setAttribute('role','button');
         group.setAttribute('tabindex','0');
         group.setAttribute('aria-label','Перейти: ' + room.name);
       }
-      const color = GAME_ROOM_COLORS[room.id] || '#53636f';
-      group.appendChild(svgEl('rect',{class:'room-shell',x:-82,y:-36,width:164,height:72,fill:color,stroke:room.id === currentId ? '#9eeeff' : color}));
-      const code = svgEl('text',{class:'room-code',x:-72,y:-17});
-      code.textContent = String(index + 1).padStart(2,'0') + '  ' + room.emoji;
-      group.appendChild(code);
-      const name = svgEl('text',{class:'room-name',x:0,y:5});
-      splitGameRoomName(room.name).forEach(function(line,lineIndex){
-        const tspan = svgEl('tspan',{x:0,dy:lineIndex === 0 ? 0 : 18});
-        tspan.textContent = line.toUpperCase();
-        name.appendChild(tspan);
-      });
-      group.appendChild(name);
       if (neighbors.has(room.id)) {
         group.addEventListener('click',function(event){
           if (gamePointerMoved) return;
