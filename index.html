@@ -25,6 +25,24 @@
     --phosphor:0 0 6px rgba(159,216,255,0.35);
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  /* Глобальный запрет выделения текста и объектов. При перемещении по
+     карте станции палец/курсор часто "цепляет" текст названий локаций,
+     журнала смены и т.п. (см. задачу пользователя от 2026-09-09) — это
+     не нужно, интерфейс не текстовый редактор. Поля ввода (input/
+     textarea/[contenteditable]) исключены ниже, чтобы почта и другие
+     формы продолжали работать как обычно. */
+  *{
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
+  }
+  input, textarea, [contenteditable="true"]{
+    -webkit-user-select:text;
+    -moz-user-select:text;
+    -ms-user-select:text;
+    user-select:text;
+  }
   html{ height:100%; }
   body{
     margin:0; padding:0;
@@ -2226,10 +2244,41 @@
   .game-move-confirm:disabled{ opacity:.42; cursor:wait; }
   .game-transit{
     position:absolute; inset:0; z-index:11; display:flex; align-items:center; justify-content:center;
-    background:rgba(1,8,14,.58); backdrop-filter:blur(1.5px); pointer-events:none;
+    overflow:hidden; pointer-events:none;
+    background:rgba(46,46,48,.66);
+    backdrop-filter:blur(3px) grayscale(1) brightness(.38) contrast(1.18);
+    -webkit-backdrop-filter:blur(3px) grayscale(1) brightness(.38) contrast(1.18);
+    animation:crtSignalLoss .5s steps(2,end) infinite;
   }
   .game-transit[hidden]{ display:none; }
-  .game-transit-box{ min-width:29cqw; padding:1.6cqw 2cqw; border:1px solid var(--scr-cyan); background:rgba(3,18,29,.94); text-align:center; color:var(--scr-cyan); font:700 1.65cqw/1.45 'IBM VGA 8x16',monospace; letter-spacing:.05em; }
+  /* Статический шум, имитирующий кратковременную потерю сигнала ЭЛТ-монитора */
+  .game-transit::before{
+    content:''; position:absolute; inset:-25%;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    opacity:.4; mix-blend-mode:overlay;
+    animation:crtStatic .2s steps(6) infinite;
+  }
+  /* Горизонтальные строки развёртки поверх шума */
+  .game-transit::after{
+    content:''; position:absolute; inset:0;
+    background:repeating-linear-gradient(to bottom, rgba(0,0,0,.4) 0px, rgba(0,0,0,.4) 1px, transparent 1px, transparent 3px);
+    mix-blend-mode:multiply;
+  }
+  @keyframes crtStatic{
+    0%{ transform:translate(0,0); }
+    16%{ transform:translate(-4%,3%); }
+    33%{ transform:translate(3%,-4%); }
+    50%{ transform:translate(-3%,-3%); }
+    66%{ transform:translate(4%,4%); }
+    83%{ transform:translate(-2%,2%); }
+    100%{ transform:translate(0,0); }
+  }
+  @keyframes crtSignalLoss{
+    0%,100%{ filter:brightness(1) contrast(1); }
+    45%{ filter:brightness(.5) contrast(1.3); }
+    55%{ filter:brightness(1.15) contrast(1); }
+  }
+  .game-transit-box{ position:relative; z-index:1; min-width:29cqw; padding:1.6cqw 2cqw; border:1px solid var(--scr-cyan); background:rgba(3,18,29,.94); text-align:center; color:var(--scr-cyan); font:700 1.65cqw/1.45 'IBM VGA 8x16',monospace; letter-spacing:.05em; }
   .game-transit-line{ height:.35cqw; margin-top:1.1cqw; overflow:hidden; background:rgba(76,210,244,.18); }
   .game-transit-line::after{ content:''; display:block; width:40%; height:100%; background:var(--scr-cyan); animation:transitSweep 1s linear infinite; }
   @keyframes transitSweep{ from{transform:translateX(-110%)} to{transform:translateX(360%)} }
@@ -4527,7 +4576,7 @@
   const GAME_ROOM_HOTSPOTS = {
     central_hub:[{tag:'circle',cx:591,cy:405,r:94}],
     corridor_a:[
-      {tag:'path',d:'M51.5 388.5H498V423.5H51.5Z'},
+      {tag:'path',d:'M51.5 388.5H389.5V423.5H51.5Z'},
       {tag:'circle',cx:25.5,cy:405.5,r:28.5},
       {tag:'rect',x:158,y:242.5,width:32.5,height:326},
       {tag:'path',d:'M187 184L193.5 190V194L216 221L228 211L408 319L425 291L354 246L217.5 164.5L207 158H200.5L197 170L193 179Z'},
@@ -4539,7 +4588,7 @@
     dining_hall:[{tag:'path',d:'M190 257H276L300 283V388H190Z'}],
     hydroponics:[{tag:'path',d:'M190 423H300V533L278 554H190Z'}],
     corridor_b:[
-      {tag:'path',d:'M683.5 388H1133V423H683.5Z'},
+      {tag:'path',d:'M791.5 388H1133V423H791.5Z'},
       {tag:'circle',cx:1158,cy:405.5,r:28.5},
       {tag:'rect',x:996.5,y:242,width:32,height:338},
       {tag:'path',d:'M758 288.5L962.35 163.5L974.32 156.5L994.8 182L988 192L1027.5 219.5V256.5H996.5V242L969.5 223.5L955.5 210.5L774.5 319Z'},
@@ -4557,7 +4606,8 @@
       {tag:'rect',x:435,y:43,width:37.5,height:80},
       {tag:'path',d:'M217.5 164.58L255 107L318 145L284 204.5Z'},
       {tag:'path',d:'M284 204.5L318 145L345 161L310 221Z'},
-      {tag:'path',d:'M310 221L345 161L387.5 188L354 246Z'}
+      {tag:'path',d:'M310 221L345 161L387.5 188L354 246Z'},
+      {tag:'path',d:'M331.5 123L435 123V153.5L345 161L318 145Z'}
     ],
     cargo_terminal:[{tag:'path',d:'M709 0H835L839 5V122H709Z'}],
     main_airlock:[{tag:'path',d:'M473 7L480 0H709V123H473Z'}],
@@ -4565,9 +4615,9 @@
       {tag:'path',d:'M796 186L829 245L962 164L930 109H924L864 145L851 122H840L837 161Z'},
       {tag:'rect',x:850,y:50,width:176,height:30}
     ],
-    security_hub:[{tag:'path',d:'M574 499H608V609H623V752H607V656H574Z'}],
+    security_hub:[{tag:'path',d:'M574 499H608V609H623V752H611.5V814H574Z'}],
     security_control:[{tag:'path',d:'M623 659H836L847 670V802L836 814H623Z'}],
-    armory:[{tag:'path',d:'M474 656H574V688H574V767H612V814H474Z'}],
+    armory:[{tag:'path',d:'M474 656H574V814H474Z'}],
     medbay:[{tag:'path',d:'M360 656H474V814H418V758H377V776H350L341 758V675Z'}]
   };
 
@@ -4626,24 +4676,24 @@
   function offlineGameState(){
     if (offlineGameSession) return offlineGameSession;
     const defs = [
-      ['central_hub','Центральный узел','⚛','Гул реактора пронизывает каждую переборку.'],
+      ['central_hub','Центральный узел','ЦУ','Гул реактора пронизывает каждую переборку.'],
       ['corridor_a','Коридор Центр-А','A','Кольцевой переход в жилой модуль.'],
-      ['crew_quarters','Экипажные каюты','▦','Ряды узких кают для отдыха экипажа.'],
-      ['dining_hall','Обеденный зал','▤','Общий зал и зона отдыха персонала.'],
-      ['hydroponics','Гидропоника','♧','Влажный воздух и ряды зелёных грядок.'],
+      ['crew_quarters','Экипажные каюты','ЭК','Ряды узких кают для отдыха экипажа.'],
+      ['dining_hall','Обеденный зал','ОЗ','Общий зал и зона отдыха персонала.'],
+      ['hydroponics','Гидропоника','ГД','Влажный воздух и ряды зелёных грядок.'],
       ['corridor_b','Коридор Центр-Б','Б','Кольцевой переход в научный отсек.'],
-      ['robotics_lab','Робототехника','⌁','Манипуляторы и недостроенные дроны.'],
-      ['xeno_lab','Хим-лаб','⚗','Изолированные образцы из глубокого космоса.'],
-      ['materials_lab','Материалы','◇','Прессы и спектрометры работают без остановки.'],
-      ['bio_lab','Био-лаб','✣','Культуры освещены холодным синим светом.'],
-      ['cargo_tech_hub','Грузовой и технический отсек','⌂','Развилка грузового и технического модуля.'],
-      ['cargo_terminal','Грузовой терминал','▣','Контейнеры, погрузчики и сканеры груза.'],
-      ['main_airlock','Главный шлюз','⇄','Массивные створки стыковочного узла.'],
-      ['maintenance','Техобслуживание','⌘','Диагностические панели и инструменты.'],
-      ['security_hub','Модуль безопасности','⬡','Развилка охраняемого сектора.'],
-      ['security_control','Безопасность','◉','Мониторы наблюдения за отсеками станции.'],
-      ['armory','Арсенал','✦','Запертые шкафы со снаряжением экипажа.'],
-      ['medbay','Медцентр','✚','Сканер жизненных показателей в центре комнаты.']
+      ['robotics_lab','Робототехника','РТ','Манипуляторы и недостроенные дроны.'],
+      ['xeno_lab','Хим-лаб','ХЛ','Изолированные образцы из глубокого космоса.'],
+      ['materials_lab','Материалы','МТ','Прессы и спектрометры работают без остановки.'],
+      ['bio_lab','Био-лаб','БЛ','Культуры освещены холодным синим светом.'],
+      ['cargo_tech_hub','Грузовой и технический отсек','ГТ','Развилка грузового и технического модуля.'],
+      ['cargo_terminal','Грузовой терминал','ГР','Контейнеры, погрузчики и сканеры груза.'],
+      ['main_airlock','Главный шлюз','ШЛ','Массивные створки стыковочного узла.'],
+      ['maintenance','Техобслуживание','ТО','Диагностические панели и инструменты.'],
+      ['security_hub','Модуль безопасности','МБ','Развилка охраняемого сектора.'],
+      ['security_control','Безопасность','БЗ','Мониторы наблюдения за отсеками станции.'],
+      ['armory','Арсенал','АР','Запертые шкафы со снаряжением экипажа.'],
+      ['medbay','Медцентр','МЦ','Сканер жизненных показателей в центре комнаты.']
     ];
     const edges = [
       ['central_hub','corridor_a'],['central_hub','corridor_b'],['central_hub','cargo_tech_hub'],['central_hub','security_hub'],
