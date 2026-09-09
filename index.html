@@ -2245,38 +2245,28 @@
   .game-transit{
     position:absolute; inset:0; z-index:11; display:flex; align-items:center; justify-content:center;
     overflow:hidden; pointer-events:none;
-    background:rgba(46,46,48,.66);
-    backdrop-filter:blur(3px) grayscale(1) brightness(.38) contrast(1.18);
-    -webkit-backdrop-filter:blur(3px) grayscale(1) brightness(.38) contrast(1.18);
-    animation:crtSignalLoss .5s steps(2,end) infinite;
+    background:rgba(39,40,42,.82);
+    backdrop-filter:blur(1.5px) grayscale(1) brightness(.28) contrast(.96);
+    -webkit-backdrop-filter:blur(1.5px) grayscale(1) brightness(.28) contrast(.96);
   }
   .game-transit[hidden]{ display:none; }
-  /* Статический шум, имитирующий кратковременную потерю сигнала ЭЛТ-монитора */
+  /* Собственная ЭЛТ-развёртка перехода всегда активна, даже если общий
+     ЭЛТ-фильтр выключен в настройках. Карта остаётся едва различимой. */
   .game-transit::before{
-    content:''; position:absolute; inset:-25%;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-    opacity:.4; mix-blend-mode:overlay;
-    animation:crtStatic .2s steps(6) infinite;
-  }
-  /* Горизонтальные строки развёртки поверх шума */
-  .game-transit::after{
     content:''; position:absolute; inset:0;
-    background:repeating-linear-gradient(to bottom, rgba(0,0,0,.4) 0px, rgba(0,0,0,.4) 1px, transparent 1px, transparent 3px);
+    background:repeating-linear-gradient(
+      to bottom,
+      rgba(4,6,8,.42) 0,
+      rgba(4,6,8,.42) 1px,
+      rgba(82,87,91,.035) 1px,
+      rgba(82,87,91,.035) 3px
+    );
     mix-blend-mode:multiply;
   }
-  @keyframes crtStatic{
-    0%{ transform:translate(0,0); }
-    16%{ transform:translate(-4%,3%); }
-    33%{ transform:translate(3%,-4%); }
-    50%{ transform:translate(-3%,-3%); }
-    66%{ transform:translate(4%,4%); }
-    83%{ transform:translate(-2%,2%); }
-    100%{ transform:translate(0,0); }
-  }
-  @keyframes crtSignalLoss{
-    0%,100%{ filter:brightness(1) contrast(1); }
-    45%{ filter:brightness(.5) contrast(1.3); }
-    55%{ filter:brightness(1.15) contrast(1); }
+  /* Мягкое затемнение краёв без вспышек и смены яркости. */
+  .game-transit::after{
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(120% 105% at 50% 45%,rgba(0,0,0,.04) 42%,rgba(0,0,0,.72) 100%);
   }
   .game-transit-box{ position:relative; z-index:1; min-width:29cqw; padding:1.6cqw 2cqw; border:1px solid var(--scr-cyan); background:rgba(3,18,29,.94); text-align:center; color:var(--scr-cyan); font:700 1.65cqw/1.45 'IBM VGA 8x16',monospace; letter-spacing:.05em; }
   .game-transit-line{ height:.35cqw; margin-top:1.1cqw; overflow:hidden; background:rgba(76,210,244,.18); }
@@ -4579,6 +4569,7 @@
       {tag:'path',d:'M51.5 388.5H389.5V423.5H51.5Z'},
       {tag:'circle',cx:25.5,cy:405.5,r:28.5},
       {tag:'rect',x:158,y:242.5,width:32.5,height:326},
+      {tag:'path',d:'M193.5 190V194L158 223V242.5H190.5V238.5L216 221Z'},
       {tag:'path',d:'M187 184L193.5 190V194L216 221L228 211L408 319L425 291L354 246L217.5 164.5L207 158H200.5L197 170L193 179Z'},
       {tag:'circle',cx:174.5,cy:158.5,r:28.5},
       {tag:'path',d:'M408 494L228.5 598L220.5 588L190.5 571L158 568.5V593.5L187 610.5L200 624.5L189.5 632.5L204.5 656.5H234.5L239 644.5L237.5 632.5L426 522.5Z'},
@@ -4615,9 +4606,12 @@
       {tag:'path',d:'M796 186L829 245L962 164L930 109H924L864 145L851 122H840L837 161Z'},
       {tag:'rect',x:850,y:50,width:176,height:30}
     ],
-    security_hub:[{tag:'path',d:'M574 499H608V609H623V752H611.5V814H574Z'}],
+    security_hub:[
+      {tag:'path',d:'M574 499H608V609H623V752H611.5V814H574Z'},
+      {tag:'rect',x:553,y:767,width:21,height:47}
+    ],
     security_control:[{tag:'path',d:'M623 659H836L847 670V802L836 814H623Z'}],
-    armory:[{tag:'path',d:'M474 656H574V814H474Z'}],
+    armory:[{tag:'path',d:'M474 656H574V767H553V814H474Z'}],
     medbay:[{tag:'path',d:'M360 656H474V814H418V758H377V776H350L341 758V675Z'}]
   };
 
