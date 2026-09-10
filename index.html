@@ -2262,16 +2262,17 @@
     image-rendering:pixelated;
     animation:transitNoise .16s steps(2,end) infinite;
   }
-  /* Собственная ЭЛТ-развёртка перехода всегда активна, даже если общий
-     ЭЛТ-фильтр выключен в настройках. Карта остаётся едва различимой. */
+  /* Собственная ЭЛТ-развёртка перехода не зависит от общего фильтра.
+     Её можно целиком отключить в игровом окне настроек. */
   .game-transit::after{
     content:''; position:absolute; inset:0;
     background:
       radial-gradient(120% 105% at 50% 45%,rgba(0,0,0,.04) 42%,rgba(0,0,0,.72) 100%),
       repeating-linear-gradient(to bottom,rgba(4,6,8,.42) 0,rgba(4,6,8,.42) 1px,rgba(82,87,91,.035) 1px,rgba(82,87,91,.035) 3px);
   }
-  .game-transit.effects-off::before,
-  .game-transit.effects-off::after{ display:none; }
+  /* При отключении эффектов весь переходный слой исчезает: карта остаётся
+     такой же светлой и чёткой, как до начала перемещения. */
+  .game-transit.effects-off{ display:none; }
   @keyframes transitNoise{
     0%{ background-position:0 0; }
     25%{ background-position:37px -19px; }
@@ -2369,6 +2370,9 @@
   }
   .game-settings-overlay .rename-actions{ padding:0 1.7cqw 1.7cqw; }
   .game-settings-exit{
+    flex:0 0 auto; min-width:clamp(110px,12cqw,155px); margin:0 auto;
+    padding:clamp(9px,1.15cqw,15px) clamp(14px,1.8cqw,23px);
+    font-size:clamp(14px,1.45cqw,19px);
     color:#d79a9a;
     background:linear-gradient(135deg,rgba(128,42,42,.32),rgba(82,24,24,.14));
     border-color:rgba(190,91,91,.65);
