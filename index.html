@@ -2160,6 +2160,37 @@
   .admin-sandbox-status.error{ color:#ff9a8a; }
 
   .game-screen{ background:linear-gradient(180deg,rgba(2,17,31,.98),rgba(1,11,21,.99)); }
+  .game-screen::before,
+  .game-screen::after{
+    content:''; position:absolute; inset:0; pointer-events:none;
+  }
+  .game-screen::before{
+    z-index:65;
+    background:repeating-linear-gradient(
+      to bottom,
+      rgba(10,14,18,.16) 0,
+      rgba(10,14,18,.16) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode:multiply;
+  }
+  .game-screen::after{
+    z-index:66;
+    background-image:
+      radial-gradient(120% 100% at 50% 45%,transparent 55%,rgba(0,0,0,.55) 100%),
+      linear-gradient(to bottom,transparent 0%,rgba(210,235,255,.065) 45%,transparent 100%);
+    background-size:100% 100%,100% 24%;
+    background-repeat:no-repeat;
+    background-position:center,center -32%;
+    animation:gameCrtSweep 8s linear infinite;
+  }
+  .game-screen.shift-crt-off::before,
+  .game-screen.shift-crt-off::after{ display:none; }
+  @keyframes gameCrtSweep{
+    from{ background-position:center,center -32%; }
+    to{ background-position:center,center 132%; }
+  }
   .game-screen .topbar{ display:grid; grid-template-columns:minmax(0,1fr) 27cqw; gap:1cqw; }
   .game-screen .brand{ min-width:0; width:100%; }
   .game-screen .topbar-right{ justify-content:flex-end; }
@@ -3026,6 +3057,13 @@
             <span class="settings-label">ВЫКЛЮЧИТЬ ЭЛТ ФИЛЬТР</span>
             <label class="switch">
               <input type="checkbox" id="toggleCrt">
+              <span class="switch-track"><span class="switch-thumb"></span></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">ВЫКЛЮЧИТЬ ЭЛТ НА СМЕНЕ</span>
+            <label class="switch">
+              <input type="checkbox" id="toggleShiftCrt">
               <span class="switch-track"><span class="switch-thumb"></span></span>
             </label>
           </div>
@@ -4175,9 +4213,16 @@
           </div>
           <div class="game-settings-body">
             <div class="game-settings-option">
-              <span class="game-settings-option-text">ВЫКЛЮЧИТЬ ЭФФЕКТЫ ЭЛТ И БЕЛОГО ШУМА</span>
-              <label class="switch game-settings-switch" aria-label="Выключить эффекты ЭЛТ и белого шума при переходе">
+              <span class="game-settings-option-text">ВЫКЛЮЧИТЬ ЭЛТ И БЕЛЫЙ ШУМ ПРИ ПЕРЕМЕЩЕНИИ</span>
+              <label class="switch game-settings-switch" aria-label="Выключить ЭЛТ и белый шум при перемещении">
                 <input id="gameEffectsOff" type="checkbox">
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+              </label>
+            </div>
+            <div class="game-settings-option">
+              <span class="game-settings-option-text">ВЫКЛЮЧИТЬ ЭЛТ НА СМЕНЕ</span>
+              <label class="switch game-settings-switch" aria-label="Выключить ЭЛТ на смене">
+                <input id="gameToggleShiftCrt" type="checkbox">
                 <span class="switch-track"><span class="switch-thumb"></span></span>
               </label>
             </div>
@@ -5011,6 +5056,7 @@
   const gameKillTimer = document.getElementById('gameKillTimer');
   const gameIdentityMask = document.getElementById('gameIdentityMask');
   const gameToggleColorText = document.getElementById('gameToggleColorText');
+  const gameToggleShiftCrt = document.getElementById('gameToggleShiftCrt');
   const gameCrewList = document.getElementById('gameCrewList');
   const gameTasksAction = document.getElementById('gameTasksAction');
   const gameTasksAlert = document.getElementById('gameTasksAlert');
@@ -7770,7 +7816,7 @@
   //  in localStorage so the choice survives a reload.
   // =========================================================
   const SETTINGS_KEY = 'eq_station_settings';
-  let appSettings = { crtOff: false, glitchesOff: false, skipIntro: false, wallpaperOff: false, showColorText: true };
+  let appSettings = { crtOff: false, shiftCrtOff: false, glitchesOff: false, skipIntro: false, wallpaperOff: false, showColorText: true };
   try {
     const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
     appSettings = Object.assign(appSettings, saved);
@@ -7786,6 +7832,7 @@
   const toggleIntro = document.getElementById('toggleIntro');
   const toggleWallpaper = document.getElementById('toggleWallpaper');
   const toggleColorText = document.getElementById('toggleColorText');
+  const toggleShiftCrt = document.getElementById('toggleShiftCrt');
   const rowGlitch   = document.getElementById('rowGlitch');
   const stageEl     = document.querySelector('.stage');
 
@@ -7806,6 +7853,13 @@
     gameScreen.classList.toggle('hide-color-text',appSettings.showColorText === false);
   }
 
+  function applyShiftCrtState(){
+    const shiftCrtOff = appSettings.shiftCrtOff === true;
+    toggleShiftCrt.checked = shiftCrtOff;
+    gameToggleShiftCrt.checked = shiftCrtOff;
+    gameScreen.classList.toggle('shift-crt-off',shiftCrtOff);
+  }
+
   toggleCrt.checked = appSettings.crtOff;
   toggleGlitch.checked = appSettings.glitchesOff;
   toggleIntro.checked = appSettings.skipIntro;
@@ -7813,6 +7867,7 @@
   applyCrtState();
   applyWallpaperState();
   applyColorTextState();
+  applyShiftCrtState();
 
   toggleCrt.addEventListener('change', () => {
     appSettings.crtOff = toggleCrt.checked;
@@ -7842,6 +7897,16 @@
     applyColorTextState();
     saveSettings();
   });
+  toggleShiftCrt.addEventListener('change', () => {
+    appSettings.shiftCrtOff = toggleShiftCrt.checked;
+    applyShiftCrtState();
+    saveSettings();
+  });
+  gameToggleShiftCrt.addEventListener('change', () => {
+    appSettings.shiftCrtOff = gameToggleShiftCrt.checked;
+    applyShiftCrtState();
+    saveSettings();
+  });
 
   // =========================================================
   //  AMBIENT INTERFERENCE — "old, slightly failing device"
@@ -7856,7 +7921,9 @@
     // "Выключить глюки" (or CRT filter off, which implies it) silences bursts
     // entirely, but we keep the scheduling loop alive underneath so turning
     // it back on resumes naturally without needing a reload.
-    if (appSettings.glitchesOff || appSettings.crtOff) return;
+    // Во время смены случайные рывки и обрывы сигнала не используются:
+    // там остаётся только отдельный спокойный ЭЛТ-фильтр.
+    if (!gameScreen.hidden || appSettings.glitchesOff || appSettings.crtOff) return;
     screenEl.classList.add('glitching');
     if (big) screenEl.classList.add('glitching-big');
     const dur = big ? 420 : 220;
