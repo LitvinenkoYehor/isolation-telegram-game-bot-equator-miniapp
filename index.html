@@ -2144,10 +2144,25 @@
   }
   .admin-sandbox-btn:hover{ background:rgba(255,191,77,.16); }
   .admin-sandbox-btn:disabled{ opacity:.45; cursor:wait; }
+  .admin-role-choice{ margin-top:1.25cqw; padding-top:1.25cqw; border-top:1px solid rgba(255,191,77,.3); }
+  .admin-role-choice[hidden]{ display:none; }
+  .admin-role-choice-title{ margin-bottom:.8cqw; color:var(--scr-text-dim); font:700 1.35cqw/1.2 'IBM VGA 8x16',monospace; letter-spacing:.08em; }
+  .admin-role-choice-buttons{ display:grid; grid-template-columns:1fr 1fr; gap:.8cqw; }
+  .admin-role-btn{
+    padding:1.2cqw; border:1px solid rgba(83,196,133,.72); border-radius:.4cqw;
+    background:rgba(42,123,77,.15); color:#94ddb5; cursor:pointer;
+    font:700 1.5cqw/1 'IBM VGA 8x16',monospace; letter-spacing:.06em;
+  }
+  .admin-role-btn.danger{ border-color:rgba(190,91,91,.72); background:rgba(128,42,42,.18); color:#dc9696; }
+  .admin-role-btn:hover{ filter:brightness(1.18); }
+  .admin-role-btn:disabled{ opacity:.45; cursor:wait; }
   .admin-sandbox-status{ min-height:1.4em; margin-top:1cqw; color:var(--scr-text-dim); font-size:1.4cqw; }
   .admin-sandbox-status.error{ color:#ff9a8a; }
 
   .game-screen{ background:linear-gradient(180deg,rgba(2,17,31,.98),rgba(1,11,21,.99)); }
+  .game-screen .topbar{ display:grid; grid-template-columns:minmax(0,1fr) 27cqw; gap:1cqw; }
+  .game-screen .brand{ min-width:0; }
+  .game-screen .topbar-right{ justify-content:flex-end; }
   .game-screen.game-desktop{
     position:fixed; inset:0; z-index:100; width:100vw; height:100dvh;
     box-sizing:border-box; container-type:inline-size; overflow:hidden;
@@ -2156,6 +2171,24 @@
     box-shadow:inset 0 0 55px rgba(0,0,0,.64),inset 0 0 0 1px rgba(151,220,242,.16);
   }
   .game-panel-toggles{ display:flex; align-items:center; gap:.55cqw; }
+  .game-task-header{ flex:1 1 auto; min-width:0; }
+  .game-task-header-row{
+    display:flex; align-items:center; justify-content:space-between; gap:1cqw;
+    margin-bottom:.55cqw; color:var(--scr-cyan);
+    font:700 1.35cqw/1 'IBM VGA 8x16',monospace; letter-spacing:.1em;
+  }
+  .game-task-score{ color:var(--scr-text); letter-spacing:.04em; }
+  .game-task-progress{
+    height:1.2cqw; min-height:8px; overflow:hidden;
+    border:1px solid var(--scr-line-strong); background:rgba(2,11,18,.84);
+    box-shadow:inset 0 0 .7cqw rgba(0,0,0,.72);
+  }
+  .game-task-progress-fill{
+    display:block; width:0; height:100%;
+    background:linear-gradient(90deg,#278a62,#55d48e);
+    box-shadow:0 0 .8cqw rgba(85,212,142,.45);
+    transition:width .35s ease;
+  }
   .game-topbar-action{
     padding:.9cqw 1.5cqw; border:1px solid var(--scr-line); border-radius:.4cqw;
     background:transparent; color:var(--scr-text-dim); cursor:pointer;
@@ -2226,16 +2259,34 @@
   .player-marker .marker-arrow{ fill:#fff; }
   .game-map-label{
     position:absolute; left:1.2cqw; top:1.2cqw; z-index:7; pointer-events:none;
-    padding:.8cqw 1.1cqw; border-left:2px solid var(--scr-cyan); background:rgba(1,10,18,.72);
+    width:min(42cqw,500px); max-height:calc(100% - 2.4cqw); overflow:hidden;
+    padding:.8cqw 1.1cqw; border-left:2px solid var(--scr-cyan); background:rgba(1,10,18,.82);
     color:var(--scr-text-dim); font:1.3cqw/1.2 'IBM VGA 8x16',monospace; letter-spacing:.08em;
   }
-  .game-map-label strong{ display:block; margin-bottom:.35cqw; color:var(--scr-cyan); font-size:1.65cqw; }
+  .game-classification-line{ color:var(--scr-text-dim); }
+  .game-classification-name{ color:var(--scr-text); }
+  .game-classification-role{ display:block; margin:.35cqw 0 .8cqw; color:var(--scr-cyan); font-size:1.65cqw; }
+  .game-classification-role.liquidator{ color:#d98989; }
+  .game-cover-label{ margin:.5cqw 0 .65cqw; color:var(--scr-amber); font-weight:700; }
+  .game-cover-label[hidden]{ display:none; }
+  .game-player-tasks{ display:flex; flex-direction:column; gap:.75cqw; }
+  .game-player-task{ padding-top:.65cqw; border-top:1px solid rgba(105,196,226,.22); letter-spacing:.025em; }
+  .game-player-task-title{ color:var(--scr-text); font-weight:700; line-height:1.25; }
+  .game-player-task-stage{ color:var(--scr-amber); white-space:nowrap; }
+  .game-player-task-desc{ margin-top:.3cqw; color:var(--scr-text-dim); line-height:1.3; }
+  .game-player-tasks.attention{ animation:gameTaskAttention .7s ease; }
+  @keyframes gameTaskAttention{
+    0%,100%{ filter:none; }
+    45%{ filter:drop-shadow(0 0 .7cqw rgba(76,210,244,.68)); }
+  }
   .game-zoom-controls{ position:absolute; right:1cqw; top:1cqw; z-index:8; display:flex; gap:.45cqw; }
   .game-zoom-btn{ width:4cqw; height:4cqw; min-width:30px; min-height:30px; border:1px solid var(--scr-line); border-radius:.45cqw; background:rgba(2,13,23,.82); color:var(--scr-text); cursor:pointer; font:700 2cqw 'IBM VGA 8x16',monospace; }
   .game-move-card{
     position:absolute; z-index:12; width:min(27cqw,270px); transform:translate(-50%,calc(-100% - 1cqw));
     padding:1.25cqw; border:1px solid var(--scr-amber); border-radius:.55cqw;
-    background:rgba(4,13,22,.96); box-shadow:0 1cqw 3cqw rgba(0,0,0,.45);
+    background-image:linear-gradient(rgba(2,9,15,.76),rgba(2,9,15,.92)),var(--game-room-image,none);
+    background-size:cover; background-position:center;
+    box-shadow:0 1cqw 3cqw rgba(0,0,0,.45); overflow:hidden;
   }
   .game-move-card[hidden]{ display:none; }
   .game-move-card-title{ color:var(--scr-amber); font:700 1.55cqw/1.2 'IBM VGA 8x16',monospace; }
@@ -2294,7 +2345,30 @@
   .game-side-panel{ min-height:0; overflow:auto; padding:1.4cqw; border:1px solid var(--scr-line); border-radius:.8cqw; background:rgba(4,18,30,.86); }
   .game-side-kicker{ color:var(--scr-text-dim); font:700 1.2cqw/1 'IBM VGA 8x16',monospace; letter-spacing:.11em; }
   .game-side-title{ margin:.7cqw 0 .7cqw; color:var(--scr-cyan); font:700 1.9cqw/1.16 'IBM VGA 8x16',monospace; }
-  .game-side-desc{ color:var(--scr-text-dim); font-size:1.38cqw; line-height:1.42; }
+  .game-nearby-title{ margin-top:1.35cqw; padding-top:1.2cqw; border-top:1px solid var(--scr-line); }
+  .game-crew-list{
+    display:grid; grid-template-rows:repeat(6,auto); grid-auto-flow:column;
+    grid-auto-columns:minmax(0,1fr); column-gap:1.1cqw; margin-top:.75cqw;
+  }
+  .game-crew-member{
+    min-width:0; padding:.48cqw .25cqw; color:var(--scr-text-dim);
+    font:1.15cqw/1.2 'IBM VGA 8x16',monospace; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .game-crew-member strong{ color:var(--scr-text); }
+  .game-crew-empty{ grid-row:1; color:rgba(184,213,224,.5); font:1.15cqw/1.3 'IBM VGA 8x16',monospace; }
+  .game-room-actions{ margin-top:1.2cqw; display:flex; flex-direction:column; gap:.75cqw; }
+  .game-room-action{
+    width:100%; padding:1cqw; border:1px solid rgba(76,210,244,.62); border-radius:.35cqw;
+    background:rgba(76,210,244,.09); color:var(--scr-cyan); cursor:pointer;
+    font:700 1.25cqw/1.15 'IBM VGA 8x16',monospace; letter-spacing:.045em;
+  }
+  .game-room-action:disabled{ border-color:rgba(255,255,255,.13); background:transparent; color:rgba(255,255,255,.27); cursor:not-allowed; }
+  .game-room-action-alert{ color:#dc7777; margin-right:.45cqw; }
+  .game-room-action-alert[hidden]{ display:none; }
+  .game-emergency-confirm{ display:grid; grid-template-columns:1fr 1fr; gap:.65cqw; }
+  .game-emergency-confirm[hidden]{ display:none; }
+  .game-room-action.confirm{ color:#8cddb1; border-color:rgba(83,196,133,.7); background:rgba(42,123,77,.18); }
+  .game-room-action.cancel{ color:#d99494; border-color:rgba(190,91,91,.65); background:rgba(128,42,42,.2); }
   .game-status-list{ margin-top:1.2cqw; border-top:1px solid var(--scr-line); }
   .game-status-row{ display:flex; justify-content:space-between; gap:1cqw; padding:.8cqw 0; border-bottom:1px solid var(--scr-line); color:var(--scr-text-dim); font:1.2cqw/1.2 'IBM VGA 8x16',monospace; }
   .game-status-row strong{ color:var(--scr-text); text-align:right; }
@@ -2334,11 +2408,10 @@
   .game-log-head{ display:flex; justify-content:space-between; padding:.55cqw 1cqw; border-bottom:1px solid var(--scr-line); color:var(--scr-cyan); font:700 1.15cqw/1 'IBM VGA 8x16',monospace; letter-spacing:.1em; }
   .game-log-head span:last-child{ color:var(--scr-text-dim); }
   .game-log-lines{ flex:1; min-height:0; overflow-y:auto; padding:.65cqw 1cqw; }
-  .game-log-line{ display:grid; grid-template-columns:5.5cqw 1fr; gap:.8cqw; margin:.25cqw 0; color:var(--scr-text-dim); font:1.25cqw/1.25 'IBM VGA 8x16',monospace; }
+  .game-log-line{ display:grid; grid-template-columns:5.5cqw minmax(0,1fr) auto; gap:.8cqw; margin:.25cqw 0; color:var(--scr-text-dim); font:1.25cqw/1.25 'IBM VGA 8x16',monospace; }
   .game-log-line time{ color:rgba(103,210,239,.5); }
-  .game-log-line strong{ color:var(--scr-text); font-weight:400; }
-  .game-screen.hide-info .game-workspace{ grid-template-columns:minmax(0,1fr); }
-  .game-screen.hide-info .game-side-panel{ display:none; }
+  .game-log-message strong{ color:var(--scr-text); font-weight:700; }
+  .game-log-alert{ color:#e66f6f; font-weight:900; letter-spacing:.16em; text-shadow:0 0 7px rgba(230,72,72,.5); }
   .game-screen.hide-log .game-workspace{ grid-template-rows:minmax(0,1fr); }
   .game-screen.hide-log .game-log{ display:none; }
   .game-settings-overlay{
@@ -2388,6 +2461,10 @@
     background:linear-gradient(135deg,rgba(142,49,49,.38),rgba(92,28,28,.18));
   }
   .game-screen.game-desktop .topbar{ padding-bottom:clamp(10px,.75vw,15px); }
+  .game-screen.game-desktop .topbar{
+    grid-template-columns:minmax(0,1fr) clamp(330px,25vw,480px);
+    gap:clamp(9px,.75vw,15px);
+  }
   .game-screen.game-desktop .brand{ gap:clamp(9px,.75vw,14px); }
   .game-screen.game-desktop .brand-mark{ width:clamp(36px,2.6vw,50px); height:clamp(36px,2.6vw,50px); }
   .game-screen.game-desktop .brand-text .b1{ font-size:clamp(22px,1.65vw,32px); text-shadow:0 0 3px rgba(143,214,255,.26); }
@@ -2401,13 +2478,15 @@
     grid-template-rows:minmax(0,1fr) clamp(155px,19vh,220px);
     gap:clamp(9px,.75vw,15px); padding:clamp(10px,.8vw,16px) 0 0;
   }
-  .game-screen.game-desktop.hide-info .game-workspace{ grid-template-columns:minmax(0,1fr); }
   .game-screen.game-desktop.hide-log .game-workspace{ grid-template-rows:minmax(0,1fr); }
   .game-screen.game-desktop .game-map-panel,
   .game-screen.game-desktop .game-side-panel,
   .game-screen.game-desktop .game-log{ border-radius:8px; }
-  .game-screen.game-desktop .game-map-label{ left:14px; top:14px; padding:9px 12px; font-size:14px; }
-  .game-screen.game-desktop .game-map-label strong{ margin-bottom:4px; font-size:18px; }
+  .game-screen.game-desktop .game-map-label{ left:14px; top:14px; width:min(460px,42vw); padding:11px 14px; font-size:14px; }
+  .game-screen.game-desktop .game-classification-role{ margin:5px 0 10px; font-size:18px; }
+  .game-screen.game-desktop .game-player-tasks{ gap:9px; }
+  .game-screen.game-desktop .game-player-task{ padding-top:8px; }
+  .game-screen.game-desktop .game-player-task-desc{ margin-top:4px; }
   .game-screen.game-desktop .game-zoom-controls{ right:12px; top:12px; gap:6px; }
   .game-screen.game-desktop .game-zoom-btn{ width:40px; height:40px; border-radius:5px; font-size:22px; }
   .game-screen.game-desktop .game-move-card{ width:min(360px,38vw); padding:16px; border-radius:7px; }
@@ -2418,7 +2497,11 @@
   .game-screen.game-desktop .game-side-panel{ padding:clamp(18px,1.25vw,25px); }
   .game-screen.game-desktop .game-side-kicker{ font-size:clamp(15px,.9vw,18px); }
   .game-screen.game-desktop .game-side-title{ margin:10px 0 12px; font-size:clamp(24px,1.5vw,30px); }
-  .game-screen.game-desktop .game-side-desc{ font-size:clamp(18px,1.05vw,21px); line-height:1.48; }
+  .game-screen.game-desktop .game-crew-list{ column-gap:14px; margin-top:10px; }
+  .game-screen.game-desktop .game-crew-member,
+  .game-screen.game-desktop .game-crew-empty{ padding:7px 3px; font-size:clamp(14px,.82vw,17px); }
+  .game-screen.game-desktop .game-room-actions{ margin-top:16px; gap:9px; }
+  .game-screen.game-desktop .game-room-action{ padding:12px; font-size:15px; }
   .game-screen.game-desktop .game-status-list{ margin-top:18px; }
   .game-screen.game-desktop .game-status-row{ gap:14px; padding:12px 0; font-size:clamp(16px,.9vw,18px); }
   .game-screen.game-desktop .game-transit-controls{ margin-top:18px; padding:15px 0; }
@@ -2434,7 +2517,7 @@
   .game-screen.game-desktop .game-log-head{ padding:9px 14px; font-size:clamp(14px,.8vw,16px); }
   .game-screen.game-desktop .game-log-lines{ padding:9px 14px; }
   .game-screen.game-desktop .game-log-line{
-    grid-template-columns:64px 1fr; gap:12px; margin:4px 0;
+    grid-template-columns:64px minmax(0,1fr) auto; gap:12px; margin:4px 0;
     font-size:clamp(17px,1vw,20px); line-height:1.34;
   }
   @media(max-width:700px){
@@ -2869,9 +2952,16 @@
         <div class="admin-sandbox-section" id="adminSandboxSection" hidden>
           <div class="profile-section-label">АДМИНИСТРАТОР</div>
           <div class="admin-sandbox-card">
-            <div class="admin-sandbox-kicker">ПУСТАЯ СМЕНА // DEV</div>
-            <p class="admin-sandbox-copy">Немедленно открыть «Астрал-1» без экипажа и без ботов. Режим предназначен для проверки карты и перемещения.</p>
+            <div class="admin-sandbox-kicker">ТЕСТОВАЯ СМЕНА // DEV</div>
+            <p class="admin-sandbox-copy">Открыть «Астрал-1» с 11 неподвижными ботами в Центральном узле. Перед запуском можно выбрать роль игрока.</p>
             <button class="admin-sandbox-btn" id="adminSandboxStart" type="button">▸ НАЧАТЬ В ПОЛНОМ ОДИНОЧЕСТВЕ</button>
+            <div class="admin-role-choice" id="adminRoleChoice" hidden>
+              <div class="admin-role-choice-title">ВЫБЕРИТЕ КЛАССИФИКАЦИЮ</div>
+              <div class="admin-role-choice-buttons">
+                <button class="admin-role-btn" type="button" data-role="staff">ПЕРСОНАЛ</button>
+                <button class="admin-role-btn danger" type="button" data-role="liquidator">ЛИКВИДАТОР</button>
+              </div>
+            </div>
             <div class="admin-sandbox-status" id="adminSandboxStatus" aria-live="polite"></div>
           </div>
         </div>
@@ -3876,11 +3966,13 @@
       <div class="topbar">
         <div class="brand">
           <div class="brand-mark"></div>
-          <div class="brand-text"><div class="b1">АСТРАЛ-1</div><div class="b2">КАРТА СМЕНЫ</div></div>
+          <div class="game-task-header">
+            <div class="game-task-header-row"><span>ЗАДАНИЯ</span><span class="game-task-score" id="gameTaskScore">0/1000</span></div>
+            <div class="game-task-progress" role="progressbar" aria-label="Общая шкала заданий" aria-valuemin="0" aria-valuemax="1000" aria-valuenow="0"><span class="game-task-progress-fill" id="gameTaskProgressFill"></span></div>
+          </div>
         </div>
         <div class="topbar-right">
           <div class="game-panel-toggles" aria-label="Панели интерфейса">
-            <button class="game-topbar-action active" id="gameToggleInfo" type="button" aria-pressed="true" title="Показать или скрыть информацию">ИНФО</button>
             <button class="game-topbar-action active" id="gameToggleLog" type="button" aria-pressed="true" title="Показать или скрыть журнал">ЖУРНАЛ</button>
           </div>
           <button class="game-topbar-action" id="gameMenuBtn" type="button" aria-haspopup="dialog" aria-controls="gameSettingsOverlay">НАСТРОЙКИ</button>
@@ -3894,7 +3986,12 @@
             <div class="game-map-layer" id="gameMapLayer">
               <svg id="gameMapSvg" viewBox="0 0 1184 814" role="img" aria-label="Интерактивная карта станции Астрал-1"></svg>
             </div>
-            <div class="game-map-label"><strong id="gameMapLocation">ЗАГРУЗКА...</strong><span>Выберите пульсирующую комнату</span></div>
+            <div class="game-map-label">
+              <div class="game-classification-line">КЛАССИФИКАЦИЯ <span class="game-classification-name" id="gameClassificationName">ОПЕРАТОР</span>:</div>
+              <strong class="game-classification-role" id="gameClassificationRole">ПЕРСОНАЛ</strong>
+              <div class="game-cover-label" id="gameCoverLabel" hidden>ПОД ПРИКРЫТИЕМ</div>
+              <div class="game-player-tasks" id="gamePlayerTasks"></div>
+            </div>
             <div class="game-zoom-controls" aria-label="Масштаб карты">
               <button class="game-zoom-btn" id="gameZoomOut" type="button" aria-label="Отдалить">−</button>
               <button class="game-zoom-btn" id="gameZoomReset" type="button" aria-label="Показать всю карту">◇</button>
@@ -3914,24 +4011,18 @@
         <aside class="game-side-panel">
           <div class="game-side-kicker">ТЕКУЩАЯ ЛОКАЦИЯ</div>
           <div class="game-side-title" id="gameRoomTitle">—</div>
-          <div class="game-side-desc" id="gameRoomDescription">Получение данных станции.</div>
-          <div class="game-status-list">
-            <div class="game-status-row"><span>СТАТУС</span><strong id="gamePlayerStatus">НА СВЯЗИ</strong></div>
-            <div class="game-status-row"><span>ЭКИПАЖ</span><strong id="gameCrewCount">1</strong></div>
-            <div class="game-status-row"><span>СОСЕДНИЕ</span><strong id="gameNeighborCount">—</strong></div>
+          <div class="game-side-kicker game-nearby-title">БЛИЖАЙШИЙ ЭКИПАЖ:</div>
+          <div class="game-crew-list" id="gameCrewList">
+            <div class="game-crew-empty">НИКОГО РЯДОМ</div>
           </div>
-          <div class="game-transit-controls">
-            <div class="game-transit-controls-head">ЭФФЕКТ ПЕРЕХОДА // НАСТРОЙКА</div>
-            <div class="game-transit-control">
-              <label class="game-transit-control-label" for="gameNoiseStrength"><span>БЕЛЫЙ ШУМ</span><output id="gameNoiseStrengthValue" for="gameNoiseStrength">100</output></label>
-              <input class="game-transit-range" id="gameNoiseStrength" type="range" min="0" max="100" step="1" value="100" aria-label="Сила белого шума">
-            </div>
-            <div class="game-transit-control">
-              <label class="game-transit-control-label" for="gameTransitBrightness"><span>ЯРКОСТЬ</span><output id="gameTransitBrightnessValue" for="gameTransitBrightness">5</output></label>
-              <input class="game-transit-range" id="gameTransitBrightness" type="range" min="0" max="100" step="1" value="5" aria-label="Яркость экрана перехода: 0 — чёрный, 100 — белый">
+          <div class="game-room-actions">
+            <button class="game-room-action" id="gameTasksAction" type="button" disabled><span class="game-room-action-alert" id="gameTasksAlert" hidden>⚠</span>ЗАДАНИЯ</button>
+            <button class="game-room-action" id="gameContextAction" type="button" hidden></button>
+            <div class="game-emergency-confirm" id="gameEmergencyConfirm" hidden>
+              <button class="game-room-action confirm" id="gameEmergencyPress" type="button">НАЖАТЬ</button>
+              <button class="game-room-action cancel" id="gameEmergencyCancel" type="button">ОТМЕНИТЬ</button>
             </div>
           </div>
-          <button class="game-action-disabled" type="button" disabled>ДЕЙСТВИЯ В КОМНАТЕ // СКОРО</button>
         </aside>
 
         <section class="game-log" aria-label="Журнал событий">
@@ -4761,19 +4852,30 @@
   const gameMoveConfirm = document.getElementById('gameMoveConfirm');
   const gameTransit = document.getElementById('gameTransit');
   const gameTransitText = document.getElementById('gameTransitText');
-  const gameNoiseStrength = document.getElementById('gameNoiseStrength');
-  const gameNoiseStrengthValue = document.getElementById('gameNoiseStrengthValue');
-  const gameTransitBrightness = document.getElementById('gameTransitBrightness');
-  const gameTransitBrightnessValue = document.getElementById('gameTransitBrightnessValue');
   const gameLogLines = document.getElementById('gameLogLines');
-  const gameToggleInfo = document.getElementById('gameToggleInfo');
   const gameToggleLog = document.getElementById('gameToggleLog');
+  const gameTaskScore = document.getElementById('gameTaskScore');
+  const gameTaskProgress = document.querySelector('.game-task-progress');
+  const gameTaskProgressFill = document.getElementById('gameTaskProgressFill');
+  const gameClassificationName = document.getElementById('gameClassificationName');
+  const gameClassificationRole = document.getElementById('gameClassificationRole');
+  const gameCoverLabel = document.getElementById('gameCoverLabel');
+  const gamePlayerTasks = document.getElementById('gamePlayerTasks');
+  const gameCrewList = document.getElementById('gameCrewList');
+  const gameTasksAction = document.getElementById('gameTasksAction');
+  const gameTasksAlert = document.getElementById('gameTasksAlert');
+  const gameContextAction = document.getElementById('gameContextAction');
+  const gameEmergencyConfirm = document.getElementById('gameEmergencyConfirm');
+  const gameEmergencyPress = document.getElementById('gameEmergencyPress');
+  const gameEmergencyCancel = document.getElementById('gameEmergencyCancel');
   const gameMenuBtn = document.getElementById('gameMenuBtn');
   const gameSettingsOverlay = document.getElementById('gameSettingsOverlay');
   const gameSettingsClose = document.getElementById('gameSettingsClose');
   const gameEffectsOff = document.getElementById('gameEffectsOff');
   const gameExitBtn = document.getElementById('gameExitBtn');
   const adminSandboxStart = document.getElementById('adminSandboxStart');
+  const adminRoleChoice = document.getElementById('adminRoleChoice');
+  const adminRoleButtons = Array.from(document.querySelectorAll('.admin-role-btn'));
   const adminSandboxStatus = document.getElementById('adminSandboxStatus');
 
   if (IS_DESKTOP) {
@@ -4787,19 +4889,7 @@
   let gameScale = 1, gameMinScale = 1, gameMaxScale = 1, gameTx = 0, gameTy = 0;
   let offlineGameSession = null;
   let gameStationBlueprintUrl = null;
-  const gamePanelState = {info:true,log:true};
-
-  function applyGameTransitTuning(){
-    const noise = Math.max(0,Math.min(100,Number(gameNoiseStrength.value) || 0));
-    const brightness = Math.max(0,Math.min(100,Number(gameTransitBrightness.value) || 0));
-    gameNoiseStrengthValue.textContent = String(noise);
-    gameTransitBrightnessValue.textContent = String(brightness);
-    gameTransit.style.setProperty('--transit-noise-opacity',(noise / 100).toFixed(2));
-    gameTransit.style.setProperty('--transit-tone',String(Math.round(brightness * 2.55)));
-  }
-  gameNoiseStrength.addEventListener('input',applyGameTransitTuning);
-  gameTransitBrightness.addEventListener('input',applyGameTransitTuning);
-  applyGameTransitTuning();
+  const gamePanelState = {log:true};
 
   let gameEffectsDisabled = false;
   try {
@@ -4821,24 +4911,18 @@
 
   try {
     const savedGamePanels = JSON.parse(localStorage.getItem('isolation_game_panels_v1') || '{}');
-    if (typeof savedGamePanels.info === 'boolean') gamePanelState.info = savedGamePanels.info;
     if (typeof savedGamePanels.log === 'boolean') gamePanelState.log = savedGamePanels.log;
   } catch (error) {}
 
   function applyGamePanelState(refocus){
-    gameScreen.classList.toggle('hide-info',!gamePanelState.info);
     gameScreen.classList.toggle('hide-log',!gamePanelState.log);
-    gameToggleInfo.classList.toggle('active',gamePanelState.info);
     gameToggleLog.classList.toggle('active',gamePanelState.log);
-    gameToggleInfo.setAttribute('aria-pressed',String(gamePanelState.info));
     gameToggleLog.setAttribute('aria-pressed',String(gamePanelState.log));
-    gameToggleInfo.title = (gamePanelState.info ? 'Скрыть' : 'Показать') + ' информацию';
     gameToggleLog.title = (gamePanelState.log ? 'Скрыть' : 'Показать') + ' журнал';
     try { localStorage.setItem('isolation_game_panels_v1',JSON.stringify(gamePanelState)); } catch (error) {}
     if (refocus && gameStateData) requestAnimationFrame(function(){ focusGameRoom(gameStateData.player.room_id); });
   }
 
-  gameToggleInfo.addEventListener('click',function(){ gamePanelState.info = !gamePanelState.info; applyGamePanelState(true); });
   gameToggleLog.addEventListener('click',function(){ gamePanelState.log = !gamePanelState.log; applyGamePanelState(true); });
   applyGamePanelState(false);
 
@@ -4874,11 +4958,30 @@
       ['security_hub','security_control'],['security_hub','armory'],['security_hub','medbay']
     ];
     const roomMap = {};
-    defs.forEach(function(d){ roomMap[d[0]] = {id:d[0],name:d[1],emoji:d[2],description:d[3],exits:[]}; });
+    defs.forEach(function(d){ roomMap[d[0]] = {id:d[0],name:d[1],emoji:d[2],description:d[3],image:d[0] + '.jpg',exits:[]}; });
     edges.forEach(function(e){ roomMap[e[0]].exits.push(e[1]); roomMap[e[1]].exits.push(e[0]); });
+    const botNames = ['Эмили','Джеймс','Софи','Ханс','Марко','Лусия','Андрей','Оксана','Эрик','Юки','Прия'];
+    const botColors = [
+      ['Синий','🟦'],['Зелёный','🟩'],['Жёлтый','🟨'],['Оранжевый','🟧'],['Фиолетовый','🟪'],
+      ['Коричневый','🟫'],['Чёрный','⬛'],['Белый','⬜'],['Голубой','🔵'],['Розовый','🔴'],['Серый','🔘']
+    ];
+    const staticCrew = botNames.map(function(name,index){
+      return {id:-(index + 1),name:name,color:botColors[index][0],color_emoji:botColors[index][1],is_bot:true,room_id:'central_hub'};
+    });
     offlineGameSession = {
       status:'active', game_id:'demo-admin', station:'АСТРАЛ-1', session_type:'admin_sandbox',
-      player:{id:0,name:(currentProfile && currentProfile.name) || 'ОПЕРАТОР',color:'cyan',color_emoji:'🔵',role:'staff',room_id:'central_hub',view_state:'main',pending_target:null,alive:true},
+      player:{
+        id:0,name:(currentProfile && currentProfile.name) || 'ОПЕРАТОР',color:'Красный',color_emoji:'🟥',role:'staff',room_id:'central_hub',view_state:'main',pending_target:null,alive:true,
+        tasks:[
+          {id:'t_reactor_check',name:'Проверить показания реактора',description:'Считать текущие показатели реактора и внести их в журнал.',location_id:'central_hub',location:'Центральный узел',stage_current:1,stage_total:1,complex:false},
+          {id:'t_docking_inspection',name:'Проверить стыковочные системы',description:'Осмотреть шлюз, сверить показания и завершить проверку в техотсеке.',location_id:'main_airlock',location:'Главный шлюз',stage_current:1,stage_total:3,complex:true}
+        ]
+      },
+      static_crew:staticCrew,
+      nearby_crew:staticCrew.slice(),
+      task_progress:{current:0,target:1000},
+      room_ui:{tasks_available:true,tasks_blocked:false,action:'emergency'},
+      sabotage:{active_id:null,undock_sector:null,undock_sector_name:null},
       neighbors:roomMap.central_hub.exits.slice(), rooms:Object.values(roomMap)
     };
     return offlineGameSession;
@@ -4888,6 +4991,13 @@
     const initData = tg && tg.initData ? tg.initData : '';
     if (!initData) {
       const demo = offlineGameState();
+      if (path === '/api/game/admin-solo/start') {
+        demo.player.role = payload && payload.role === 'liquidator' ? 'liquidator' : 'staff';
+        demo.player.room_id = 'central_hub';
+        demo.neighbors = demo.rooms.find(function(r){ return r.id === 'central_hub'; }).exits.slice();
+        demo.nearby_crew = demo.static_crew.slice();
+        demo.room_ui = {tasks_available:true,tasks_blocked:false,action:'emergency'};
+      }
       if (path === '/api/game/move') {
         const target = payload && payload.target_room;
         if (!demo.neighbors.includes(target)) return {ok:false,status:409,data:{error:'room_not_neighbor'}};
@@ -4899,6 +5009,12 @@
         demo.player.view_state = 'main';
         demo.player.pending_target = null;
         demo.neighbors = demo.rooms.find(function(r){ return r.id === target; }).exits.slice();
+        demo.nearby_crew = demo.static_crew.filter(function(bot){ return bot.room_id === target; });
+        demo.room_ui = {
+          tasks_available:demo.player.tasks.some(function(task){ return task.location_id === target; }),
+          tasks_blocked:false,
+          action:target === 'central_hub' ? 'emergency' : (target === 'security_control' ? 'cameras' : null)
+        };
         demo.movement = {from:from,to:target,duration_seconds:1};
       }
       return {ok:true,status:200,data:demo};
@@ -4924,17 +5040,79 @@
     return gameStateData && gameStateData.rooms.find(function(room){ return room.id === roomId; });
   }
 
-  function addGameLog(message){
+  function gameRoomImageUrl(room){
+    if (!room || !room.image) return '';
+    return apiUrl('/api/game/room-image/' + encodeURIComponent(room.image));
+  }
+
+  function addGameLog(message,options){
     const row = document.createElement('div');
     row.className = 'game-log-line';
     const now = new Date();
     const timeEl = document.createElement('time');
     timeEl.textContent = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-    const textEl = document.createElement('strong');
-    textEl.textContent = message;
+    const textEl = document.createElement('div');
+    textEl.className = 'game-log-message';
+    if (Array.isArray(message)) {
+      message.forEach(function(part){
+        const el = document.createElement(part.bold ? 'strong' : 'span');
+        el.textContent = part.text;
+        textEl.appendChild(el);
+      });
+    } else {
+      textEl.textContent = message;
+    }
     row.append(timeEl,textEl);
+    if (options && options.sabotage) {
+      row.classList.add('sabotage');
+      const alertEl = document.createElement('span');
+      alertEl.className = 'game-log-alert';
+      alertEl.textContent = '!!';
+      row.appendChild(alertEl);
+    }
     gameLogLines.appendChild(row);
     gameLogLines.scrollTop = gameLogLines.scrollHeight;
+  }
+
+  function gameCrewLogParts(player,verb,roomName,duration){
+    const color = (player.color_emoji ? player.color_emoji + ' ' : '') + (player.color || '');
+    const tail = duration ? ' за ' + duration + ' сек.' : '.';
+    return [
+      {text:color + ' '},
+      {text:player.name,bold:true},
+      {text:' ' + verb + ' '},
+      {text:roomName,bold:true},
+      {text:tail}
+    ];
+  }
+
+  function addGameSabotageLog(sabotage){
+    if (!sabotage || !sabotage.active_id) return;
+    let message = '';
+    if (sabotage.active_id === 'costumes') message = 'Внимание! Отказ идентификации скафандров!';
+    if (sabotage.active_id === 'tasks') message = 'Внимание! Отказ системы нарядов!';
+    if (sabotage.active_id === 'undock') message = 'Внимание! Аварийная расстыковка: «' + (sabotage.undock_sector_name || 'неизвестный отсек') + '».';
+    if (message) addGameLog(message,{sabotage:true});
+  }
+
+  function addGameJournalEvents(events){
+    (events || []).forEach(function(event){
+      if (event.type === 'sabotage') {
+        addGameSabotageLog(event);
+        return;
+      }
+      if (event.type !== 'arrival' && event.type !== 'departure') return;
+      const player = event.player || {};
+      const color = (player.color_emoji ? player.color_emoji + ' ' : '') + (player.color || '');
+      const verb = event.type === 'arrival' ? ' прибыл из: ' : ' отходит в: ';
+      addGameLog([
+        {text:color + ' '},
+        {text:player.name || 'НЕИЗВЕСТНЫЙ',bold:true},
+        {text:verb},
+        {text:event.room_name || 'неизвестная локация',bold:true},
+        {text:'.'}
+      ]);
+    });
   }
 
   function svgEl(name,attributes){
@@ -4964,8 +5142,10 @@
     if (!gameStateData || !gameStateData.neighbors.includes(roomId)) return;
     selectedGameRoomId = roomId;
     const room = gameRoom(roomId);
-    gameMoveTitle.textContent = 'ПЕРЕХОД // ' + room.name.toUpperCase();
+    gameMoveTitle.textContent = room.name.toUpperCase();
     gameMoveCopy.textContent = room.description;
+    const imageUrl = gameRoomImageUrl(room);
+    gameMoveCard.style.setProperty('--game-room-image',imageUrl ? 'url("' + imageUrl + '")' : 'none');
     gameMoveCard.hidden = false;
     const viewportRect = gameMapViewport.getBoundingClientRect();
     const halfCardWidth = gameMoveCard.offsetWidth / 2;
@@ -4975,6 +5155,82 @@
     gameMoveCard.style.left = x + 'px';
     gameMoveCard.style.top = y + 'px';
     renderGameMap();
+  }
+
+  function renderGamePlayerTasks(){
+    const player = gameStateData.player;
+    const isLiquidator = player.role === 'liquidator';
+    gameClassificationName.textContent = player.name || 'ОПЕРАТОР';
+    gameClassificationRole.textContent = isLiquidator ? 'ЛИКВИДАТОР' : 'ПЕРСОНАЛ';
+    gameClassificationRole.classList.toggle('liquidator',isLiquidator);
+    gameCoverLabel.hidden = !isLiquidator;
+    gamePlayerTasks.replaceChildren();
+    (player.tasks || []).forEach(function(task){
+      const item = document.createElement('div');
+      item.className = 'game-player-task';
+      const title = document.createElement('div');
+      title.className = 'game-player-task-title';
+      title.textContent = task.name + ' (' + task.location + ')';
+      if (task.complex) {
+        const stage = document.createElement('span');
+        stage.className = 'game-player-task-stage';
+        stage.textContent = ' ' + task.stage_current + '/' + task.stage_total;
+        title.appendChild(stage);
+      }
+      const description = document.createElement('div');
+      description.className = 'game-player-task-desc';
+      description.textContent = task.description;
+      item.append(title,description);
+      gamePlayerTasks.appendChild(item);
+    });
+  }
+
+  function renderGameProgress(){
+    const progress = gameStateData.task_progress || {current:0,target:1000};
+    const current = Math.max(0,Number(progress.current) || 0);
+    const target = Math.max(1,Number(progress.target) || 1);
+    gameTaskScore.textContent = current + '/' + target;
+    gameTaskProgressFill.style.width = Math.min(100,current / target * 100) + '%';
+    gameTaskProgress.setAttribute('aria-valuemax',String(target));
+    gameTaskProgress.setAttribute('aria-valuenow',String(current));
+  }
+
+  function renderNearbyCrew(){
+    gameCrewList.replaceChildren();
+    const crew = gameStateData.nearby_crew || [];
+    if (!crew.length) {
+      const empty = document.createElement('div');
+      empty.className = 'game-crew-empty';
+      empty.textContent = 'НИКОГО РЯДОМ';
+      gameCrewList.appendChild(empty);
+      return;
+    }
+    crew.slice(0,12).forEach(function(member){
+      const item = document.createElement('div');
+      item.className = 'game-crew-member';
+      item.title = member.color + ' ' + member.name;
+      item.append(document.createTextNode((member.color_emoji || '') + ' ' + member.color + ' '));
+      const name = document.createElement('strong');
+      name.textContent = member.name;
+      item.appendChild(name);
+      gameCrewList.appendChild(item);
+    });
+  }
+
+  function renderRoomActions(){
+    const roomUi = gameStateData.room_ui || {};
+    gameTasksAction.disabled = !roomUi.tasks_available;
+    gameTasksAlert.hidden = !roomUi.tasks_blocked;
+    gameEmergencyConfirm.hidden = true;
+    gameContextAction.hidden = !roomUi.action;
+    const labels = {
+      emergency:'ТРЕВОЖНАЯ КНОПКА',
+      repair_tasks:'УСТРАНИТЬ НЕПОЛАДКУ',
+      accelerate_docking:'УСКОРИТЬ ПРИСТЫКОВКУ',
+      cameras:'КАМЕРА ВИДЕОНАБЛЮДЕНИЯ'
+    };
+    gameContextAction.textContent = labels[roomUi.action] || '';
+    gameContextAction.dataset.action = roomUi.action || '';
   }
 
   function renderGameMap(){
@@ -5051,12 +5307,11 @@
     }
 
     const currentRoom = gameRoom(currentId);
-    document.getElementById('gameMapLocation').textContent = currentRoom ? currentRoom.name.toUpperCase() : currentId;
     document.getElementById('gameRoomTitle').textContent = currentRoom ? currentRoom.emoji + ' ' + currentRoom.name.toUpperCase() : '—';
-    document.getElementById('gameRoomDescription').textContent = currentRoom ? currentRoom.description : '';
-    document.getElementById('gamePlayerStatus').textContent = gameStateData.player.view_state === 'transit' ? 'В ПУТИ' : 'НА СВЯЗИ';
-    document.getElementById('gameCrewCount').textContent = gameStateData.session_type === 'admin_sandbox' ? '1 // ТОЛЬКО ВЫ' : 'АКТИВЕН';
-    document.getElementById('gameNeighborCount').textContent = String(neighbors.size);
+    renderGamePlayerTasks();
+    renderGameProgress();
+    renderNearbyCrew();
+    renderRoomActions();
   }
 
   function applyGameTransform(){
@@ -5113,10 +5368,11 @@
     renderGameMap();
     if (!gameMapReady) {
       gameMapReady = true;
-      gameLogLines.replaceChildren();
-      addGameLog('Пустая смена открыта. На станции кроме вас никого нет.');
-      addGameLog('Навигация доступна: ярко пульсируют только соседние помещения.');
     }
+    gameLogLines.replaceChildren();
+    addGameLog('Начало смены.');
+    addGameSabotageLog(gameStateData.sabotage);
+    addGameJournalEvents(gameStateData.events);
     requestAnimationFrame(function(){ focusGameRoom(gameStateData.player.room_id); });
   }
 
@@ -5131,23 +5387,32 @@
     return 'НЕТ СВЯЗИ С ДИСПЕТЧЕРСКОЙ. ПОПРОБУЙТЕ ЕЩЁ РАЗ.';
   }
 
-  async function startAdminSandbox(){
+  async function startAdminSandbox(role){
     if (!currentProfile || !currentProfile.is_admin) return;
     adminSandboxStart.disabled = true;
+    adminRoleButtons.forEach(function(button){ button.disabled = true; });
     adminSandboxStatus.classList.remove('error');
-    adminSandboxStatus.textContent = 'ПОДГОТОВКА ПУСТОЙ СМЕНЫ...';
-    const result = await gameApiRequest('/api/game/admin-solo/start','POST',{});
+    adminSandboxStatus.textContent = 'ПОДГОТОВКА ТЕСТОВОЙ СМЕНЫ...';
+    const result = await gameApiRequest('/api/game/admin-solo/start','POST',{role:role});
     adminSandboxStart.disabled = false;
+    adminRoleButtons.forEach(function(button){ button.disabled = false; });
     if (!result.ok) {
       adminSandboxStatus.classList.add('error');
       adminSandboxStatus.textContent = gameErrorText(result);
       return;
     }
     adminSandboxStatus.textContent = '';
+    adminRoleChoice.hidden = true;
     showGame(result.data);
   }
 
-  adminSandboxStart.addEventListener('click',startAdminSandbox);
+  adminSandboxStart.addEventListener('click',function(){
+    adminRoleChoice.hidden = !adminRoleChoice.hidden;
+    adminSandboxStatus.textContent = '';
+  });
+  adminRoleButtons.forEach(function(button){
+    button.addEventListener('click',function(){ startAdminSandbox(button.dataset.role); });
+  });
 
   function openGameSettings(){
     gameSettingsOverlay.hidden = false;
@@ -5177,6 +5442,25 @@
     if (event.key === 'Escape' && !gameSettingsOverlay.hidden) closeGameSettings();
   });
 
+  gameContextAction.addEventListener('click',function(){
+    if (gameContextAction.dataset.action !== 'emergency') return;
+    gameContextAction.hidden = true;
+    gameEmergencyConfirm.hidden = false;
+  });
+  gameEmergencyCancel.addEventListener('click',function(){
+    gameEmergencyConfirm.hidden = true;
+    gameContextAction.hidden = false;
+  });
+  gameEmergencyPress.addEventListener('click',function(){
+    // Механика заседания будет подключена отдельным API; подтверждение
+    // намеренно остаётся на экране, чтобы случайный клик не скрыл выбор.
+  });
+  gameTasksAction.addEventListener('click',function(){
+    if (gameTasksAction.disabled) return;
+    gamePlayerTasks.classList.remove('attention');
+    requestAnimationFrame(function(){ gamePlayerTasks.classList.add('attention'); });
+  });
+
   gameMoveConfirm.addEventListener('click',async function(){
     const targetId = selectedGameRoomId;
     const targetRoom = gameRoom(targetId);
@@ -5185,7 +5469,6 @@
     gameMoveCard.hidden = true;
     gameTransitText.textContent = 'ПЕРЕХОД: ' + targetRoom.name.toUpperCase();
     gameTransit.hidden = false;
-    addGameLog('Переход в «' + targetRoom.name + '» начат.');
     const result = await gameApiRequest('/api/game/move','POST',{target_room:targetId});
     gameMoveConfirm.disabled = false;
     gameTransit.hidden = true;
@@ -5200,7 +5483,7 @@
     renderGameMap();
     focusGameRoom(gameStateData.player.room_id);
     const duration = result.data.movement && result.data.movement.duration_seconds;
-    addGameLog('Вы прибыли в «' + gameRoom(gameStateData.player.room_id).name + '»' + (duration ? ' за ' + duration + ' сек.' : '.'));
+    addGameLog(gameCrewLogParts(gameStateData.player,'прибыл в',gameRoom(gameStateData.player.room_id).name,duration));
   });
 
   gameMapViewport.addEventListener('click',function(event){
