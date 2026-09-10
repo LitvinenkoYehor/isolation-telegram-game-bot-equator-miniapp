@@ -2270,9 +2270,15 @@
       radial-gradient(120% 105% at 50% 45%,rgba(0,0,0,.04) 42%,rgba(0,0,0,.72) 100%),
       repeating-linear-gradient(to bottom,rgba(4,6,8,.42) 0,rgba(4,6,8,.42) 1px,rgba(82,87,91,.035) 1px,rgba(82,87,91,.035) 3px);
   }
-  /* При отключении эффектов весь переходный слой исчезает: карта остаётся
-     такой же светлой и чёткой, как до начала перемещения. */
-  .game-transit.effects-off{ display:none; }
+  /* При отключении эффектов карта остаётся светлой и чёткой, но центральное
+     окно «ПЕРЕХОД...» и его полоса загрузки продолжают отображаться. */
+  .game-transit.effects-off{
+    background:transparent;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+  }
+  .game-transit.effects-off::before,
+  .game-transit.effects-off::after{ display:none; }
   @keyframes transitNoise{
     0%{ background-position:0 0; }
     25%{ background-position:37px -19px; }
