@@ -2157,9 +2157,9 @@
   }
   .game-panel-toggles{ display:flex; align-items:center; gap:.55cqw; }
   .game-topbar-action{
-    padding:.75cqw 1.25cqw; border:1px solid var(--scr-line); border-radius:.4cqw;
+    padding:.9cqw 1.5cqw; border:1px solid var(--scr-line); border-radius:.4cqw;
     background:transparent; color:var(--scr-text-dim); cursor:pointer;
-    font:700 1.35cqw/1 'IBM VGA 8x16',monospace; letter-spacing:.08em;
+    font:700 1.5cqw/1 'IBM VGA 8x16',monospace; letter-spacing:.08em;
   }
   .game-topbar-action:hover{ color:var(--scr-cyan); border-color:var(--scr-cyan); }
   .game-topbar-action.active{ color:var(--scr-cyan); border-color:rgba(76,210,244,.58); background:rgba(76,210,244,.08); }
@@ -2243,8 +2243,8 @@
   .game-move-confirm{ width:100%; padding:1cqw; border:1px solid var(--scr-cyan); border-radius:.35cqw; background:rgba(76,210,244,.1); color:var(--scr-cyan); cursor:pointer; font:700 1.4cqw 'IBM VGA 8x16',monospace; }
   .game-move-confirm:disabled{ opacity:.42; cursor:wait; }
   .game-transit{
-    --transit-tone:39;
-    --transit-noise-opacity:.42;
+    --transit-tone:13;
+    --transit-noise-opacity:1;
     position:absolute; inset:0; z-index:11; display:flex; align-items:center; justify-content:center;
     overflow:hidden; pointer-events:none;
     background:rgba(var(--transit-tone),var(--transit-tone),var(--transit-tone),.82);
@@ -2270,6 +2270,8 @@
       radial-gradient(120% 105% at 50% 45%,rgba(0,0,0,.04) 42%,rgba(0,0,0,.72) 100%),
       repeating-linear-gradient(to bottom,rgba(4,6,8,.42) 0,rgba(4,6,8,.42) 1px,rgba(82,87,91,.035) 1px,rgba(82,87,91,.035) 3px);
   }
+  .game-transit.effects-off::before,
+  .game-transit.effects-off::after{ display:none; }
   @keyframes transitNoise{
     0%{ background-position:0 0; }
     25%{ background-position:37px -19px; }
@@ -2332,6 +2334,49 @@
   .game-screen.hide-info .game-side-panel{ display:none; }
   .game-screen.hide-log .game-workspace{ grid-template-rows:minmax(0,1fr); }
   .game-screen.hide-log .game-log{ display:none; }
+  .game-settings-overlay{
+    z-index:40; padding:4cqw;
+    background:rgba(0,7,12,.42);
+    backdrop-filter:blur(2px);
+    -webkit-backdrop-filter:blur(2px);
+  }
+  .game-settings-window{ max-width:min(44cqw,560px); border-radius:.75cqw; }
+  .game-settings-overlay .rename-titlebar{ padding:1.35cqw 1.65cqw; }
+  .game-settings-overlay .rename-titlebar-text{ font-size:1.55cqw; }
+  .game-settings-overlay .rename-close{
+    width:3.25cqw; height:3.25cqw; min-width:30px; min-height:30px;
+    font-size:1.5cqw;
+  }
+  .game-settings-body{ padding:1.8cqw 1.7cqw; }
+  .game-settings-option{
+    display:flex; align-items:center; justify-content:space-between; gap:2cqw;
+    padding:1.25cqw 0; border-bottom:1px solid var(--scr-line);
+  }
+  .game-settings-option-text{
+    color:var(--scr-text); font:600 1.35cqw/1.35 'IBM VGA 8x16',monospace;
+    letter-spacing:.025em;
+  }
+  .game-settings-switch{
+    --game-switch-thumb:clamp(14px,1.9cqw,25px);
+    --game-switch-gap:clamp(3px,.35cqw,5px);
+    width:clamp(38px,5cqw,64px); height:clamp(22px,2.8cqw,36px);
+  }
+  .game-settings-switch .switch-thumb{
+    left:var(--game-switch-gap); width:var(--game-switch-thumb); height:var(--game-switch-thumb);
+  }
+  .game-settings-switch input:checked ~ .switch-track .switch-thumb{
+    left:calc(100% - var(--game-switch-thumb) - var(--game-switch-gap));
+  }
+  .game-settings-overlay .rename-actions{ padding:0 1.7cqw 1.7cqw; }
+  .game-settings-exit{
+    color:#d79a9a;
+    background:linear-gradient(135deg,rgba(128,42,42,.32),rgba(82,24,24,.14));
+    border-color:rgba(190,91,91,.65);
+  }
+  .game-settings-exit:hover{
+    color:#e1aaaa; border-color:rgba(205,108,108,.82);
+    background:linear-gradient(135deg,rgba(142,49,49,.38),rgba(92,28,28,.18));
+  }
   .game-screen.game-desktop .topbar{ padding-bottom:clamp(10px,.75vw,15px); }
   .game-screen.game-desktop .brand{ gap:clamp(9px,.75vw,14px); }
   .game-screen.game-desktop .brand-mark{ width:clamp(36px,2.6vw,50px); height:clamp(36px,2.6vw,50px); }
@@ -2339,7 +2384,7 @@
   .game-screen.game-desktop .brand-text .b2{ font-size:clamp(12px,.9vw,17px); }
   .game-screen.game-desktop .topbar-right{ gap:clamp(8px,.75vw,14px); }
   .game-screen.game-desktop .game-panel-toggles{ gap:clamp(5px,.4vw,8px); }
-  .game-screen.game-desktop .game-topbar-action{ padding:9px 13px; border-radius:5px; font-size:clamp(12px,.72vw,15px); }
+  .game-screen.game-desktop .game-topbar-action{ padding:11px 16px; border-radius:5px; font-size:clamp(14px,.86vw,17px); }
   .game-screen.game-desktop .clock{ min-width:5ch; font-size:clamp(21px,1.45vw,28px); }
   .game-screen.game-desktop .game-workspace{
     grid-template-columns:minmax(0,1fr) clamp(330px,25vw,480px);
@@ -3828,7 +3873,7 @@
             <button class="game-topbar-action active" id="gameToggleInfo" type="button" aria-pressed="true" title="Показать или скрыть информацию">ИНФО</button>
             <button class="game-topbar-action active" id="gameToggleLog" type="button" aria-pressed="true" title="Показать или скрыть журнал">ЖУРНАЛ</button>
           </div>
-          <button class="game-topbar-action" id="gameMenuBtn" type="button">В МЕНЮ</button>
+          <button class="game-topbar-action" id="gameMenuBtn" type="button" aria-haspopup="dialog" aria-controls="gameSettingsOverlay">НАСТРОЙКИ</button>
           <div class="clock" id="clockGame">14:28</div>
         </div>
       </div>
@@ -3868,12 +3913,12 @@
           <div class="game-transit-controls">
             <div class="game-transit-controls-head">ЭФФЕКТ ПЕРЕХОДА // НАСТРОЙКА</div>
             <div class="game-transit-control">
-              <label class="game-transit-control-label" for="gameNoiseStrength"><span>БЕЛЫЙ ШУМ</span><output id="gameNoiseStrengthValue" for="gameNoiseStrength">42</output></label>
-              <input class="game-transit-range" id="gameNoiseStrength" type="range" min="0" max="100" step="1" value="42" aria-label="Сила белого шума">
+              <label class="game-transit-control-label" for="gameNoiseStrength"><span>БЕЛЫЙ ШУМ</span><output id="gameNoiseStrengthValue" for="gameNoiseStrength">100</output></label>
+              <input class="game-transit-range" id="gameNoiseStrength" type="range" min="0" max="100" step="1" value="100" aria-label="Сила белого шума">
             </div>
             <div class="game-transit-control">
-              <label class="game-transit-control-label" for="gameTransitBrightness"><span>ЯРКОСТЬ</span><output id="gameTransitBrightnessValue" for="gameTransitBrightness">15</output></label>
-              <input class="game-transit-range" id="gameTransitBrightness" type="range" min="0" max="100" step="1" value="15" aria-label="Яркость экрана перехода: 0 — чёрный, 100 — белый">
+              <label class="game-transit-control-label" for="gameTransitBrightness"><span>ЯРКОСТЬ</span><output id="gameTransitBrightnessValue" for="gameTransitBrightness">5</output></label>
+              <input class="game-transit-range" id="gameTransitBrightness" type="range" min="0" max="100" step="1" value="5" aria-label="Яркость экрана перехода: 0 — чёрный, 100 — белый">
             </div>
           </div>
           <button class="game-action-disabled" type="button" disabled>ДЕЙСТВИЯ В КОМНАТЕ // СКОРО</button>
@@ -3883,6 +3928,27 @@
           <div class="game-log-head"><span>ЖУРНАЛ СТАНЦИИ</span><span>КАНАЛ // ЛОКАЛЬНЫЙ</span></div>
           <div class="game-log-lines" id="gameLogLines"></div>
         </section>
+      </div>
+
+      <div class="rename-overlay game-settings-overlay" id="gameSettingsOverlay" hidden>
+        <div class="rename-window game-settings-window" role="dialog" aria-modal="true" aria-labelledby="gameSettingsTitle">
+          <div class="rename-titlebar">
+            <span class="rename-titlebar-text" id="gameSettingsTitle">НАСТРОЙКИ</span>
+            <button class="rename-close" id="gameSettingsClose" type="button" aria-label="Закрыть настройки">✕</button>
+          </div>
+          <div class="game-settings-body">
+            <div class="game-settings-option">
+              <span class="game-settings-option-text">ВЫКЛЮЧИТЬ ЭФФЕКТЫ ЭЛТ И БЕЛОГО ШУМА</span>
+              <label class="switch game-settings-switch" aria-label="Выключить эффекты ЭЛТ и белого шума при переходе">
+                <input id="gameEffectsOff" type="checkbox">
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+              </label>
+            </div>
+          </div>
+          <div class="rename-actions">
+            <button class="rename-btn game-settings-exit" id="gameExitBtn" type="button">ВЫХОД</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -4692,6 +4758,11 @@
   const gameLogLines = document.getElementById('gameLogLines');
   const gameToggleInfo = document.getElementById('gameToggleInfo');
   const gameToggleLog = document.getElementById('gameToggleLog');
+  const gameMenuBtn = document.getElementById('gameMenuBtn');
+  const gameSettingsOverlay = document.getElementById('gameSettingsOverlay');
+  const gameSettingsClose = document.getElementById('gameSettingsClose');
+  const gameEffectsOff = document.getElementById('gameEffectsOff');
+  const gameExitBtn = document.getElementById('gameExitBtn');
   const adminSandboxStart = document.getElementById('adminSandboxStart');
   const adminSandboxStatus = document.getElementById('adminSandboxStatus');
 
@@ -4719,6 +4790,24 @@
   gameNoiseStrength.addEventListener('input',applyGameTransitTuning);
   gameTransitBrightness.addEventListener('input',applyGameTransitTuning);
   applyGameTransitTuning();
+
+  let gameEffectsDisabled = false;
+  try {
+    gameEffectsDisabled = localStorage.getItem('isolation_game_effects_off_v1') === '1';
+  } catch (error) {}
+
+  function applyGameEffectsSetting(save){
+    gameEffectsOff.checked = gameEffectsDisabled;
+    gameTransit.classList.toggle('effects-off',gameEffectsDisabled);
+    if (save) {
+      try { localStorage.setItem('isolation_game_effects_off_v1',gameEffectsDisabled ? '1' : '0'); } catch (error) {}
+    }
+  }
+  gameEffectsOff.addEventListener('change',function(){
+    gameEffectsDisabled = gameEffectsOff.checked;
+    applyGameEffectsSetting(true);
+  });
+  applyGameEffectsSetting(false);
 
   try {
     const savedGamePanels = JSON.parse(localStorage.getItem('isolation_game_panels_v1') || '{}');
@@ -5049,13 +5138,33 @@
   }
 
   adminSandboxStart.addEventListener('click',startAdminSandbox);
-  document.getElementById('gameMenuBtn').addEventListener('click',function(){
+
+  function openGameSettings(){
+    gameSettingsOverlay.hidden = false;
+    requestAnimationFrame(function(){ gameSettingsOverlay.classList.add('shown'); });
+  }
+  function closeGameSettings(){
+    gameSettingsOverlay.classList.remove('shown');
+    setTimeout(function(){ gameSettingsOverlay.hidden = true; },250);
+  }
+  function exitGameToMenu(){
+    gameSettingsOverlay.classList.remove('shown');
+    gameSettingsOverlay.hidden = true;
     selectedGameRoomId = null;
     gameMoveCard.hidden = true;
     gameScreen.classList.remove('reveal');
     gameScreen.hidden = true;
     mainMenu.hidden = false;
     mainMenu.classList.add('reveal');
+  }
+  gameMenuBtn.addEventListener('click',openGameSettings);
+  gameSettingsClose.addEventListener('click',closeGameSettings);
+  gameSettingsOverlay.addEventListener('click',function(event){
+    if (event.target === gameSettingsOverlay) closeGameSettings();
+  });
+  gameExitBtn.addEventListener('click',exitGameToMenu);
+  document.addEventListener('keydown',function(event){
+    if (event.key === 'Escape' && !gameSettingsOverlay.hidden) closeGameSettings();
   });
 
   gameMoveConfirm.addEventListener('click',async function(){
