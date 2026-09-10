@@ -2161,7 +2161,7 @@
 
   .game-screen{ background:linear-gradient(180deg,rgba(2,17,31,.98),rgba(1,11,21,.99)); }
   .game-screen .topbar{ display:grid; grid-template-columns:minmax(0,1fr) 27cqw; gap:1cqw; }
-  .game-screen .brand{ min-width:0; }
+  .game-screen .brand{ min-width:0; width:100%; }
   .game-screen .topbar-right{ justify-content:flex-end; }
   .game-screen.game-desktop{
     position:fixed; inset:0; z-index:100; width:100vw; height:100dvh;
@@ -2171,7 +2171,7 @@
     box-shadow:inset 0 0 55px rgba(0,0,0,.64),inset 0 0 0 1px rgba(151,220,242,.16);
   }
   .game-panel-toggles{ display:flex; align-items:center; gap:.55cqw; }
-  .game-task-header{ flex:1 1 auto; min-width:0; }
+  .game-task-header{ flex:1 1 auto; min-width:0; margin-left:1.2cqw; }
   .game-task-header-row{
     display:flex; align-items:center; justify-content:space-between; gap:1cqw;
     margin-bottom:.55cqw; color:var(--scr-cyan);
@@ -2259,17 +2259,36 @@
   .player-marker .marker-arrow{ fill:#fff; }
   .game-map-label{
     position:absolute; left:1.2cqw; top:1.2cqw; z-index:7; pointer-events:none;
-    width:min(42cqw,500px); max-height:calc(100% - 2.4cqw); overflow:hidden;
+    width:min(34cqw,390px); overflow:hidden;
     padding:.8cqw 1.1cqw; border-left:2px solid var(--scr-cyan); background:rgba(1,10,18,.82);
     color:var(--scr-text-dim); font:1.3cqw/1.2 'IBM VGA 8x16',monospace; letter-spacing:.08em;
   }
   .game-classification-line{ color:var(--scr-text-dim); }
   .game-classification-name{ color:var(--scr-text); }
-  .game-classification-role{ display:block; margin:.35cqw 0 .8cqw; color:var(--scr-cyan); font-size:1.65cqw; }
+  .game-classification-role{ display:block; margin:.35cqw 0 0; color:var(--scr-cyan); font-size:1.65cqw; }
   .game-classification-role.liquidator{ color:#d98989; }
-  .game-cover-label{ margin:.5cqw 0 .65cqw; color:var(--scr-amber); font-weight:700; }
-  .game-cover-label[hidden]{ display:none; }
+  .game-tasks-panel{
+    position:absolute; left:1.2cqw; top:7.4cqw; z-index:9; width:min(42cqw,500px);
+    border:1px solid rgba(76,210,244,.38); border-left:2px solid var(--scr-cyan);
+    background:rgba(1,10,18,.88); box-shadow:0 .8cqw 2.2cqw rgba(0,0,0,.34);
+    transition:transform .25s ease;
+  }
+  .game-tasks-panel.collapsed{ transform:translateX(calc(-100% + 4.1cqw)); }
+  .game-tasks-panel.collapsed .game-floating-panel-head > span,
+  .game-tasks-panel.collapsed .game-player-tasks{ visibility:hidden; }
+  .game-floating-panel-head{
+    display:flex; align-items:center; justify-content:space-between; gap:1cqw;
+    min-height:3.7cqw; padding:.45cqw .45cqw .45cqw 1.1cqw;
+    border-bottom:1px solid rgba(76,210,244,.25); color:var(--scr-amber);
+    font:700 1.25cqw/1 'IBM VGA 8x16',monospace; letter-spacing:.09em;
+  }
+  .game-panel-collapse{
+    flex:0 0 auto; width:3.1cqw; height:2.8cqw; border:1px solid var(--scr-line);
+    background:rgba(5,27,42,.96); color:var(--scr-cyan); cursor:pointer;
+    font:700 2cqw/1 'IBM VGA 8x16',monospace;
+  }
   .game-player-tasks{ display:flex; flex-direction:column; gap:.75cqw; }
+  .game-player-tasks{ padding:.65cqw 1.1cqw 1cqw; }
   .game-player-task{ padding-top:.65cqw; border-top:1px solid rgba(105,196,226,.22); letter-spacing:.025em; }
   .game-player-task-title{ color:var(--scr-text); font-weight:700; line-height:1.25; }
   .game-player-task-stage{ color:var(--scr-amber); white-space:nowrap; }
@@ -2279,6 +2298,41 @@
     0%,100%{ filter:none; }
     45%{ filter:drop-shadow(0 0 .7cqw rgba(76,210,244,.68)); }
   }
+  .game-liquidator-panel{
+    position:absolute; right:1.1cqw; top:50%; z-index:9; width:min(26cqw,330px);
+    display:flex; flex-direction:column; gap:.65cqw; padding:1cqw;
+    border:1px solid rgba(183,73,73,.48); border-right:2px solid rgba(215,91,91,.78);
+    background:rgba(25,7,10,.88); box-shadow:0 1cqw 2.6cqw rgba(0,0,0,.42);
+    transform:translateY(-50%); transition:transform .25s ease,background .25s ease,border-color .25s ease;
+  }
+  .game-liquidator-panel[hidden]{ display:none; }
+  .game-liquidator-collapse{
+    position:absolute; left:-3.2cqw; top:50%; width:3.2cqw; height:3.2cqw;
+    border:1px solid rgba(183,73,73,.55); background:rgba(25,7,10,.94); color:#dc9696;
+    cursor:pointer; font:700 2cqw/1 'IBM VGA 8x16',monospace; transform:translateY(-50%);
+  }
+  .game-ability-item{
+    display:grid; grid-template-columns:3.8cqw minmax(0,1fr); align-items:center; gap:.8cqw;
+    min-height:3.8cqw;
+  }
+  .game-ability-item.kill{ margin-bottom:1.15cqw; }
+  .game-ability-icon{
+    display:grid; place-items:center; width:3.8cqw; height:3.8cqw; box-sizing:border-box;
+    border:1px solid rgba(220,109,109,.7); background:rgba(116,30,36,.32); color:#f0b5b5;
+    font:900 1.35cqw/1 'IBM VGA 8x16',monospace; text-shadow:0 0 .45cqw rgba(255,104,104,.5);
+  }
+  .game-ability-item.kill .game-ability-icon{ background:rgba(151,31,38,.42); font-size:2cqw; }
+  .game-ability-copy{ min-width:0; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:.35cqw; }
+  .game-ability-copy strong{ color:#dfaaaa; font:700 1.05cqw/1.15 'IBM VGA 8x16',monospace; letter-spacing:.045em; }
+  .game-ability-timer{ color:var(--scr-text); font:1.15cqw/1 'IBM VGA 8x16',monospace; }
+  .game-liquidator-panel.collapsed{
+    width:9.6cqw; padding:.65cqw; transform:translateY(-50%); background:transparent; border-color:transparent;
+    box-shadow:none;
+  }
+  .game-liquidator-panel.collapsed .game-ability-item{ grid-template-columns:minmax(0,1fr) 3.8cqw; gap:.45cqw; }
+  .game-liquidator-panel.collapsed .game-ability-icon{ grid-column:2; grid-row:1; }
+  .game-liquidator-panel.collapsed .game-ability-copy{ grid-column:1; grid-row:1; align-items:flex-end; }
+  .game-liquidator-panel.collapsed .game-ability-copy strong{ display:none; }
   .game-zoom-controls{ position:absolute; right:1cqw; top:1cqw; z-index:8; display:flex; gap:.45cqw; }
   .game-zoom-btn{ width:4cqw; height:4cqw; min-width:30px; min-height:30px; border:1px solid var(--scr-line); border-radius:.45cqw; background:rgba(2,13,23,.82); color:var(--scr-text); cursor:pointer; font:700 2cqw 'IBM VGA 8x16',monospace; }
   .game-move-card{
@@ -2349,12 +2403,25 @@
   .game-crew-list{
     display:grid; grid-template-rows:repeat(6,auto); grid-auto-flow:column;
     grid-auto-columns:minmax(0,1fr); column-gap:1.1cqw; margin-top:.75cqw;
+    height:clamp(174px,18cqw,224px); min-height:clamp(174px,18cqw,224px);
   }
   .game-crew-member{
-    min-width:0; padding:.48cqw .25cqw; color:var(--scr-text-dim);
+    min-width:0; display:flex; align-items:center; gap:.55cqw; padding:.48cqw .25cqw; color:var(--scr-text-dim);
     font:1.15cqw/1.2 'IBM VGA 8x16',monospace; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .game-crew-member strong{ color:var(--scr-text); }
+  .game-crew-color{
+    position:relative; flex:0 0 auto; display:grid; place-items:center;
+    width:1.8cqw; height:1.8cqw; min-width:20px; min-height:20px; box-sizing:border-box;
+    border:1px solid rgba(255,255,255,.68); background:var(--crew-color,#777);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.35),0 0 .35cqw rgba(0,0,0,.55);
+  }
+  .game-crew-task-mark{
+    color:#fff; font:900 1.2cqw/1 sans-serif;
+    text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000,0 0 3px #000;
+  }
+  .game-log-color{ width:1.15em; height:1.15em; min-width:0; min-height:0; display:inline-grid; vertical-align:-.18em; margin-right:.35em; }
+  .game-screen.hide-color-text .game-color-text{ display:none; }
   .game-crew-empty{ grid-row:1; color:rgba(184,213,224,.5); font:1.15cqw/1.3 'IBM VGA 8x16',monospace; }
   .game-room-actions{ margin-top:1.2cqw; display:flex; flex-direction:column; gap:.75cqw; }
   .game-room-action{
@@ -2412,6 +2479,16 @@
   .game-log-line time{ color:rgba(103,210,239,.5); }
   .game-log-message strong{ color:var(--scr-text); font-weight:700; }
   .game-log-alert{ color:#e66f6f; font-weight:900; letter-spacing:.16em; text-shadow:0 0 7px rgba(230,72,72,.5); }
+  .game-screen.liquidator-view{
+    background:linear-gradient(180deg,rgba(34,7,12,.985),rgba(18,3,7,.995));
+  }
+  .game-screen.liquidator-view .game-map-panel,
+  .game-screen.liquidator-view .game-side-panel,
+  .game-screen.liquidator-view .game-log{ border-color:rgba(187,71,78,.42); }
+  .game-mask-btn{ opacity:.42; }
+  .game-mask-btn:disabled{ opacity:.2; cursor:default; filter:saturate(0); }
+  .game-screen.liquidator-view .game-mask-btn{ opacity:1; color:#dc9696; border-color:rgba(190,91,91,.65); }
+  .game-screen.identity-masked .game-mask-btn{ color:var(--scr-cyan); border-color:var(--scr-cyan); background:rgba(76,210,244,.12); }
   .game-screen.hide-log .game-workspace{ grid-template-rows:minmax(0,1fr); }
   .game-screen.hide-log .game-log{ display:none; }
   .game-settings-overlay{
@@ -2482,11 +2559,26 @@
   .game-screen.game-desktop .game-map-panel,
   .game-screen.game-desktop .game-side-panel,
   .game-screen.game-desktop .game-log{ border-radius:8px; }
-  .game-screen.game-desktop .game-map-label{ left:14px; top:14px; width:min(460px,42vw); padding:11px 14px; font-size:14px; }
+  .game-screen.game-desktop .game-map-label{ left:14px; top:14px; width:min(390px,34vw); padding:11px 14px; font-size:14px; }
   .game-screen.game-desktop .game-classification-role{ margin:5px 0 10px; font-size:18px; }
+  .game-screen.game-desktop .game-tasks-panel{ left:14px; top:88px; width:min(460px,40vw); }
+  .game-screen.game-desktop .game-tasks-panel.collapsed{ transform:translateX(calc(-100% + 44px)); }
+  .game-screen.game-desktop .game-floating-panel-head{ min-height:38px; padding:5px 5px 5px 14px; font-size:15px; }
+  .game-screen.game-desktop .game-panel-collapse{ width:36px; height:32px; font-size:24px; }
   .game-screen.game-desktop .game-player-tasks{ gap:9px; }
   .game-screen.game-desktop .game-player-task{ padding-top:8px; }
   .game-screen.game-desktop .game-player-task-desc{ margin-top:4px; }
+  .game-screen.game-desktop .game-liquidator-panel{ right:12px; width:310px; gap:8px; padding:12px; }
+  .game-screen.game-desktop .game-liquidator-collapse{ left:-38px; width:38px; height:38px; font-size:24px; }
+  .game-screen.game-desktop .game-ability-item{ grid-template-columns:46px minmax(0,1fr); gap:10px; min-height:46px; }
+  .game-screen.game-desktop .game-ability-item.kill{ margin-bottom:16px; }
+  .game-screen.game-desktop .game-ability-icon{ width:46px; height:46px; font-size:16px; }
+  .game-screen.game-desktop .game-ability-item.kill .game-ability-icon{ font-size:25px; }
+  .game-screen.game-desktop .game-ability-copy{ gap:5px; }
+  .game-screen.game-desktop .game-ability-copy strong{ font-size:14px; }
+  .game-screen.game-desktop .game-ability-timer{ font-size:16px; }
+  .game-screen.game-desktop .game-liquidator-panel.collapsed{ width:112px; padding:7px; transform:translateY(-50%); }
+  .game-screen.game-desktop .game-liquidator-panel.collapsed .game-ability-item{ grid-template-columns:minmax(0,1fr) 46px; gap:6px; }
   .game-screen.game-desktop .game-zoom-controls{ right:12px; top:12px; gap:6px; }
   .game-screen.game-desktop .game-zoom-btn{ width:40px; height:40px; border-radius:5px; font-size:22px; }
   .game-screen.game-desktop .game-move-card{ width:min(360px,38vw); padding:16px; border-radius:7px; }
@@ -2497,9 +2589,11 @@
   .game-screen.game-desktop .game-side-panel{ padding:clamp(18px,1.25vw,25px); }
   .game-screen.game-desktop .game-side-kicker{ font-size:clamp(15px,.9vw,18px); }
   .game-screen.game-desktop .game-side-title{ margin:10px 0 12px; font-size:clamp(24px,1.5vw,30px); }
-  .game-screen.game-desktop .game-crew-list{ column-gap:14px; margin-top:10px; }
+  .game-screen.game-desktop .game-crew-list{ height:clamp(174px,21vh,228px); min-height:clamp(174px,21vh,228px); column-gap:14px; margin-top:10px; }
   .game-screen.game-desktop .game-crew-member,
   .game-screen.game-desktop .game-crew-empty{ padding:7px 3px; font-size:clamp(14px,.82vw,17px); }
+  .game-screen.game-desktop .game-crew-color{ width:24px; height:24px; }
+  .game-screen.game-desktop .game-crew-task-mark{ font-size:15px; }
   .game-screen.game-desktop .game-room-actions{ margin-top:16px; gap:9px; }
   .game-screen.game-desktop .game-room-action{ padding:12px; font-size:15px; }
   .game-screen.game-desktop .game-status-list{ margin-top:18px; }
@@ -2944,6 +3038,13 @@
             <span class="settings-label">ВЫКЛЮЧИТЬ ОБОИ</span>
             <label class="switch">
               <input type="checkbox" id="toggleWallpaper">
+              <span class="switch-track"><span class="switch-thumb"></span></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">ПОКАЗЫВАТЬ ЦВЕТ ТЕКСТОМ</span>
+            <label class="switch">
+              <input type="checkbox" id="toggleColorText" checked>
               <span class="switch-track"><span class="switch-thumb"></span></span>
             </label>
           </div>
@@ -3966,6 +4067,7 @@
       <div class="topbar">
         <div class="brand">
           <div class="brand-mark"></div>
+          <div class="brand-text"><div class="b1">АСТРАЛ-1</div><div class="b2">КАРТА СМЕНЫ</div></div>
           <div class="game-task-header">
             <div class="game-task-header-row"><span>ЗАДАНИЯ</span><span class="game-task-score" id="gameTaskScore">0/1000</span></div>
             <div class="game-task-progress" role="progressbar" aria-label="Общая шкала заданий" aria-valuemin="0" aria-valuemax="1000" aria-valuenow="0"><span class="game-task-progress-fill" id="gameTaskProgressFill"></span></div>
@@ -3989,11 +4091,36 @@
             <div class="game-map-label">
               <div class="game-classification-line">КЛАССИФИКАЦИЯ <span class="game-classification-name" id="gameClassificationName">ОПЕРАТОР</span>:</div>
               <strong class="game-classification-role" id="gameClassificationRole">ПЕРСОНАЛ</strong>
-              <div class="game-cover-label" id="gameCoverLabel" hidden>ПОД ПРИКРЫТИЕМ</div>
+            </div>
+            <div class="game-tasks-panel" id="gameTasksPanel">
+              <div class="game-floating-panel-head">
+                <span id="gameTasksPanelTitle">ЗАДАНИЯ</span>
+                <button class="game-panel-collapse" id="gameTasksCollapse" type="button" aria-label="Скрыть задания">‹</button>
+              </div>
               <div class="game-player-tasks" id="gamePlayerTasks"></div>
+            </div>
+            <div class="game-liquidator-panel" id="gameLiquidatorPanel" hidden>
+              <button class="game-liquidator-collapse" id="gameLiquidatorCollapse" type="button" aria-label="Скрыть способности">›</button>
+              <div class="game-ability-item kill" data-ability="kill">
+                <span class="game-ability-icon">†</span>
+                <span class="game-ability-copy"><strong>УБИЙСТВО</strong><span class="game-ability-timer" id="gameKillTimer">ГОТОВО</span></span>
+              </div>
+              <div class="game-ability-item" data-ability="costumes">
+                <span class="game-ability-icon">ID</span>
+                <span class="game-ability-copy"><strong>ВЗЛОМ КОСТЮМОВ</strong><span class="game-ability-timer" data-sabotage-timer="costumes">ГОТОВО</span></span>
+              </div>
+              <div class="game-ability-item" data-ability="tasks">
+                <span class="game-ability-icon">⌁</span>
+                <span class="game-ability-copy"><strong>ВЗЛОМ ЗАДАНИЙ</strong><span class="game-ability-timer" data-sabotage-timer="tasks">ГОТОВО</span></span>
+              </div>
+              <div class="game-ability-item" data-ability="undock">
+                <span class="game-ability-icon">⇹</span>
+                <span class="game-ability-copy"><strong>ОТСТЫКОВКА ОТСЕКА</strong><span class="game-ability-timer" data-sabotage-timer="undock">ГОТОВО</span></span>
+              </div>
             </div>
             <div class="game-zoom-controls" aria-label="Масштаб карты">
               <button class="game-zoom-btn" id="gameZoomOut" type="button" aria-label="Отдалить">−</button>
+              <button class="game-zoom-btn game-mask-btn" id="gameIdentityMask" type="button" aria-label="Скрыть классификацию Ликвидатора" title="Маскировка интерфейса">◐</button>
               <button class="game-zoom-btn" id="gameZoomReset" type="button" aria-label="Показать всю карту">◇</button>
               <button class="game-zoom-btn" id="gameZoomIn" type="button" aria-label="Приблизить">+</button>
             </div>
@@ -4042,6 +4169,13 @@
               <span class="game-settings-option-text">ВЫКЛЮЧИТЬ ЭФФЕКТЫ ЭЛТ И БЕЛОГО ШУМА</span>
               <label class="switch game-settings-switch" aria-label="Выключить эффекты ЭЛТ и белого шума при переходе">
                 <input id="gameEffectsOff" type="checkbox">
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+              </label>
+            </div>
+            <div class="game-settings-option">
+              <span class="game-settings-option-text">ПОКАЗЫВАТЬ ЦВЕТ ТЕКСТОМ</span>
+              <label class="switch game-settings-switch" aria-label="Показывать название цвета текстом">
+                <input id="gameToggleColorText" type="checkbox" checked>
                 <span class="switch-track"><span class="switch-thumb"></span></span>
               </label>
             </div>
@@ -4859,8 +4993,15 @@
   const gameTaskProgressFill = document.getElementById('gameTaskProgressFill');
   const gameClassificationName = document.getElementById('gameClassificationName');
   const gameClassificationRole = document.getElementById('gameClassificationRole');
-  const gameCoverLabel = document.getElementById('gameCoverLabel');
+  const gameTasksPanel = document.getElementById('gameTasksPanel');
+  const gameTasksPanelTitle = document.getElementById('gameTasksPanelTitle');
+  const gameTasksCollapse = document.getElementById('gameTasksCollapse');
   const gamePlayerTasks = document.getElementById('gamePlayerTasks');
+  const gameLiquidatorPanel = document.getElementById('gameLiquidatorPanel');
+  const gameLiquidatorCollapse = document.getElementById('gameLiquidatorCollapse');
+  const gameKillTimer = document.getElementById('gameKillTimer');
+  const gameIdentityMask = document.getElementById('gameIdentityMask');
+  const gameToggleColorText = document.getElementById('gameToggleColorText');
   const gameCrewList = document.getElementById('gameCrewList');
   const gameTasksAction = document.getElementById('gameTasksAction');
   const gameTasksAlert = document.getElementById('gameTasksAlert');
@@ -4890,6 +5031,17 @@
   let offlineGameSession = null;
   let gameStationBlueprintUrl = null;
   const gamePanelState = {log:true};
+  let gameTasksCollapsed = false;
+  let gameLiquidatorCollapsed = false;
+  let gameIdentityMasked = false;
+
+  const GAME_COLOR_HEX = {
+    'Красный':'#bd3e48','Синий':'#326fc2','Зелёный':'#3d9b5f','Жёлтый':'#d4b43a',
+    'Оранжевый':'#d87832','Фиолетовый':'#8654b4','Коричневый':'#76503b','Чёрный':'#151a20',
+    'Белый':'#e8edf0','Голубой':'#42afd0','Розовый':'#d56e9c','Серый':'#707b83'
+  };
+
+  function gameColorHex(color){ return GAME_COLOR_HEX[color] || '#667780'; }
 
   let gameEffectsDisabled = false;
   try {
@@ -4966,7 +5118,7 @@
       ['Коричневый','🟫'],['Чёрный','⬛'],['Белый','⬜'],['Голубой','🔵'],['Розовый','🔴'],['Серый','🔘']
     ];
     const staticCrew = botNames.map(function(name,index){
-      return {id:-(index + 1),name:name,color:botColors[index][0],color_emoji:botColors[index][1],is_bot:true,room_id:'central_hub'};
+      return {id:-(index + 1),name:name,color:botColors[index][0],color_emoji:botColors[index][1],is_bot:true,room_id:'central_hub',doing_task:index === 0};
     });
     offlineGameSession = {
       status:'active', game_id:'demo-admin', station:'АСТРАЛ-1', session_type:'admin_sandbox',
@@ -4981,7 +5133,15 @@
       nearby_crew:staticCrew.slice(),
       task_progress:{current:0,target:1000},
       room_ui:{tasks_available:true,tasks_blocked:false,action:'emergency'},
-      sabotage:{active_id:null,undock_sector:null,undock_sector_name:null},
+      sabotage:{
+        active_id:null,undock_sector:null,undock_sector_name:null,
+        items:[
+          {id:'costumes',active:false,cooldown_seconds:30},
+          {id:'tasks',active:false,cooldown_seconds:46},
+          {id:'undock',active:false,cooldown_seconds:64}
+        ]
+      },
+      liquidator_ui:{kill_cooldown_seconds:22},
       neighbors:roomMap.central_hub.exits.slice(), rooms:Object.values(roomMap)
     };
     return offlineGameSession;
@@ -5056,7 +5216,14 @@
     if (Array.isArray(message)) {
       message.forEach(function(part){
         const el = document.createElement(part.bold ? 'strong' : 'span');
-        el.textContent = part.text;
+        if (part.colorSquare) {
+          el.className = 'game-crew-color game-log-color';
+          el.style.setProperty('--crew-color',gameColorHex(part.colorSquare));
+          el.setAttribute('aria-label',part.colorSquare);
+        } else {
+          el.textContent = part.text;
+          if (part.className) el.className = part.className;
+        }
         textEl.appendChild(el);
       });
     } else {
@@ -5075,10 +5242,10 @@
   }
 
   function gameCrewLogParts(player,verb,roomName,duration){
-    const color = (player.color_emoji ? player.color_emoji + ' ' : '') + (player.color || '');
     const tail = duration ? ' за ' + duration + ' сек.' : '.';
     return [
-      {text:color + ' '},
+      {colorSquare:player.color || ''},
+      {text:(player.color || '') + ' ',className:'game-color-text'},
       {text:player.name,bold:true},
       {text:' ' + verb + ' '},
       {text:roomName,bold:true},
@@ -5103,10 +5270,10 @@
       }
       if (event.type !== 'arrival' && event.type !== 'departure') return;
       const player = event.player || {};
-      const color = (player.color_emoji ? player.color_emoji + ' ' : '') + (player.color || '');
       const verb = event.type === 'arrival' ? ' прибыл из: ' : ' отходит в: ';
       addGameLog([
-        {text:color + ' '},
+        {colorSquare:player.color || ''},
+        {text:(player.color || '') + ' ',className:'game-color-text'},
         {text:player.name || 'НЕИЗВЕСТНЫЙ',bold:true},
         {text:verb},
         {text:event.room_name || 'неизвестная локация',bold:true},
@@ -5160,10 +5327,17 @@
   function renderGamePlayerTasks(){
     const player = gameStateData.player;
     const isLiquidator = player.role === 'liquidator';
+    const showLiquidator = isLiquidator && !gameIdentityMasked;
     gameClassificationName.textContent = player.name || 'ОПЕРАТОР';
-    gameClassificationRole.textContent = isLiquidator ? 'ЛИКВИДАТОР' : 'ПЕРСОНАЛ';
-    gameClassificationRole.classList.toggle('liquidator',isLiquidator);
-    gameCoverLabel.hidden = !isLiquidator;
+    gameClassificationRole.textContent = showLiquidator ? 'ЛИКВИДАТОР' : 'ПЕРСОНАЛ';
+    gameClassificationRole.classList.toggle('liquidator',showLiquidator);
+    gameTasksPanelTitle.textContent = showLiquidator ? 'ПОД ПРИКРЫТИЕМ' : 'ЗАДАНИЯ';
+    gameScreen.classList.toggle('liquidator-view',showLiquidator);
+    gameScreen.classList.toggle('identity-masked',isLiquidator && gameIdentityMasked);
+    gameLiquidatorPanel.hidden = !showLiquidator;
+    gameIdentityMask.disabled = !isLiquidator;
+    gameIdentityMask.setAttribute('aria-pressed',String(isLiquidator && gameIdentityMasked));
+    gameIdentityMask.title = !isLiquidator ? 'Доступно только Ликвидатору' : (gameIdentityMasked ? 'Показать интерфейс Ликвидатора' : 'Замаскировать интерфейс под Персонал');
     gamePlayerTasks.replaceChildren();
     (player.tasks || []).forEach(function(task){
       const item = document.createElement('div');
@@ -5209,11 +5383,47 @@
       const item = document.createElement('div');
       item.className = 'game-crew-member';
       item.title = member.color + ' ' + member.name;
-      item.append(document.createTextNode((member.color_emoji || '') + ' ' + member.color + ' '));
+      const color = document.createElement('span');
+      color.className = 'game-crew-color';
+      color.style.setProperty('--crew-color',gameColorHex(member.color));
+      color.setAttribute('aria-label',member.color || 'Цвет скафандра');
+      if (member.doing_task) {
+        const taskMark = document.createElement('span');
+        taskMark.className = 'game-crew-task-mark';
+        taskMark.textContent = '✓';
+        taskMark.title = 'Выполняет задание';
+        color.appendChild(taskMark);
+      }
+      const colorText = document.createElement('span');
+      colorText.className = 'game-color-text';
+      colorText.textContent = member.color || '';
       const name = document.createElement('strong');
       name.textContent = member.name;
-      item.appendChild(name);
+      item.append(color,colorText,name);
       gameCrewList.appendChild(item);
+    });
+  }
+
+  function abilityTimerText(seconds,active){
+    if (active) return seconds > 0 ? 'АКТИВНО // ' + seconds + ' СЕК.' : 'АКТИВНО';
+    return seconds > 0 ? seconds + ' СЕК.' : 'ГОТОВО';
+  }
+
+  function setAbilityTimer(element,seconds,active){
+    const remaining = Math.max(0,Math.ceil(Number(seconds) || 0));
+    element.dataset.remaining = String(remaining);
+    element.dataset.active = active ? '1' : '0';
+    element.textContent = abilityTimerText(remaining,active);
+  }
+
+  function renderLiquidatorAbilities(){
+    const liquidatorUi = gameStateData.liquidator_ui || {};
+    setAbilityTimer(gameKillTimer,liquidatorUi.kill_cooldown_seconds,false);
+    const sabotageById = {};
+    ((gameStateData.sabotage && gameStateData.sabotage.items) || []).forEach(function(item){ sabotageById[item.id] = item; });
+    document.querySelectorAll('[data-sabotage-timer]').forEach(function(timer){
+      const item = sabotageById[timer.dataset.sabotageTimer] || {};
+      setAbilityTimer(timer,item.cooldown_seconds,item.active === true);
     });
   }
 
@@ -5312,6 +5522,7 @@
     renderGameProgress();
     renderNearbyCrew();
     renderRoomActions();
+    renderLiquidatorAbilities();
   }
 
   function applyGameTransform(){
@@ -5356,6 +5567,13 @@
 
   function showGame(data){
     gameStateData = data;
+    gameIdentityMasked = false;
+    gameTasksCollapsed = false;
+    gameLiquidatorCollapsed = false;
+    gameTasksPanel.classList.remove('collapsed');
+    gameTasksCollapse.textContent = '‹';
+    gameLiquidatorPanel.classList.remove('collapsed');
+    gameLiquidatorCollapse.textContent = '›';
     selectedGameRoomId = null;
     gameMoveCard.hidden = true;
     settingsScreen.classList.remove('reveal');
@@ -5460,6 +5678,42 @@
     gamePlayerTasks.classList.remove('attention');
     requestAnimationFrame(function(){ gamePlayerTasks.classList.add('attention'); });
   });
+
+  gameTasksCollapse.addEventListener('click',function(){
+    gameTasksCollapsed = !gameTasksCollapsed;
+    gameTasksPanel.classList.toggle('collapsed',gameTasksCollapsed);
+    gameTasksCollapse.textContent = gameTasksCollapsed ? '›' : '‹';
+    gameTasksCollapse.setAttribute('aria-label',gameTasksCollapsed ? 'Показать задания' : 'Скрыть задания');
+    gameTasksCollapse.title = gameTasksCollapsed ? 'Показать задания' : 'Скрыть задания';
+    // Кнопка уезжает вместе с панелью; не даём браузеру прокрутить
+    // overflow-контейнер вслед за сфокусированным элементом.
+    gameMapViewport.scrollLeft = 0;
+    gameMapViewport.scrollTop = 0;
+  });
+
+  gameLiquidatorCollapse.addEventListener('click',function(){
+    gameLiquidatorCollapsed = !gameLiquidatorCollapsed;
+    gameLiquidatorPanel.classList.toggle('collapsed',gameLiquidatorCollapsed);
+    gameLiquidatorCollapse.textContent = gameLiquidatorCollapsed ? '‹' : '›';
+    gameLiquidatorCollapse.setAttribute('aria-label',gameLiquidatorCollapsed ? 'Показать способности' : 'Скрыть способности');
+    gameLiquidatorCollapse.title = gameLiquidatorCollapsed ? 'Показать способности' : 'Скрыть способности';
+  });
+
+  gameIdentityMask.addEventListener('click',function(){
+    if (!gameStateData || gameStateData.player.role !== 'liquidator') return;
+    gameIdentityMasked = !gameIdentityMasked;
+    renderGamePlayerTasks();
+  });
+
+  setInterval(function(){
+    if (!gameStateData || gameScreen.hidden) return;
+    gameLiquidatorPanel.querySelectorAll('.game-ability-timer').forEach(function(timer){
+      const remaining = Math.max(0,(Number(timer.dataset.remaining) || 0) - 1);
+      const active = timer.dataset.active === '1';
+      timer.dataset.remaining = String(remaining);
+      timer.textContent = abilityTimerText(remaining,active);
+    });
+  },1000);
 
   gameMoveConfirm.addEventListener('click',async function(){
     const targetId = selectedGameRoomId;
@@ -7508,7 +7762,7 @@
   //  in localStorage so the choice survives a reload.
   // =========================================================
   const SETTINGS_KEY = 'eq_station_settings';
-  let appSettings = { crtOff: false, glitchesOff: false, skipIntro: false, wallpaperOff: false };
+  let appSettings = { crtOff: false, glitchesOff: false, skipIntro: false, wallpaperOff: false, showColorText: true };
   try {
     const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
     appSettings = Object.assign(appSettings, saved);
@@ -7523,6 +7777,7 @@
   const toggleGlitch = document.getElementById('toggleGlitch');
   const toggleIntro = document.getElementById('toggleIntro');
   const toggleWallpaper = document.getElementById('toggleWallpaper');
+  const toggleColorText = document.getElementById('toggleColorText');
   const rowGlitch   = document.getElementById('rowGlitch');
   const stageEl     = document.querySelector('.stage');
 
@@ -7537,12 +7792,19 @@
     stageEl.classList.toggle('no-wallpaper', appSettings.wallpaperOff);
   }
 
+  function applyColorTextState(){
+    toggleColorText.checked = appSettings.showColorText !== false;
+    gameToggleColorText.checked = appSettings.showColorText !== false;
+    gameScreen.classList.toggle('hide-color-text',appSettings.showColorText === false);
+  }
+
   toggleCrt.checked = appSettings.crtOff;
   toggleGlitch.checked = appSettings.glitchesOff;
   toggleIntro.checked = appSettings.skipIntro;
   toggleWallpaper.checked = appSettings.wallpaperOff;
   applyCrtState();
   applyWallpaperState();
+  applyColorTextState();
 
   toggleCrt.addEventListener('change', () => {
     appSettings.crtOff = toggleCrt.checked;
@@ -7560,6 +7822,16 @@
   toggleWallpaper.addEventListener('change', () => {
     appSettings.wallpaperOff = toggleWallpaper.checked;
     applyWallpaperState();
+    saveSettings();
+  });
+  toggleColorText.addEventListener('change', () => {
+    appSettings.showColorText = toggleColorText.checked;
+    applyColorTextState();
+    saveSettings();
+  });
+  gameToggleColorText.addEventListener('change', () => {
+    appSettings.showColorText = gameToggleColorText.checked;
+    applyColorTextState();
     saveSettings();
   });
 
