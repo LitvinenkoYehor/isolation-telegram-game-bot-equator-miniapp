@@ -2299,7 +2299,7 @@
     45%{ filter:drop-shadow(0 0 .7cqw rgba(76,210,244,.68)); }
   }
   .game-liquidator-panel{
-    position:absolute; right:1.1cqw; top:50%; z-index:9; width:min(26cqw,330px);
+    position:absolute; right:1.1cqw; top:50%; z-index:9; width:min(22cqw,280px);
     display:flex; flex-direction:column; gap:.65cqw; padding:1cqw;
     border:1px solid rgba(183,73,73,.48); border-right:2px solid rgba(215,91,91,.78);
     background:rgba(25,7,10,.88); box-shadow:0 1cqw 2.6cqw rgba(0,0,0,.42);
@@ -2324,7 +2324,10 @@
   .game-ability-item.kill .game-ability-icon{ background:rgba(151,31,38,.42); font-size:2cqw; }
   .game-ability-copy{ min-width:0; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:.35cqw; }
   .game-ability-copy strong{ color:#dfaaaa; font:700 1.05cqw/1.15 'IBM VGA 8x16',monospace; letter-spacing:.045em; }
-  .game-ability-timer{ color:var(--scr-text); font:1.15cqw/1 'IBM VGA 8x16',monospace; }
+  .game-ability-timer{
+    color:var(--scr-text); font:1.15cqw/1 'IBM VGA 8x16',monospace;
+    text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000,0 0 4px #000;
+  }
   .game-liquidator-panel.collapsed{
     width:9.6cqw; padding:.65cqw; transform:translateY(-50%); background:transparent; border-color:transparent;
     box-shadow:none;
@@ -2486,7 +2489,10 @@
   .game-screen.liquidator-view .game-side-panel,
   .game-screen.liquidator-view .game-log{ border-color:rgba(187,71,78,.42); }
   .game-mask-btn{ opacity:.42; }
-  .game-mask-btn:disabled{ opacity:.2; cursor:default; filter:saturate(0); }
+  .game-mask-btn:disabled{
+    opacity:.42; cursor:default; color:var(--scr-cyan); border-color:var(--scr-cyan);
+    background:rgba(76,210,244,.12);
+  }
   .game-screen.liquidator-view .game-mask-btn{ opacity:1; color:#dc9696; border-color:rgba(190,91,91,.65); }
   .game-screen.identity-masked .game-mask-btn{ color:var(--scr-cyan); border-color:var(--scr-cyan); background:rgba(76,210,244,.12); }
   .game-screen.hide-log .game-workspace{ grid-template-rows:minmax(0,1fr); }
@@ -2568,7 +2574,7 @@
   .game-screen.game-desktop .game-player-tasks{ gap:9px; }
   .game-screen.game-desktop .game-player-task{ padding-top:8px; }
   .game-screen.game-desktop .game-player-task-desc{ margin-top:4px; }
-  .game-screen.game-desktop .game-liquidator-panel{ right:12px; width:310px; gap:8px; padding:12px; }
+  .game-screen.game-desktop .game-liquidator-panel{ right:12px; width:260px; gap:8px; padding:12px; }
   .game-screen.game-desktop .game-liquidator-collapse{ left:-38px; width:38px; height:38px; font-size:24px; }
   .game-screen.game-desktop .game-ability-item{ grid-template-columns:46px minmax(0,1fr); gap:10px; min-height:46px; }
   .game-screen.game-desktop .game-ability-item.kill{ margin-bottom:16px; }
