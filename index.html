@@ -2243,9 +2243,11 @@
   .game-move-confirm{ width:100%; padding:1cqw; border:1px solid var(--scr-cyan); border-radius:.35cqw; background:rgba(76,210,244,.1); color:var(--scr-cyan); cursor:pointer; font:700 1.4cqw 'IBM VGA 8x16',monospace; }
   .game-move-confirm:disabled{ opacity:.42; cursor:wait; }
   .game-transit{
+    --transit-tone:39;
+    --transit-noise-opacity:.42;
     position:absolute; inset:0; z-index:11; display:flex; align-items:center; justify-content:center;
     overflow:hidden; pointer-events:none;
-    background:rgba(39,40,42,.82);
+    background:rgba(var(--transit-tone),var(--transit-tone),var(--transit-tone),.82);
     backdrop-filter:blur(1.5px) grayscale(1) brightness(.28) contrast(.96);
     -webkit-backdrop-filter:blur(1.5px) grayscale(1) brightness(.28) contrast(.96);
   }
@@ -2256,7 +2258,7 @@
     content:''; position:absolute; inset:-32px;
     background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' seed='7' stitchTiles='stitch'/><feColorMatrix type='matrix' values='.12 .12 .12 0 .05 .12 .12 .12 0 .05 .12 .12 .12 0 .05 0 0 0 .75 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
     background-size:128px 128px;
-    opacity:.42;
+    opacity:var(--transit-noise-opacity);
     image-rendering:pixelated;
     animation:transitNoise .16s steps(2,end) infinite;
   }
@@ -2287,6 +2289,37 @@
   .game-status-list{ margin-top:1.2cqw; border-top:1px solid var(--scr-line); }
   .game-status-row{ display:flex; justify-content:space-between; gap:1cqw; padding:.8cqw 0; border-bottom:1px solid var(--scr-line); color:var(--scr-text-dim); font:1.2cqw/1.2 'IBM VGA 8x16',monospace; }
   .game-status-row strong{ color:var(--scr-text); text-align:right; }
+  .game-transit-controls{
+    margin-top:1.25cqw; padding:1.1cqw 0; border-top:1px solid var(--scr-line); border-bottom:1px solid var(--scr-line);
+  }
+  .game-transit-controls-head{
+    margin-bottom:1cqw; color:var(--scr-cyan); font:700 1.1cqw/1.2 'IBM VGA 8x16',monospace; letter-spacing:.08em;
+  }
+  .game-transit-control + .game-transit-control{ margin-top:1.15cqw; }
+  .game-transit-control-label{
+    display:flex; align-items:center; justify-content:space-between; gap:1cqw; margin-bottom:.55cqw;
+    color:var(--scr-text-dim); font:1.15cqw/1.2 'IBM VGA 8x16',monospace;
+  }
+  .game-transit-control-label output{
+    min-width:3ch; color:var(--scr-amber); font-weight:700; text-align:right;
+  }
+  .game-transit-range{
+    width:100%; height:1.5cqw; margin:0; appearance:none; -webkit-appearance:none; cursor:pointer; background:transparent;
+  }
+  .game-transit-range::-webkit-slider-runnable-track{
+    height:.35cqw; border:1px solid rgba(76,210,244,.28); background:rgba(76,210,244,.12);
+  }
+  .game-transit-range::-webkit-slider-thumb{
+    width:1.25cqw; height:1.25cqw; margin-top:calc(-.45cqw - 1px); appearance:none; -webkit-appearance:none;
+    border:1px solid var(--scr-cyan); border-radius:0; background:#092b3e; box-shadow:0 0 .45cqw rgba(76,210,244,.38);
+  }
+  .game-transit-range::-moz-range-track{
+    height:.35cqw; border:1px solid rgba(76,210,244,.28); background:rgba(76,210,244,.12);
+  }
+  .game-transit-range::-moz-range-thumb{
+    width:1.25cqw; height:1.25cqw; border:1px solid var(--scr-cyan); border-radius:0;
+    background:#092b3e; box-shadow:0 0 .45cqw rgba(76,210,244,.38);
+  }
   .game-action-disabled{ width:100%; margin-top:1.2cqw; padding:1cqw; border:1px solid rgba(255,255,255,.13); background:transparent; color:rgba(255,255,255,.27); font:700 1.25cqw 'IBM VGA 8x16',monospace; }
   .game-log{ grid-column:1 / -1; min-width:0; min-height:0; display:flex; flex-direction:column; border:1px solid var(--scr-line); border-radius:.8cqw; background:rgba(1,10,17,.96); overflow:hidden; }
   .game-log-head{ display:flex; justify-content:space-between; padding:.55cqw 1cqw; border-bottom:1px solid var(--scr-line); color:var(--scr-cyan); font:700 1.15cqw/1 'IBM VGA 8x16',monospace; letter-spacing:.1em; }
@@ -2333,6 +2366,15 @@
   .game-screen.game-desktop .game-side-desc{ font-size:clamp(18px,1.05vw,21px); line-height:1.48; }
   .game-screen.game-desktop .game-status-list{ margin-top:18px; }
   .game-screen.game-desktop .game-status-row{ gap:14px; padding:12px 0; font-size:clamp(16px,.9vw,18px); }
+  .game-screen.game-desktop .game-transit-controls{ margin-top:18px; padding:15px 0; }
+  .game-screen.game-desktop .game-transit-controls-head{ margin-bottom:13px; font-size:14px; }
+  .game-screen.game-desktop .game-transit-control + .game-transit-control{ margin-top:14px; }
+  .game-screen.game-desktop .game-transit-control-label{ margin-bottom:7px; font-size:15px; }
+  .game-screen.game-desktop .game-transit-range{ height:18px; }
+  .game-screen.game-desktop .game-transit-range::-webkit-slider-runnable-track{ height:5px; }
+  .game-screen.game-desktop .game-transit-range::-webkit-slider-thumb{ width:16px; height:16px; margin-top:-6px; }
+  .game-screen.game-desktop .game-transit-range::-moz-range-track{ height:5px; }
+  .game-screen.game-desktop .game-transit-range::-moz-range-thumb{ width:16px; height:16px; }
   .game-screen.game-desktop .game-action-disabled{ margin-top:16px; padding:13px; font-size:15px; }
   .game-screen.game-desktop .game-log-head{ padding:9px 14px; font-size:clamp(14px,.8vw,16px); }
   .game-screen.game-desktop .game-log-lines{ padding:9px 14px; }
@@ -3823,6 +3865,17 @@
             <div class="game-status-row"><span>ЭКИПАЖ</span><strong id="gameCrewCount">1</strong></div>
             <div class="game-status-row"><span>СОСЕДНИЕ</span><strong id="gameNeighborCount">—</strong></div>
           </div>
+          <div class="game-transit-controls">
+            <div class="game-transit-controls-head">ЭФФЕКТ ПЕРЕХОДА // НАСТРОЙКА</div>
+            <div class="game-transit-control">
+              <label class="game-transit-control-label" for="gameNoiseStrength"><span>БЕЛЫЙ ШУМ</span><output id="gameNoiseStrengthValue" for="gameNoiseStrength">42</output></label>
+              <input class="game-transit-range" id="gameNoiseStrength" type="range" min="0" max="100" step="1" value="42" aria-label="Сила белого шума">
+            </div>
+            <div class="game-transit-control">
+              <label class="game-transit-control-label" for="gameTransitBrightness"><span>ЯРКОСТЬ</span><output id="gameTransitBrightnessValue" for="gameTransitBrightness">15</output></label>
+              <input class="game-transit-range" id="gameTransitBrightness" type="range" min="0" max="100" step="1" value="15" aria-label="Яркость экрана перехода: 0 — чёрный, 100 — белый">
+            </div>
+          </div>
           <button class="game-action-disabled" type="button" disabled>ДЕЙСТВИЯ В КОМНАТЕ // СКОРО</button>
         </aside>
 
@@ -4632,6 +4685,10 @@
   const gameMoveConfirm = document.getElementById('gameMoveConfirm');
   const gameTransit = document.getElementById('gameTransit');
   const gameTransitText = document.getElementById('gameTransitText');
+  const gameNoiseStrength = document.getElementById('gameNoiseStrength');
+  const gameNoiseStrengthValue = document.getElementById('gameNoiseStrengthValue');
+  const gameTransitBrightness = document.getElementById('gameTransitBrightness');
+  const gameTransitBrightnessValue = document.getElementById('gameTransitBrightnessValue');
   const gameLogLines = document.getElementById('gameLogLines');
   const gameToggleInfo = document.getElementById('gameToggleInfo');
   const gameToggleLog = document.getElementById('gameToggleLog');
@@ -4650,6 +4707,18 @@
   let offlineGameSession = null;
   let gameStationBlueprintUrl = null;
   const gamePanelState = {info:true,log:true};
+
+  function applyGameTransitTuning(){
+    const noise = Math.max(0,Math.min(100,Number(gameNoiseStrength.value) || 0));
+    const brightness = Math.max(0,Math.min(100,Number(gameTransitBrightness.value) || 0));
+    gameNoiseStrengthValue.textContent = String(noise);
+    gameTransitBrightnessValue.textContent = String(brightness);
+    gameTransit.style.setProperty('--transit-noise-opacity',(noise / 100).toFixed(2));
+    gameTransit.style.setProperty('--transit-tone',String(Math.round(brightness * 2.55)));
+  }
+  gameNoiseStrength.addEventListener('input',applyGameTransitTuning);
+  gameTransitBrightness.addEventListener('input',applyGameTransitTuning);
+  applyGameTransitTuning();
 
   try {
     const savedGamePanels = JSON.parse(localStorage.getItem('isolation_game_panels_v1') || '{}');
