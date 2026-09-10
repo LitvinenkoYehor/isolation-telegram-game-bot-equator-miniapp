@@ -2488,7 +2488,10 @@
   .game-screen.liquidator-view .game-map-panel,
   .game-screen.liquidator-view .game-side-panel,
   .game-screen.liquidator-view .game-log{ border-color:rgba(187,71,78,.42); }
-  .game-mask-btn{ opacity:.42; }
+  .game-mask-btn{
+    opacity:.42; color:var(--scr-cyan); border-color:var(--scr-cyan);
+    background:rgba(76,210,244,.12);
+  }
   .game-mask-btn:disabled{
     opacity:.42; cursor:default; color:var(--scr-cyan); border-color:var(--scr-cyan);
     background:rgba(76,210,244,.12);
@@ -4126,7 +4129,7 @@
             </div>
             <div class="game-zoom-controls" aria-label="Масштаб карты">
               <button class="game-zoom-btn" id="gameZoomOut" type="button" aria-label="Отдалить">−</button>
-              <button class="game-zoom-btn game-mask-btn" id="gameIdentityMask" type="button" aria-label="Скрыть классификацию Ликвидатора" title="Маскировка интерфейса">◐</button>
+              <button class="game-zoom-btn game-mask-btn" id="gameIdentityMask" type="button" aria-label="Изменить режим отображения интерфейса" title="Режим отображения интерфейса">◐</button>
               <button class="game-zoom-btn" id="gameZoomReset" type="button" aria-label="Показать всю карту">◇</button>
               <button class="game-zoom-btn" id="gameZoomIn" type="button" aria-label="Приблизить">+</button>
             </div>
@@ -5341,9 +5344,8 @@
     gameScreen.classList.toggle('liquidator-view',showLiquidator);
     gameScreen.classList.toggle('identity-masked',isLiquidator && gameIdentityMasked);
     gameLiquidatorPanel.hidden = !showLiquidator;
-    gameIdentityMask.disabled = !isLiquidator;
-    gameIdentityMask.setAttribute('aria-pressed',String(isLiquidator && gameIdentityMasked));
-    gameIdentityMask.title = !isLiquidator ? 'Доступно только Ликвидатору' : (gameIdentityMasked ? 'Показать интерфейс Ликвидатора' : 'Замаскировать интерфейс под Персонал');
+    gameIdentityMask.setAttribute('aria-pressed',String(!showLiquidator));
+    gameIdentityMask.title = 'Режим отображения интерфейса';
     gamePlayerTasks.replaceChildren();
     (player.tasks || []).forEach(function(task){
       const item = document.createElement('div');
