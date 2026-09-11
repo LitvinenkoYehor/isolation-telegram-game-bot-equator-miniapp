@@ -4468,19 +4468,14 @@
 
   // =========================================================
   //  ЗВУКОВАЯ СЦЕНА ТЕРМИНАЛА
-  //  Эмбиент работает непрерывно, а служебные объявления раз в 2–5 минут
-  //  всегда собираются в одну последовательность:
+  //  Эмбиент работает непрерывно, а тестовое объявление после начала игры
+  //  собирается в одну последовательность:
   //  «Включение» -> случайное сообщение -> «Выключение».
   // =========================================================
   const TERMINAL_AUDIO_PATHS = {
     ambience: 'Звуки/эмбиент.mp3',
     intro: 'Звуки/Инструментарий/Главное меню/музыка_интро.mp3',
     menuOn: 'Звуки/Инструментарий/Главное меню/Включениеменю.mp3',
-    clicks: [
-      'Звуки/Инструментарий/Главное меню/Нажатие1.mp3',
-      'Звуки/Инструментарий/Главное меню/Нажатие2.mp3',
-      'Звуки/Инструментарий/Главное меню/Нажатие3.mp3'
-    ],
     announcementOn: 'Звуки/Инструментарий/Уведомления/Включение.mp3',
     announcements: [
       'Звуки/Инструментарий/Уведомления/Верген-Гефест.mp3',
@@ -4503,7 +4498,6 @@
   const terminalAmbienceAudio = createTerminalAudio(TERMINAL_AUDIO_PATHS.ambience, 0.24, true);
   const terminalIntroAudio = createTerminalAudio(TERMINAL_AUDIO_PATHS.intro, 0.72, false);
   const terminalMenuOnAudio = createTerminalAudio(TERMINAL_AUDIO_PATHS.menuOn, 0.78, false);
-  const terminalClickAudios = TERMINAL_AUDIO_PATHS.clicks.map(path => createTerminalAudio(path, 0.72, false));
   const terminalAnnouncementOnAudio = createTerminalAudio(TERMINAL_AUDIO_PATHS.announcementOn, 0.78, false);
   const terminalAnnouncementAudios = TERMINAL_AUDIO_PATHS.announcements.map(path => createTerminalAudio(path, 0.9, false));
   const terminalAnnouncementOffAudio = createTerminalAudio(TERMINAL_AUDIO_PATHS.announcementOff, 0.72, false);
@@ -4546,16 +4540,14 @@
     });
   }
 
-  function scheduleTerminalAnnouncement(){
+  function scheduleGameStartAnnouncement(){
     if (terminalAnnouncementTimer !== null) clearTimeout(terminalAnnouncementTimer);
-    // Равномерная случайная задержка от двух до пяти минут.
-    const wait = 120000 + Math.random() * 180000;
-    terminalAnnouncementTimer = setTimeout(runTerminalAnnouncement, wait);
+    terminalAnnouncementTimer = setTimeout(runTerminalAnnouncement, 10000);
   }
 
   async function runTerminalAnnouncement(){
     terminalAnnouncementTimer = null;
-    if (terminalAnnouncementPlaying) return scheduleTerminalAnnouncement();
+    if (terminalAnnouncementPlaying) return;
     terminalAnnouncementPlaying = true;
     const selected = terminalAnnouncementAudios[
       Math.floor(Math.random() * terminalAnnouncementAudios.length)
@@ -4564,7 +4556,6 @@
     await playTerminalClip(selected);
     await playTerminalClip(terminalAnnouncementOffAudio);
     terminalAnnouncementPlaying = false;
-    scheduleTerminalAnnouncement();
   }
 
   function playIntroMusic(){
@@ -4575,33 +4566,15 @@
     playTerminalAudio(terminalMenuOnAudio);
   }
 
-  function playRandomMenuClick(){
-    const selected = terminalClickAudios[Math.floor(Math.random() * terminalClickAudios.length)];
-    terminalClickAudios.forEach(audio => {
-      if (audio !== selected) {
-        audio.pause();
-        audio.currentTime = 0;
-      }
-    });
-    playTerminalAudio(selected);
-  }
-
   // Первый жест гарантированно снимает запрет autoplay в Telegram WebView,
   // iOS и обычном браузере. До него всё равно пробуем запустить эмбиент:
   // там, где автозапуск разрешён, он зазвучит сразу после открытия игры.
   document.addEventListener('pointerdown', ensureTerminalAmbience, { capture: true });
   document.addEventListener('keydown', ensureTerminalAmbience, { capture: true });
-  document.addEventListener('click', event => {
-    const button = event.target.closest('button');
-    if (!button || button.disabled || button.closest('#gameScreen')) return;
-    ensureTerminalAmbience();
-    playRandomMenuClick();
-  }, { capture: true });
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) ensureTerminalAmbience();
   });
   ensureTerminalAmbience();
-  scheduleTerminalAnnouncement();
 
   // =========================================================
   //  BACKEND API — Mini App сама не хранит ничего, кроме косметических
@@ -4813,6 +4786,9 @@
 
   document.getElementById('btnEnter').addEventListener('click', () => {
     requestDesktopFullscreen();
+    // Одно тестовое голосовое уведомление через 10 секунд после того,
+    // как игрок начал сеанс кнопкой «ВОЙТИ В СИСТЕМУ».
+    scheduleGameStartAnnouncement();
     if (currentProfile && !currentProfile.is_new) {
       // Игрок уже когда-то задавал себе позывной — гейт ввода имени ему
       // повторно не нужен, но сама заставка (лог загрузки + лого лиги)
@@ -5231,8 +5207,16 @@
 
   // Звук теперь принадлежит всему терминалу, а не только экрану смены.
   // Эти имена оставлены как совместимые точки входа для showGame/выхода.
-  function startGameAudio(){ ensureTerminalAmbience(); }
-  function stopGameAudio(){ /* эмбиент не прерывается при смене экранов */ }
+  function startGameAudio(){
+    ensureTerminalAmbience();
+  }
+  function stopGameAudio(){
+    if (terminalAnnouncementTimer !== null) {
+      clearTimeout(terminalAnnouncementTimer);
+      terminalAnnouncementTimer = null;
+    }
+    // Эмбиент не прерывается при смене экранов.
+  }
 
   const GAME_COLOR_HEX = {
     'Красный':'#bd3e48','Синий':'#326fc2','Зелёный':'#3d9b5f','Жёлтый':'#d4b43a',
