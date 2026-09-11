@@ -4890,6 +4890,9 @@
 
   function revealMenu(){
     mainMenu.classList.add('reveal');
+    // Это фактическая точка входа пользователя в Экватор. Запускаем здесь
+    // непрерывный фон и отсчитываем 10 секунд до объявления о Кобальте-27.
+    startGameAudio();
 
     // grab every piece that should snap in on its own, then shuffle
     // the order and reveal them one by one with irregular pauses —
@@ -5090,7 +5093,8 @@
   let gameLiquidatorCollapsed = false;
   let gameIdentityMasked = false;
 
-  // Звуковая сцена смены. У каждого элемента свой HTMLAudioElement, поэтому
+  // Звуковая сцена главного меню Экватора. У каждого элемента свой
+  // HTMLAudioElement, поэтому
   // сигнал, объявление и щелчок громкоговорителя звучат ПОВЕРХ непрерывного
   // эмбиента, а не заменяют его. Относительные URL корректно кодируют и
   // кириллическое имя папки при публикации index.html на статическом хостинге.
@@ -5181,7 +5185,7 @@
 
   function playGameOneShot(audio,runId){
     return new Promise(function(resolve){
-      if (runId !== gameAudioRunId || gameScreen.hidden) return resolve(false);
+      if (runId !== gameAudioRunId) return resolve(false);
       let settled = false;
       function finish(ok){
         if (settled) return;
@@ -5207,17 +5211,17 @@
   }
 
   async function playCobaltDockingAnnouncement(runId){
-    if (runId !== gameAudioRunId || gameScreen.hidden) return;
+    if (runId !== gameAudioRunId) return;
     // Эмбиент продолжает играть, лишь слегка приглушаясь для разборчивости.
     fadeGameAmbience(GAME_AMBIENCE_DUCKED_VOLUME,350);
     await playGameOneShot(gameAnnouncementOnAudio,runId);
-    if (runId !== gameAudioRunId || gameScreen.hidden) return;
+    if (runId !== gameAudioRunId) return;
     await delay(300);
     await playGameOneShot(gameCobaltDockingAudio,runId);
-    if (runId !== gameAudioRunId || gameScreen.hidden) return;
+    if (runId !== gameAudioRunId) return;
     await delay(450);
     await playGameOneShot(gameAnnouncementOffAudio,runId);
-    if (runId === gameAudioRunId && !gameScreen.hidden) {
+    if (runId === gameAudioRunId) {
       fadeGameAmbience(GAME_AMBIENCE_VOLUME,1100);
     }
   }
@@ -5796,7 +5800,9 @@
     addGameSabotageLog(gameStateData.sabotage);
     addGameJournalEvents(gameStateData.events);
     requestAnimationFrame(function(){ focusGameRoom(gameStateData.player.room_id); });
-    startGameAudio();
+    // Звуковая сцена выше относится к главному меню Экватора, а не к
+    // отдельному экрану активной смены.
+    stopGameAudio();
   }
 
   function gameErrorText(result){
@@ -5855,6 +5861,7 @@
     gameScreen.hidden = true;
     mainMenu.hidden = false;
     mainMenu.classList.add('reveal');
+    startGameAudio();
   }
   gameMenuBtn.addEventListener('click',openGameSettings);
   gameSettingsClose.addEventListener('click',closeGameSettings);
