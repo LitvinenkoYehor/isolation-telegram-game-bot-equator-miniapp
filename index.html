@@ -4501,8 +4501,16 @@
   const terminalAnnouncementOnAudio = createTerminalAudio(TERMINAL_AUDIO_PATHS.announcementOn, 0.78, false);
   const terminalAnnouncementAudios = TERMINAL_AUDIO_PATHS.announcements.map(path => createTerminalAudio(path, 0.9, false));
   const terminalAnnouncementOffAudio = createTerminalAudio(TERMINAL_AUDIO_PATHS.announcementOff, 0.72, false);
+  const terminalForegroundAudios = [
+    terminalIntroAudio,
+    terminalMenuOnAudio,
+    terminalAnnouncementOnAudio,
+    ...terminalAnnouncementAudios,
+    terminalAnnouncementOffAudio
+  ];
   let terminalAnnouncementTimer = null;
   let terminalAnnouncementPlaying = false;
+  let terminalAudioUnlocked = false;
 
   function playTerminalAudio(audio){
     audio.pause();
@@ -4519,6 +4527,30 @@
     if (attempt && typeof attempt.catch === 'function') {
       attempt.catch(() => {});
     }
+  }
+
+  function unlockTerminalAudio(){
+    ensureTerminalAmbience();
+    if (terminalAudioUnlocked) return;
+    terminalAudioUnlocked = true;
+    // iOS и Telegram WebView иногда требуют пользовательский жест для
+    // каждого отдельного HTMLAudioElement. Бесшумно запускаем и сразу
+    // возвращаем все отложенные звуки в начало, пока жест ещё активен.
+    terminalForegroundAudios.forEach(audio => {
+      const previousMuted = audio.muted;
+      audio.muted = true;
+      const attempt = audio.play();
+      const reset = () => {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.muted = previousMuted;
+      };
+      if (attempt && typeof attempt.then === 'function') {
+        attempt.then(reset).catch(() => { audio.muted = previousMuted; });
+      } else {
+        reset();
+      }
+    });
   }
 
   function playTerminalClip(audio){
@@ -4569,8 +4601,8 @@
   // Первый жест гарантированно снимает запрет autoplay в Telegram WebView,
   // iOS и обычном браузере. До него всё равно пробуем запустить эмбиент:
   // там, где автозапуск разрешён, он зазвучит сразу после открытия игры.
-  document.addEventListener('pointerdown', ensureTerminalAmbience, { capture: true });
-  document.addEventListener('keydown', ensureTerminalAmbience, { capture: true });
+  document.addEventListener('pointerdown', unlockTerminalAudio, { capture: true });
+  document.addEventListener('keydown', unlockTerminalAudio, { capture: true });
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) ensureTerminalAmbience();
   });
