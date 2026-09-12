@@ -1034,6 +1034,97 @@
   }
   .settings-list .settings-row-link:last-child{ border-bottom:none; }
 
+  .settings-tabs{
+    position:sticky; top:0; z-index:2;
+    display:flex; align-items:stretch; justify-content:center;
+    gap:0.8cqw;
+    padding:0 0 1.4cqw;
+    background:linear-gradient(180deg,rgba(5,12,16,0.98) 78%,rgba(5,12,16,0));
+  }
+  .settings-tab{
+    flex:1 1 0;
+    min-width:0;
+    padding:1.5cqw 0.8cqw;
+    border:1px solid var(--scr-line);
+    border-radius:0.8cqw;
+    background:rgba(255,255,255,0.02);
+    color:var(--scr-text-dim);
+    font-family:inherit;
+    font-size:1.85cqw; font-weight:600; letter-spacing:0.04em;
+    text-align:center;
+    cursor:pointer;
+  }
+  .settings-tab.active{
+    border-color:var(--scr-cyan);
+    background:rgba(143,214,255,0.1);
+    color:#eaf5ff;
+    text-shadow:var(--phosphor);
+  }
+  .settings-tab:focus-visible{
+    outline:1px solid var(--scr-cyan);
+    outline-offset:0.35cqw;
+  }
+  .settings-panel[hidden]{ display:none; }
+  .settings-audio-row{
+    display:block;
+    padding:2.2cqw 0.4cqw 2.5cqw;
+    border-bottom:1px solid var(--scr-line);
+  }
+  .settings-audio-row:last-child{ border-bottom:none; }
+  .settings-audio-head{
+    display:flex; align-items:baseline; justify-content:space-between; gap:1.6cqw;
+    margin-bottom:1.5cqw;
+  }
+  .settings-audio-value{
+    flex:0 0 auto;
+    min-width:4.5ch;
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:2cqw; color:var(--scr-cyan);
+    text-align:right;
+    text-shadow:var(--phosphor);
+  }
+  .settings-range{
+    --range-value:100%;
+    width:100%; height:2.8cqw; min-height:18px;
+    margin:0;
+    appearance:none; -webkit-appearance:none;
+    background:transparent;
+    cursor:pointer;
+  }
+  .settings-range::-webkit-slider-runnable-track{
+    height:0.75cqw; min-height:4px;
+    border:1px solid var(--scr-line-strong);
+    border-radius:1cqw;
+    background:linear-gradient(90deg,var(--scr-cyan) 0 var(--range-value),rgba(255,255,255,0.08) var(--range-value) 100%);
+  }
+  .settings-range::-webkit-slider-thumb{
+    width:2.7cqw; height:2.7cqw; min-width:16px; min-height:16px;
+    margin-top:calc((0.75cqw - 2.7cqw) / 2);
+    appearance:none; -webkit-appearance:none;
+    border:1px solid var(--scr-cyan);
+    border-radius:50%;
+    background:#bfe8ff;
+    box-shadow:0 0 1cqw rgba(143,214,255,0.65);
+  }
+  .settings-range::-moz-range-track{
+    height:0.75cqw; min-height:4px;
+    border:1px solid var(--scr-line-strong);
+    border-radius:1cqw;
+    background:rgba(255,255,255,0.08);
+  }
+  .settings-range::-moz-range-progress{
+    height:0.75cqw; min-height:4px;
+    border-radius:1cqw;
+    background:var(--scr-cyan);
+  }
+  .settings-range::-moz-range-thumb{
+    width:2.7cqw; height:2.7cqw; min-width:16px; min-height:16px;
+    border:1px solid var(--scr-cyan);
+    border-radius:50%;
+    background:#bfe8ff;
+    box-shadow:0 0 1cqw rgba(143,214,255,0.65);
+  }
+
   /* retro toggle switch */
   .switch{
     position:relative;
@@ -3037,82 +3128,118 @@
         <span>НАЗАД В МЕНЮ</span>
       </button>
 
-      <div class="profile-scroll">
-        <div class="profile-section-label" style="margin-top:0;">УЧЁТНАЯ ЗАПИСЬ</div>
-        <div class="settings-list">
-          <button class="settings-row-link" type="button" id="btnChangeName">
-            <span class="settings-label">ИЗМЕНИТЬ ИМЯ ПОЛЬЗОВАТЕЛЯ</span>
-            <svg class="settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6"/></svg>
-          </button>
-          <button class="settings-row-link" type="button">
-            <span class="settings-label">ЯЗЫК</span>
-            <span class="settings-value">РУССКИЙ</span>
-            <svg class="settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6"/></svg>
-          </button>
+      <div class="profile-scroll" id="settingsScroll">
+        <div class="settings-tabs" role="tablist" aria-label="Разделы настроек">
+          <button class="settings-tab active" id="settingsTabGeneral" type="button" role="tab" aria-selected="true" aria-controls="settingsPanelGeneral">ОБЩЕЕ</button>
+          <button class="settings-tab" id="settingsTabAudio" type="button" role="tab" aria-selected="false" aria-controls="settingsPanelAudio" tabindex="-1">АУДИО</button>
+          <button class="settings-tab" id="settingsTabAccount" type="button" role="tab" aria-selected="false" aria-controls="settingsPanelAccount" tabindex="-1">УЧЁТНАЯ ЗАПИСЬ</button>
         </div>
 
-        <div class="profile-section-label">ЭКРАН</div>
-        <div class="settings-list">
-          <div class="settings-row">
-            <span class="settings-label">ВЫКЛЮЧИТЬ ЭЛТ ФИЛЬТР</span>
-            <label class="switch">
-              <input type="checkbox" id="toggleCrt">
-              <span class="switch-track"><span class="switch-thumb"></span></span>
-            </label>
+        <section class="settings-panel" id="settingsPanelGeneral" role="tabpanel" aria-labelledby="settingsTabGeneral">
+          <div class="profile-section-label" style="margin-top:0;">ОБЩЕЕ</div>
+          <div class="settings-list">
+            <button class="settings-row-link" type="button">
+              <span class="settings-label">ЯЗЫК</span>
+              <span class="settings-value">РУССКИЙ</span>
+              <svg class="settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
           </div>
-          <div class="settings-row">
-            <span class="settings-label">ВЫКЛЮЧИТЬ ЭЛТ НА СМЕНЕ</span>
-            <label class="switch">
-              <input type="checkbox" id="toggleShiftCrt">
-              <span class="switch-track"><span class="switch-thumb"></span></span>
-            </label>
-          </div>
-          <div class="settings-row" id="rowGlitch">
-            <span class="settings-label">ВЫКЛЮЧИТЬ ГЛЮКИ</span>
-            <label class="switch">
-              <input type="checkbox" id="toggleGlitch">
-              <span class="switch-track"><span class="switch-thumb"></span></span>
-            </label>
-          </div>
-          <div class="settings-row">
-            <span class="settings-label">ВЫКЛЮЧИТЬ НАЧАЛЬНОЕ ИНТРО</span>
-            <label class="switch">
-              <input type="checkbox" id="toggleIntro">
-              <span class="switch-track"><span class="switch-thumb"></span></span>
-            </label>
-          </div>
-          <div class="settings-row">
-            <span class="settings-label">ВЫКЛЮЧИТЬ ОБОИ</span>
-            <label class="switch">
-              <input type="checkbox" id="toggleWallpaper">
-              <span class="switch-track"><span class="switch-thumb"></span></span>
-            </label>
-          </div>
-          <div class="settings-row">
-            <span class="settings-label">ПОКАЗЫВАТЬ ЦВЕТ ТЕКСТОМ</span>
-            <label class="switch">
-              <input type="checkbox" id="toggleColorText" checked>
-              <span class="switch-track"><span class="switch-thumb"></span></span>
-            </label>
-          </div>
-        </div>
 
-        <div class="admin-sandbox-section" id="adminSandboxSection" hidden>
-          <div class="profile-section-label">АДМИНИСТРАТОР</div>
-          <div class="admin-sandbox-card">
-            <div class="admin-sandbox-kicker">ТЕСТОВАЯ СМЕНА // DEV</div>
-            <p class="admin-sandbox-copy">Открыть «Астрал-1» с 11 неподвижными ботами в Центральном узле. Перед запуском можно выбрать роль игрока.</p>
-            <button class="admin-sandbox-btn" id="adminSandboxStart" type="button">▸ НАЧАТЬ В ПОЛНОМ ОДИНОЧЕСТВЕ</button>
-            <div class="admin-role-choice" id="adminRoleChoice" hidden>
-              <div class="admin-role-choice-title">ВЫБЕРИТЕ КЛАССИФИКАЦИЮ</div>
-              <div class="admin-role-choice-buttons">
-                <button class="admin-role-btn" type="button" data-role="staff">ПЕРСОНАЛ</button>
-                <button class="admin-role-btn danger" type="button" data-role="liquidator">ЛИКВИДАТОР</button>
-              </div>
+          <div class="profile-section-label">ЭКРАН</div>
+          <div class="settings-list">
+            <div class="settings-row">
+              <span class="settings-label">ВЫКЛЮЧИТЬ ЭЛТ ФИЛЬТР</span>
+              <label class="switch">
+                <input type="checkbox" id="toggleCrt">
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+              </label>
             </div>
-            <div class="admin-sandbox-status" id="adminSandboxStatus" aria-live="polite"></div>
+            <div class="settings-row">
+              <span class="settings-label">ВЫКЛЮЧИТЬ ЭЛТ НА СМЕНЕ</span>
+              <label class="switch">
+                <input type="checkbox" id="toggleShiftCrt">
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+              </label>
+            </div>
+            <div class="settings-row" id="rowGlitch">
+              <span class="settings-label">ВЫКЛЮЧИТЬ ГЛЮКИ</span>
+              <label class="switch">
+                <input type="checkbox" id="toggleGlitch">
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+              </label>
+            </div>
+            <div class="settings-row">
+              <span class="settings-label">ВЫКЛЮЧИТЬ НАЧАЛЬНОЕ ИНТРО</span>
+              <label class="switch">
+                <input type="checkbox" id="toggleIntro">
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+              </label>
+            </div>
+            <div class="settings-row">
+              <span class="settings-label">ВЫКЛЮЧИТЬ ОБОИ</span>
+              <label class="switch">
+                <input type="checkbox" id="toggleWallpaper">
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+              </label>
+            </div>
+            <div class="settings-row">
+              <span class="settings-label">ПОКАЗЫВАТЬ ЦВЕТ ТЕКСТОМ</span>
+              <label class="switch">
+                <input type="checkbox" id="toggleColorText" checked>
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+              </label>
+            </div>
           </div>
-        </div>
+
+          <div class="admin-sandbox-section" id="adminSandboxSection" hidden>
+            <div class="profile-section-label">АДМИНИСТРАТОР</div>
+            <div class="admin-sandbox-card">
+              <div class="admin-sandbox-kicker">ТЕСТОВАЯ СМЕНА // DEV</div>
+              <p class="admin-sandbox-copy">Открыть «Астрал-1» с 11 неподвижными ботами в Центральном узле. Перед запуском можно выбрать роль игрока.</p>
+              <button class="admin-sandbox-btn" id="adminSandboxStart" type="button">▸ НАЧАТЬ В ПОЛНОМ ОДИНОЧЕСТВЕ</button>
+              <div class="admin-role-choice" id="adminRoleChoice" hidden>
+                <div class="admin-role-choice-title">ВЫБЕРИТЕ КЛАССИФИКАЦИЮ</div>
+                <div class="admin-role-choice-buttons">
+                  <button class="admin-role-btn" type="button" data-role="staff">ПЕРСОНАЛ</button>
+                  <button class="admin-role-btn danger" type="button" data-role="liquidator">ЛИКВИДАТОР</button>
+                </div>
+              </div>
+              <div class="admin-sandbox-status" id="adminSandboxStatus" aria-live="polite"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-panel" id="settingsPanelAudio" role="tabpanel" aria-labelledby="settingsTabAudio" hidden>
+          <div class="profile-section-label" style="margin-top:0;">ГРОМКОСТЬ</div>
+          <div class="settings-list">
+            <label class="settings-audio-row" for="volumeMaster">
+              <span class="settings-audio-head"><span class="settings-label">ОБЩИЙ ЗВУК</span><output class="settings-audio-value" id="volumeMasterValue" for="volumeMaster">100</output></span>
+              <input class="settings-range" id="volumeMaster" type="range" min="0" max="100" step="1" value="100">
+            </label>
+            <label class="settings-audio-row" for="volumeIntro">
+              <span class="settings-audio-head"><span class="settings-label">ИНТРО</span><output class="settings-audio-value" id="volumeIntroValue" for="volumeIntro">80</output></span>
+              <input class="settings-range" id="volumeIntro" type="range" min="0" max="100" step="1" value="80">
+            </label>
+            <label class="settings-audio-row" for="volumeAmbience">
+              <span class="settings-audio-head"><span class="settings-label">ФОНОВЫЙ ШУМ</span><output class="settings-audio-value" id="volumeAmbienceValue" for="volumeAmbience">100</output></span>
+              <input class="settings-range" id="volumeAmbience" type="range" min="0" max="100" step="1" value="100">
+            </label>
+            <label class="settings-audio-row" for="volumeAnnouncements">
+              <span class="settings-audio-head"><span class="settings-label">ОБЪЯВЛЕНИЕ УВЕДОМЛЕНИЙ</span><output class="settings-audio-value" id="volumeAnnouncementsValue" for="volumeAnnouncements">100</output></span>
+              <input class="settings-range" id="volumeAnnouncements" type="range" min="0" max="100" step="1" value="100">
+            </label>
+          </div>
+        </section>
+
+        <section class="settings-panel" id="settingsPanelAccount" role="tabpanel" aria-labelledby="settingsTabAccount" hidden>
+          <div class="profile-section-label" style="margin-top:0;">УЧЁТНАЯ ЗАПИСЬ</div>
+          <div class="settings-list">
+            <button class="settings-row-link" type="button" id="btnChangeName">
+              <span class="settings-label">ИЗМЕНИТЬ ИМЯ ПОЛЬЗОВАТЕЛЯ</span>
+              <svg class="settings-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+          </div>
+        </section>
       </div>
 
       <div class="bottombar">
@@ -4466,6 +4593,44 @@
   const leagueLoadingPct  = document.getElementById('leagueLoadingPct');
   const loginError = document.getElementById('loginError');
 
+  // Настройки интерфейса и звука хранятся вместе. Новые звуковые
+  // значения дополняют старые сохранения своими значениями по умолчанию.
+  const SETTINGS_KEY = 'eq_station_settings';
+  let appSettings = {
+    crtOff: false,
+    shiftCrtOff: false,
+    glitchesOff: false,
+    skipIntro: false,
+    wallpaperOff: false,
+    showColorText: true,
+    masterVolume: 100,
+    introVolume: 80,
+    ambienceVolume: 100,
+    announcementVolume: 100
+  };
+  try {
+    const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+    appSettings = Object.assign(appSettings, saved);
+  } catch (e) { /* ignore corrupt/missing storage */ }
+
+  const AUDIO_SETTING_DEFAULTS = {
+    masterVolume: 100,
+    introVolume: 80,
+    ambienceVolume: 100,
+    announcementVolume: 100
+  };
+  Object.keys(AUDIO_SETTING_DEFAULTS).forEach(key => {
+    const value = Number(appSettings[key]);
+    appSettings[key] = Number.isFinite(value)
+      ? Math.max(0, Math.min(100, value))
+      : AUDIO_SETTING_DEFAULTS[key];
+  });
+
+  function saveSettings(){
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(appSettings)); }
+    catch (e) { /* storage unavailable — settings just won't persist */ }
+  }
+
   // =========================================================
   //  ЗВУКОВАЯ СЦЕНА ТЕРМИНАЛА
   //  Эмбиент работает непрерывно, а тестовое объявление после начала игры
@@ -4508,6 +4673,20 @@
     ...terminalAnnouncementAudios,
     terminalAnnouncementOffAudio
   ];
+
+  function audioLevel(settingName){
+    return (appSettings.masterVolume / 100) * (appSettings[settingName] / 100);
+  }
+
+  function applyAudioSettings(){
+    terminalAmbienceAudio.volume = audioLevel('ambienceVolume');
+    terminalIntroAudio.volume = audioLevel('introVolume');
+    terminalMenuOnAudio.volume = audioLevel('introVolume');
+    [terminalAnnouncementOnAudio, ...terminalAnnouncementAudios, terminalAnnouncementOffAudio]
+      .forEach(audio => { audio.volume = audioLevel('announcementVolume'); });
+  }
+
+  applyAudioSettings();
   let terminalAnnouncementTimer = null;
   let terminalAnnouncementPlaying = false;
   let terminalAudioUnlocked = false;
@@ -5099,6 +5278,7 @@
     mainMenu.hidden = true;
     settingsScreen.hidden = false;
     settingsScreen.classList.add('reveal');
+    document.getElementById('settingsScroll').scrollTop = 0;
   }
   function closeSettings(){
     settingsScreen.classList.remove('reveal');
@@ -5108,6 +5288,34 @@
   }
   document.getElementById('tileSettings').addEventListener('click', openSettings);
   document.getElementById('settingsBack').addEventListener('click', closeSettings);
+
+  const settingsTabs = Array.from(settingsScreen.querySelectorAll('[role="tab"]'));
+  const settingsPanels = Array.from(settingsScreen.querySelectorAll('[role="tabpanel"]'));
+
+  function selectSettingsTab(tab){
+    settingsTabs.forEach(item => {
+      const selected = item === tab;
+      item.classList.toggle('active', selected);
+      item.setAttribute('aria-selected', selected ? 'true' : 'false');
+      item.tabIndex = selected ? 0 : -1;
+    });
+    settingsPanels.forEach(panel => {
+      panel.hidden = panel.id !== tab.getAttribute('aria-controls');
+    });
+    document.getElementById('settingsScroll').scrollTop = 0;
+  }
+
+  settingsTabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => selectSettingsTab(tab));
+    tab.addEventListener('keydown', event => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      event.preventDefault();
+      const direction = event.key === 'ArrowRight' ? 1 : -1;
+      const nextTab = settingsTabs[(index + direction + settingsTabs.length) % settingsTabs.length];
+      selectSettingsTab(nextTab);
+      nextTab.focus();
+    });
+  });
 
   // =========================================================
   //  EARLY GAME — интерактивная карта «Астрал-1».
@@ -7977,18 +8185,6 @@
   //  SETTINGS: CRT filter / glitches / intro skip — persisted
   //  in localStorage so the choice survives a reload.
   // =========================================================
-  const SETTINGS_KEY = 'eq_station_settings';
-  let appSettings = { crtOff: false, shiftCrtOff: false, glitchesOff: false, skipIntro: false, wallpaperOff: false, showColorText: true };
-  try {
-    const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
-    appSettings = Object.assign(appSettings, saved);
-  } catch (e) { /* ignore corrupt/missing storage */ }
-
-  function saveSettings(){
-    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(appSettings)); }
-    catch (e) { /* storage unavailable — settings just won't persist */ }
-  }
-
   const toggleCrt   = document.getElementById('toggleCrt');
   const toggleGlitch = document.getElementById('toggleGlitch');
   const toggleIntro = document.getElementById('toggleIntro');
@@ -7997,6 +8193,32 @@
   const toggleShiftCrt = document.getElementById('toggleShiftCrt');
   const rowGlitch   = document.getElementById('rowGlitch');
   const stageEl     = document.querySelector('.stage');
+
+  function bindAudioSlider(inputId, outputId, settingName){
+    const input = document.getElementById(inputId);
+    const output = document.getElementById(outputId);
+
+    function render(){
+      const value = Math.round(appSettings[settingName]);
+      input.value = value;
+      output.value = value;
+      output.textContent = value;
+      input.style.setProperty('--range-value', value + '%');
+    }
+
+    render();
+    input.addEventListener('input', () => {
+      appSettings[settingName] = Number(input.value);
+      render();
+      applyAudioSettings();
+      saveSettings();
+    });
+  }
+
+  bindAudioSlider('volumeMaster','volumeMasterValue','masterVolume');
+  bindAudioSlider('volumeIntro','volumeIntroValue','introVolume');
+  bindAudioSlider('volumeAmbience','volumeAmbienceValue','ambienceVolume');
+  bindAudioSlider('volumeAnnouncements','volumeAnnouncementsValue','announcementVolume');
 
   function applyCrtState(){
     stageEl.classList.toggle('no-crt', appSettings.crtOff);
