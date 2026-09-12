@@ -3251,11 +3251,11 @@
               <div class="settings-audio-subcontrols">
                 <label class="settings-audio-row" for="notificationMinDelay">
                   <span class="settings-audio-head"><span class="settings-label">МИНИМАЛЬНЫЙ ИНТЕРВАЛ</span><output class="settings-audio-value" id="notificationMinDelayValue" for="notificationMinDelay">120 С</output></span>
-                  <input class="settings-range" id="notificationMinDelay" type="range" min="60" max="300" step="1" value="120">
+                  <input class="settings-range" id="notificationMinDelay" type="range" min="10" max="300" step="1" value="120">
                 </label>
                 <label class="settings-audio-row" for="notificationMaxDelay">
                   <span class="settings-audio-head"><span class="settings-label">МАКСИМАЛЬНЫЙ ИНТЕРВАЛ</span><output class="settings-audio-value" id="notificationMaxDelayValue" for="notificationMaxDelay">120 С</output></span>
-                  <input class="settings-range" id="notificationMaxDelay" type="range" min="60" max="300" step="1" value="120">
+                  <input class="settings-range" id="notificationMaxDelay" type="range" min="10" max="300" step="1" value="120">
                 </label>
               </div>
             </div>
@@ -4666,7 +4666,7 @@
   Object.keys(ANNOUNCEMENT_DELAY_DEFAULTS).forEach(key => {
     const value = Number(appSettings[key]);
     appSettings[key] = Number.isFinite(value)
-      ? Math.max(60, Math.min(300, Math.round(value)))
+      ? Math.max(10, Math.min(300, Math.round(value)))
       : ANNOUNCEMENT_DELAY_DEFAULTS[key];
   });
   if (appSettings.notificationMinDelay > appSettings.notificationMaxDelay) {
@@ -4709,13 +4709,19 @@
     return audio;
   }
 
-  const terminalAmbienceAudio = createTerminalAudio(TERMINAL_AUDIO_PATHS.ambience, 0.312, true);
+  // Два проигрывателя одного эмбиента перекрывают конец и начало записи.
+  // Обычный audio.loop оставляет слышимую паузу из-за MP3 encoder delay.
+  const terminalAmbienceAudios = [
+    createTerminalAudio(TERMINAL_AUDIO_PATHS.ambience, 1, false),
+    createTerminalAudio(TERMINAL_AUDIO_PATHS.ambience, 0, false)
+  ];
   const terminalIntroAudio = createTerminalAudio(TERMINAL_AUDIO_PATHS.intro, 0.72, false);
   const terminalMenuOnAudio = createTerminalAudio(TERMINAL_AUDIO_PATHS.menuOn, 0.78, false);
   const terminalAnnouncementOnAudio = createTerminalAudio(TERMINAL_AUDIO_PATHS.announcementOn, 0.78, false);
   const terminalAnnouncementAudios = TERMINAL_AUDIO_PATHS.announcements.map(path => createTerminalAudio(path, 0.9, false));
   const terminalAnnouncementOffAudio = createTerminalAudio(TERMINAL_AUDIO_PATHS.announcementOff, 0.72, false);
   const terminalForegroundAudios = [
+    terminalAmbienceAudios[1],
     terminalIntroAudio,
     terminalMenuOnAudio,
     terminalAnnouncementOnAudio,
@@ -4723,23 +4729,120 @@
     terminalAnnouncementOffAudio
   ];
 
+  const TERMINAL_AMBIENCE_CROSSFADE_SECONDS = 1.5;
+  let terminalAmbienceActiveIndex = 0;
+  let terminalAmbienceCrossfading = false;
+  let terminalAmbienceFadeFrame = null;
+  const terminalAmbienceMix = [1, 0];
+  let terminalAnnouncementTimer = null;
+  let terminalAnnouncementPlaying = false;
+  let terminalAnnouncementLoopStarted = false;
+  let terminalAudioUnlocked = false;
+
   function audioLevel(settingName){
     return (appSettings.masterVolume / 100) * (appSettings[settingName] / 100);
   }
 
+  function applyTerminalAmbienceMix(){
+    const baseVolume = audioLevel('ambienceVolume');
+    terminalAmbienceAudios.forEach((audio, index) => {
+      audio.volume = Math.max(0, Math.min(1, baseVolume * terminalAmbienceMix[index]));
+    });
+  }
+
   function applyAudioSettings(){
-    terminalAmbienceAudio.volume = audioLevel('ambienceVolume');
+    applyTerminalAmbienceMix();
     terminalIntroAudio.volume = audioLevel('introVolume');
     terminalMenuOnAudio.volume = audioLevel('introVolume');
     [terminalAnnouncementOnAudio, ...terminalAnnouncementAudios, terminalAnnouncementOffAudio]
       .forEach(audio => { audio.volume = audioLevel('announcementVolume'); });
   }
 
+  function finishTerminalAmbienceCrossfade(fromIndex, toIndex){
+    const previous = terminalAmbienceAudios[fromIndex];
+    previous.pause();
+    previous.currentTime = 0;
+    terminalAmbienceActiveIndex = toIndex;
+    terminalAmbienceMix[fromIndex] = 0;
+    terminalAmbienceMix[toIndex] = 1;
+    terminalAmbienceCrossfading = false;
+    terminalAmbienceFadeFrame = null;
+    applyTerminalAmbienceMix();
+  }
+
+  function beginTerminalAmbienceCrossfade(fromIndex){
+    if (terminalAmbienceCrossfading || fromIndex !== terminalAmbienceActiveIndex) return;
+
+    const current = terminalAmbienceAudios[fromIndex];
+    const nextIndex = fromIndex === 0 ? 1 : 0;
+    const next = terminalAmbienceAudios[nextIndex];
+    terminalAmbienceCrossfading = true;
+    terminalAmbienceMix[fromIndex] = 1;
+    terminalAmbienceMix[nextIndex] = 0;
+    next.pause();
+    next.currentTime = 0;
+    applyTerminalAmbienceMix();
+
+    const attempt = next.play();
+    const startFade = () => {
+      const remainingSeconds = Number.isFinite(current.duration)
+        ? Math.max(0.15, current.duration - current.currentTime)
+        : TERMINAL_AMBIENCE_CROSSFADE_SECONDS;
+      const durationMs = Math.min(TERMINAL_AMBIENCE_CROSSFADE_SECONDS, remainingSeconds) * 1000;
+      const startedAt = performance.now();
+
+      function fadeFrame(now){
+        const progress = Math.min(1, (now - startedAt) / durationMs);
+        // Equal-power crossfade keeps perceived loudness steady through the seam.
+        terminalAmbienceMix[fromIndex] = Math.cos(progress * Math.PI * 0.5);
+        terminalAmbienceMix[nextIndex] = Math.sin(progress * Math.PI * 0.5);
+        applyTerminalAmbienceMix();
+        if (progress < 1) {
+          terminalAmbienceFadeFrame = requestAnimationFrame(fadeFrame);
+        } else {
+          finishTerminalAmbienceCrossfade(fromIndex, nextIndex);
+        }
+      }
+
+      terminalAmbienceFadeFrame = requestAnimationFrame(fadeFrame);
+    };
+
+    if (attempt && typeof attempt.then === 'function') {
+      attempt.then(startFade).catch(() => {
+        terminalAmbienceCrossfading = false;
+        terminalAmbienceMix[fromIndex] = 1;
+        terminalAmbienceMix[nextIndex] = 0;
+        applyTerminalAmbienceMix();
+      });
+    } else {
+      startFade();
+    }
+  }
+
+  terminalAmbienceAudios.forEach((audio, index) => {
+    audio.addEventListener('timeupdate', () => {
+      if (index !== terminalAmbienceActiveIndex || terminalAmbienceCrossfading) return;
+      if (!Number.isFinite(audio.duration)) return;
+      if (audio.duration - audio.currentTime <= TERMINAL_AMBIENCE_CROSSFADE_SECONDS) {
+        beginTerminalAmbienceCrossfade(index);
+      }
+    });
+    audio.addEventListener('ended', () => {
+      // Запасной путь для сред, где timeupdate пришёл слишком поздно.
+      if (index !== terminalAmbienceActiveIndex || terminalAmbienceCrossfading) return;
+      const nextIndex = index === 0 ? 1 : 0;
+      const next = terminalAmbienceAudios[nextIndex];
+      next.currentTime = 0;
+      terminalAmbienceMix[index] = 0;
+      terminalAmbienceMix[nextIndex] = 1;
+      terminalAmbienceActiveIndex = nextIndex;
+      applyTerminalAmbienceMix();
+      const attempt = next.play();
+      if (attempt && typeof attempt.catch === 'function') attempt.catch(() => {});
+    });
+  });
+
   applyAudioSettings();
-  let terminalAnnouncementTimer = null;
-  let terminalAnnouncementPlaying = false;
-  let terminalAnnouncementLoopStarted = false;
-  let terminalAudioUnlocked = false;
 
   function playTerminalAudio(audio){
     audio.pause();
@@ -4751,8 +4854,12 @@
   }
 
   function ensureTerminalAmbience(){
-    if (!terminalAmbienceAudio.paused) return;
-    const attempt = terminalAmbienceAudio.play();
+    if (terminalAmbienceAudios.some(audio => !audio.paused)) return;
+    const active = terminalAmbienceAudios[terminalAmbienceActiveIndex];
+    terminalAmbienceMix[terminalAmbienceActiveIndex] = 1;
+    terminalAmbienceMix[terminalAmbienceActiveIndex === 0 ? 1 : 0] = 0;
+    applyTerminalAmbienceMix();
+    const attempt = active.play();
     if (attempt && typeof attempt.catch === 'function') {
       attempt.catch(() => {});
     }
