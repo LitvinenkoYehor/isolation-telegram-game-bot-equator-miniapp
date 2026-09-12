@@ -1071,6 +1071,25 @@
     border-bottom:1px solid var(--scr-line);
   }
   .settings-audio-row:last-child{ border-bottom:none; }
+  .settings-notification-group{
+    border-bottom:1px solid var(--scr-line);
+  }
+  .settings-notification-group > .settings-audio-row{
+    padding-bottom:1.5cqw;
+    border-bottom:none;
+  }
+  .settings-audio-subcontrols{
+    margin:0 0.4cqw 0 3.2cqw;
+    padding:0 0 0.8cqw 2.2cqw;
+    border-left:1px solid var(--scr-line-strong);
+  }
+  .settings-audio-subcontrols .settings-audio-row{
+    padding-top:1.5cqw;
+  }
+  .settings-audio-subcontrols .settings-label{
+    font-size:1.85cqw;
+    color:var(--scr-text-dim);
+  }
   .settings-audio-head{
     display:flex; align-items:baseline; justify-content:space-between; gap:1.6cqw;
     margin-bottom:1.5cqw;
@@ -3148,35 +3167,35 @@
           <div class="profile-section-label">ЭКРАН</div>
           <div class="settings-list">
             <div class="settings-row">
-              <span class="settings-label">ВЫКЛЮЧИТЬ ЭЛТ ФИЛЬТР</span>
+              <span class="settings-label">ЭЛТ ФИЛЬТР</span>
               <label class="switch">
                 <input type="checkbox" id="toggleCrt">
                 <span class="switch-track"><span class="switch-thumb"></span></span>
               </label>
             </div>
             <div class="settings-row">
-              <span class="settings-label">ВЫКЛЮЧИТЬ ЭЛТ НА СМЕНЕ</span>
+              <span class="settings-label">ЭЛТ НА СМЕНЕ</span>
               <label class="switch">
                 <input type="checkbox" id="toggleShiftCrt">
                 <span class="switch-track"><span class="switch-thumb"></span></span>
               </label>
             </div>
             <div class="settings-row" id="rowGlitch">
-              <span class="settings-label">ВЫКЛЮЧИТЬ ГЛЮКИ</span>
+              <span class="settings-label">ГЛЮКИ</span>
               <label class="switch">
                 <input type="checkbox" id="toggleGlitch">
                 <span class="switch-track"><span class="switch-thumb"></span></span>
               </label>
             </div>
             <div class="settings-row">
-              <span class="settings-label">ВЫКЛЮЧИТЬ НАЧАЛЬНОЕ ИНТРО</span>
+              <span class="settings-label">НАЧАЛЬНОЕ ИНТРО</span>
               <label class="switch">
                 <input type="checkbox" id="toggleIntro">
                 <span class="switch-track"><span class="switch-thumb"></span></span>
               </label>
             </div>
             <div class="settings-row">
-              <span class="settings-label">ВЫКЛЮЧИТЬ ОБОИ</span>
+              <span class="settings-label">ОБОИ</span>
               <label class="switch">
                 <input type="checkbox" id="toggleWallpaper">
                 <span class="switch-track"><span class="switch-thumb"></span></span>
@@ -3224,10 +3243,22 @@
               <span class="settings-audio-head"><span class="settings-label">ФОНОВЫЙ ШУМ</span><output class="settings-audio-value" id="volumeAmbienceValue" for="volumeAmbience">100</output></span>
               <input class="settings-range" id="volumeAmbience" type="range" min="0" max="100" step="1" value="100">
             </label>
-            <label class="settings-audio-row" for="volumeAnnouncements">
-              <span class="settings-audio-head"><span class="settings-label">ОБЪЯВЛЕНИЕ УВЕДОМЛЕНИЙ</span><output class="settings-audio-value" id="volumeAnnouncementsValue" for="volumeAnnouncements">100</output></span>
-              <input class="settings-range" id="volumeAnnouncements" type="range" min="0" max="100" step="1" value="100">
-            </label>
+            <div class="settings-notification-group">
+              <label class="settings-audio-row" for="volumeAnnouncements">
+                <span class="settings-audio-head"><span class="settings-label">ОБЪЯВЛЕНИЕ УВЕДОМЛЕНИЙ</span><output class="settings-audio-value" id="volumeAnnouncementsValue" for="volumeAnnouncements">100</output></span>
+                <input class="settings-range" id="volumeAnnouncements" type="range" min="0" max="100" step="1" value="100">
+              </label>
+              <div class="settings-audio-subcontrols">
+                <label class="settings-audio-row" for="notificationMinDelay">
+                  <span class="settings-audio-head"><span class="settings-label">МИНИМАЛЬНЫЙ ИНТЕРВАЛ</span><output class="settings-audio-value" id="notificationMinDelayValue" for="notificationMinDelay">120 С</output></span>
+                  <input class="settings-range" id="notificationMinDelay" type="range" min="60" max="300" step="1" value="120">
+                </label>
+                <label class="settings-audio-row" for="notificationMaxDelay">
+                  <span class="settings-audio-head"><span class="settings-label">МАКСИМАЛЬНЫЙ ИНТЕРВАЛ</span><output class="settings-audio-value" id="notificationMaxDelayValue" for="notificationMaxDelay">120 С</output></span>
+                  <input class="settings-range" id="notificationMaxDelay" type="range" min="60" max="300" step="1" value="120">
+                </label>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -4347,8 +4378,8 @@
               </label>
             </div>
             <div class="game-settings-option">
-              <span class="game-settings-option-text">ВЫКЛЮЧИТЬ ЭЛТ НА СМЕНЕ</span>
-              <label class="switch game-settings-switch" aria-label="Выключить ЭЛТ на смене">
+              <span class="game-settings-option-text">ЭЛТ НА СМЕНЕ</span>
+              <label class="switch game-settings-switch" aria-label="ЭЛТ на смене">
                 <input id="gameToggleShiftCrt" type="checkbox">
                 <span class="switch-track"><span class="switch-thumb"></span></span>
               </label>
@@ -4606,7 +4637,9 @@
     masterVolume: 100,
     introVolume: 80,
     ambienceVolume: 100,
-    announcementVolume: 100
+    announcementVolume: 100,
+    notificationMinDelay: 120,
+    notificationMaxDelay: 120
   };
   try {
     const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
@@ -4625,6 +4658,22 @@
       ? Math.max(0, Math.min(100, value))
       : AUDIO_SETTING_DEFAULTS[key];
   });
+
+  const ANNOUNCEMENT_DELAY_DEFAULTS = {
+    notificationMinDelay: 120,
+    notificationMaxDelay: 120
+  };
+  Object.keys(ANNOUNCEMENT_DELAY_DEFAULTS).forEach(key => {
+    const value = Number(appSettings[key]);
+    appSettings[key] = Number.isFinite(value)
+      ? Math.max(60, Math.min(300, Math.round(value)))
+      : ANNOUNCEMENT_DELAY_DEFAULTS[key];
+  });
+  if (appSettings.notificationMinDelay > appSettings.notificationMaxDelay) {
+    const previousMin = appSettings.notificationMinDelay;
+    appSettings.notificationMinDelay = appSettings.notificationMaxDelay;
+    appSettings.notificationMaxDelay = previousMin;
+  }
 
   function saveSettings(){
     try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(appSettings)); }
@@ -4689,6 +4738,7 @@
   applyAudioSettings();
   let terminalAnnouncementTimer = null;
   let terminalAnnouncementPlaying = false;
+  let terminalAnnouncementLoopStarted = false;
   let terminalAudioUnlocked = false;
 
   function playTerminalAudio(audio){
@@ -4751,22 +4801,40 @@
     });
   }
 
+  function nextAnnouncementDelayMs(){
+    const minSeconds = appSettings.notificationMinDelay;
+    const maxSeconds = Math.max(minSeconds, appSettings.notificationMaxDelay);
+    const delaySeconds = minSeconds + Math.random() * (maxSeconds - minSeconds);
+    return Math.round(delaySeconds * 1000);
+  }
+
+  function scheduleNextTerminalAnnouncement(){
+    if (!terminalAnnouncementLoopStarted || terminalAnnouncementTimer !== null || terminalAnnouncementPlaying) return;
+    terminalAnnouncementTimer = setTimeout(runTerminalAnnouncement, nextAnnouncementDelayMs());
+  }
+
   function scheduleGameStartAnnouncement(){
-    if (terminalAnnouncementTimer !== null) clearTimeout(terminalAnnouncementTimer);
-    terminalAnnouncementTimer = setTimeout(runTerminalAnnouncement, 10000);
+    // Повторное нажатие «ВОЙТИ В СИСТЕМУ» после смены имени не начинает
+    // отсчёт заново: первый запуск включает один непрерывный цикл.
+    terminalAnnouncementLoopStarted = true;
+    scheduleNextTerminalAnnouncement();
   }
 
   async function runTerminalAnnouncement(){
     terminalAnnouncementTimer = null;
     if (terminalAnnouncementPlaying) return;
     terminalAnnouncementPlaying = true;
-    const selected = terminalAnnouncementAudios[
-      Math.floor(Math.random() * terminalAnnouncementAudios.length)
-    ];
-    await playTerminalClip(terminalAnnouncementOnAudio);
-    await playTerminalClip(selected);
-    await playTerminalClip(terminalAnnouncementOffAudio);
-    terminalAnnouncementPlaying = false;
+    try {
+      const selected = terminalAnnouncementAudios[
+        Math.floor(Math.random() * terminalAnnouncementAudios.length)
+      ];
+      await playTerminalClip(terminalAnnouncementOnAudio);
+      await playTerminalClip(selected);
+      await playTerminalClip(terminalAnnouncementOffAudio);
+    } finally {
+      terminalAnnouncementPlaying = false;
+      scheduleNextTerminalAnnouncement();
+    }
   }
 
   function playIntroMusic(){
@@ -4997,8 +5065,8 @@
 
   document.getElementById('btnEnter').addEventListener('click', () => {
     requestDesktopFullscreen();
-    // Одно тестовое голосовое уведомление через 10 секунд после того,
-    // как игрок начал сеанс кнопкой «ВОЙТИ В СИСТЕМУ».
+    // Первый вход запускает непрерывный цикл голосовых уведомлений. Каждый
+    // следующий интервал выбирается после завершения предыдущего объявления.
     scheduleGameStartAnnouncement();
     if (currentProfile && !currentProfile.is_new) {
       // Игрок уже когда-то задавал себе позывной — гейт ввода имени ему
@@ -5451,11 +5519,8 @@
     ensureTerminalAmbience();
   }
   function stopGameAudio(){
-    if (terminalAnnouncementTimer !== null) {
-      clearTimeout(terminalAnnouncementTimer);
-      terminalAnnouncementTimer = null;
-    }
-    // Эмбиент не прерывается при смене экранов.
+    // Эмбиент и цикл объявлений принадлежат всему терминалу и не
+    // прерываются при смене экранов или выходе со смены.
   }
 
   const GAME_COLOR_HEX = {
@@ -8071,7 +8136,7 @@
   function performTerminalReset(){
     if (appSettings.skipIntro) {
       appSettings.skipIntro = false;
-      toggleIntro.checked = false;
+      toggleIntro.checked = true;
       saveSettings();
     }
 
@@ -8220,6 +8285,52 @@
   bindAudioSlider('volumeAmbience','volumeAmbienceValue','ambienceVolume');
   bindAudioSlider('volumeAnnouncements','volumeAnnouncementsValue','announcementVolume');
 
+  const notificationMinDelay = document.getElementById('notificationMinDelay');
+  const notificationMaxDelay = document.getElementById('notificationMaxDelay');
+  const notificationMinDelayValue = document.getElementById('notificationMinDelayValue');
+  const notificationMaxDelayValue = document.getElementById('notificationMaxDelayValue');
+
+  function renderNotificationDelaySlider(input, output, value){
+    input.value = value;
+    output.value = value + ' С';
+    output.textContent = value + ' С';
+    const progress = ((value - Number(input.min)) / (Number(input.max) - Number(input.min))) * 100;
+    input.style.setProperty('--range-value', progress + '%');
+  }
+
+  function renderNotificationDelaySliders(){
+    renderNotificationDelaySlider(
+      notificationMinDelay,
+      notificationMinDelayValue,
+      appSettings.notificationMinDelay
+    );
+    renderNotificationDelaySlider(
+      notificationMaxDelay,
+      notificationMaxDelayValue,
+      appSettings.notificationMaxDelay
+    );
+  }
+
+  notificationMinDelay.addEventListener('input', () => {
+    appSettings.notificationMinDelay = Number(notificationMinDelay.value);
+    if (appSettings.notificationMinDelay > appSettings.notificationMaxDelay) {
+      appSettings.notificationMaxDelay = appSettings.notificationMinDelay;
+    }
+    renderNotificationDelaySliders();
+    saveSettings();
+  });
+
+  notificationMaxDelay.addEventListener('input', () => {
+    appSettings.notificationMaxDelay = Number(notificationMaxDelay.value);
+    if (appSettings.notificationMaxDelay < appSettings.notificationMinDelay) {
+      appSettings.notificationMinDelay = appSettings.notificationMaxDelay;
+    }
+    renderNotificationDelaySliders();
+    saveSettings();
+  });
+
+  renderNotificationDelaySliders();
+
   function applyCrtState(){
     stageEl.classList.toggle('no-crt', appSettings.crtOff);
     // glitches only make sense while the CRT filter itself is on
@@ -8239,35 +8350,35 @@
 
   function applyShiftCrtState(){
     const shiftCrtOff = appSettings.shiftCrtOff === true;
-    toggleShiftCrt.checked = shiftCrtOff;
-    gameToggleShiftCrt.checked = shiftCrtOff;
+    toggleShiftCrt.checked = !shiftCrtOff;
+    gameToggleShiftCrt.checked = !shiftCrtOff;
     gameScreen.classList.toggle('shift-crt-off',shiftCrtOff);
   }
 
-  toggleCrt.checked = appSettings.crtOff;
-  toggleGlitch.checked = appSettings.glitchesOff;
-  toggleIntro.checked = appSettings.skipIntro;
-  toggleWallpaper.checked = appSettings.wallpaperOff;
+  toggleCrt.checked = !appSettings.crtOff;
+  toggleGlitch.checked = !appSettings.glitchesOff;
+  toggleIntro.checked = !appSettings.skipIntro;
+  toggleWallpaper.checked = !appSettings.wallpaperOff;
   applyCrtState();
   applyWallpaperState();
   applyColorTextState();
   applyShiftCrtState();
 
   toggleCrt.addEventListener('change', () => {
-    appSettings.crtOff = toggleCrt.checked;
+    appSettings.crtOff = !toggleCrt.checked;
     applyCrtState();
     saveSettings();
   });
   toggleGlitch.addEventListener('change', () => {
-    appSettings.glitchesOff = toggleGlitch.checked;
+    appSettings.glitchesOff = !toggleGlitch.checked;
     saveSettings();
   });
   toggleIntro.addEventListener('change', () => {
-    appSettings.skipIntro = toggleIntro.checked;
+    appSettings.skipIntro = !toggleIntro.checked;
     saveSettings();
   });
   toggleWallpaper.addEventListener('change', () => {
-    appSettings.wallpaperOff = toggleWallpaper.checked;
+    appSettings.wallpaperOff = !toggleWallpaper.checked;
     applyWallpaperState();
     saveSettings();
   });
@@ -8282,12 +8393,12 @@
     saveSettings();
   });
   toggleShiftCrt.addEventListener('change', () => {
-    appSettings.shiftCrtOff = toggleShiftCrt.checked;
+    appSettings.shiftCrtOff = !toggleShiftCrt.checked;
     applyShiftCrtState();
     saveSettings();
   });
   gameToggleShiftCrt.addEventListener('change', () => {
-    appSettings.shiftCrtOff = gameToggleShiftCrt.checked;
+    appSettings.shiftCrtOff = !gameToggleShiftCrt.checked;
     applyShiftCrtState();
     saveSettings();
   });
