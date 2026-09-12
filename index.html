@@ -2257,13 +2257,14 @@
   .admin-role-choice{ margin-top:1.25cqw; padding-top:1.25cqw; border-top:1px solid rgba(255,191,77,.3); }
   .admin-role-choice[hidden]{ display:none; }
   .admin-role-choice-title{ margin-bottom:.8cqw; color:var(--scr-text-dim); font:700 1.35cqw/1.2 'IBM VGA 8x16',monospace; letter-spacing:.08em; }
-  .admin-role-choice-buttons{ display:grid; grid-template-columns:1fr 1fr; gap:.8cqw; }
+  .admin-role-choice-buttons{ display:grid; grid-template-columns:repeat(3,1fr); gap:.8cqw; }
   .admin-role-btn{
     padding:1.2cqw; border:1px solid rgba(83,196,133,.72); border-radius:.4cqw;
     background:rgba(42,123,77,.15); color:#94ddb5; cursor:pointer;
     font:700 1.5cqw/1 'IBM VGA 8x16',monospace; letter-spacing:.06em;
   }
   .admin-role-btn.danger{ border-color:rgba(190,91,91,.72); background:rgba(128,42,42,.18); color:#dc9696; }
+  .admin-role-btn.witness{ border-color:rgba(212,180,58,.72); background:rgba(113,88,22,.18); color:#e5cb72; }
   .admin-role-btn:hover{ filter:brightness(1.18); }
   .admin-role-btn:disabled{ opacity:.45; cursor:wait; }
   .admin-sandbox-status{ min-height:1.4em; margin-top:1cqw; color:var(--scr-text-dim); font-size:1.4cqw; }
@@ -2460,9 +2461,13 @@
   .game-ability-icon{
     display:grid; place-items:center; width:3.8cqw; height:3.8cqw; box-sizing:border-box;
     border:1px solid rgba(220,109,109,.7); background:rgba(116,30,36,.32); color:#f0b5b5;
-    font:900 1.35cqw/1 'IBM VGA 8x16',monospace; text-shadow:0 0 .45cqw rgba(255,104,104,.5);
+    padding:0; font:900 1.35cqw/1 'IBM VGA 8x16',monospace; text-shadow:0 0 .45cqw rgba(255,104,104,.5);
   }
   .game-ability-item.kill .game-ability-icon{ background:rgba(151,31,38,.42); font-size:2cqw; }
+  button.game-ability-icon{ cursor:pointer; }
+  button.game-ability-icon:hover:not(:disabled),
+  button.game-ability-icon.targeting{ background:rgba(205,42,52,.72); box-shadow:0 0 1.2cqw rgba(255,61,72,.58); }
+  button.game-ability-icon:disabled{ cursor:not-allowed; opacity:.4; }
   .game-ability-copy{ min-width:0; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:.35cqw; }
   .game-ability-copy strong{ color:#dfaaaa; font:700 1.05cqw/1.15 'IBM VGA 8x16',monospace; letter-spacing:.045em; }
   .game-ability-timer{
@@ -2552,8 +2557,21 @@
   .game-crew-member{
     min-width:0; display:flex; align-items:center; gap:.55cqw; padding:.48cqw .25cqw; color:var(--scr-text-dim);
     font:1.15cqw/1.2 'IBM VGA 8x16',monospace; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    box-sizing:border-box; border:1px solid transparent; background:transparent; text-align:left;
   }
   .game-crew-member strong{ color:var(--scr-text); }
+  button.game-crew-member{ width:100%; font-family:'IBM VGA 8x16',monospace; }
+  .game-crew-member.kill-target{
+    border-color:#df3d49; background:rgba(143,23,31,.18); cursor:crosshair;
+    box-shadow:inset 0 0 .65cqw rgba(225,50,61,.18);
+  }
+  .game-crew-member.kill-target:hover{ background:rgba(183,31,41,.34); }
+  .game-crew-member.corpse{ border-color:#9f2630; background:rgba(74,10,15,.2); cursor:default; }
+  .game-crew-member.corpse .game-crew-color{
+    --crew-color:#6e7074 !important; filter:grayscale(1) saturate(0); opacity:.72;
+  }
+  .game-crew-member.corpse .game-color-text{ color:#7d252c; }
+  .game-crew-member.corpse strong{ color:#d54952; }
   .game-crew-color{
     position:relative; flex:0 0 auto; display:grid; place-items:center;
     width:1.8cqw; height:1.8cqw; min-width:20px; min-height:20px; box-sizing:border-box;
@@ -2622,7 +2640,20 @@
   .game-log-line{ display:grid; grid-template-columns:5.5cqw minmax(0,1fr) auto; gap:.8cqw; margin:.25cqw 0; color:var(--scr-text-dim); font:1.25cqw/1.25 'IBM VGA 8x16',monospace; }
   .game-log-line time{ color:rgba(103,210,239,.5); }
   .game-log-message strong{ color:var(--scr-text); font-weight:700; }
+  .game-log-line.no-time time{ visibility:hidden; }
+  .game-log-message .game-killer-name{ color:#ef4c57; }
   .game-log-alert{ color:#e66f6f; font-weight:900; letter-spacing:.16em; text-shadow:0 0 7px rgba(230,72,72,.5); }
+  .game-witness-overlay{
+    position:absolute; left:0; right:0; top:50%; z-index:24; transform:translateY(-50%);
+    padding:1.7cqw 2cqw; box-sizing:border-box; border:0; pointer-events:none;
+    background:rgba(0,0,0,.72); color:#dce8ec; text-align:center;
+    font:700 1.55cqw/1.45 'IBM VGA 8x16',monospace;
+    text-shadow:0 0 .55cqw #000;
+  }
+  .game-witness-overlay[hidden]{ display:none; }
+  .game-witness-title{ margin-bottom:.55cqw; color:#f0d083; letter-spacing:.08em; }
+  .game-witness-detail{ font-size:1.85cqw; }
+  .game-witness-killer{ color:#ef414d; }
   .game-screen.liquidator-view{
     background:linear-gradient(180deg,rgba(34,7,12,.985),rgba(18,3,7,.995));
   }
@@ -3221,6 +3252,7 @@
                 <div class="admin-role-choice-buttons">
                   <button class="admin-role-btn" type="button" data-role="staff">ПЕРСОНАЛ</button>
                   <button class="admin-role-btn danger" type="button" data-role="liquidator">ЛИКВИДАТОР</button>
+                  <button class="admin-role-btn witness" type="button" data-role="witness">СВИДЕТЕЛЬ</button>
                 </div>
               </div>
               <div class="admin-sandbox-status" id="adminSandboxStatus" aria-live="polite"></div>
@@ -4307,7 +4339,7 @@
             <div class="game-liquidator-panel" id="gameLiquidatorPanel" hidden>
               <button class="game-liquidator-collapse" id="gameLiquidatorCollapse" type="button" aria-label="Скрыть способности">›</button>
               <div class="game-ability-item kill" data-ability="kill">
-                <span class="game-ability-icon">†</span>
+                <button class="game-ability-icon" id="gameKillAbility" type="button" aria-label="Выбрать цель убийства" aria-pressed="false">†</button>
                 <span class="game-ability-copy"><strong>УБИЙСТВО</strong><span class="game-ability-timer" id="gameKillTimer">ГОТОВО</span></span>
               </div>
               <div class="game-ability-item" data-ability="costumes">
@@ -4336,6 +4368,10 @@
             </div>
             <div class="game-transit" id="gameTransit" hidden>
               <div class="game-transit-box"><span id="gameTransitText">ПЕРЕХОД...</span><div class="game-transit-line"></div></div>
+            </div>
+            <div class="game-witness-overlay" id="gameWitnessOverlay" role="status" aria-live="assertive" hidden>
+              <div class="game-witness-title" id="gameWitnessTitle">ПЕРСОНАЛ СВИДЕТЕЛЬ:</div>
+              <div class="game-witness-detail"><span class="game-witness-killer" id="gameWitnessKiller"></span> убил <span id="gameWitnessVictim"></span></div>
             </div>
           </div>
         </section>
@@ -5583,7 +5619,12 @@
   const gamePlayerTasks = document.getElementById('gamePlayerTasks');
   const gameLiquidatorPanel = document.getElementById('gameLiquidatorPanel');
   const gameLiquidatorCollapse = document.getElementById('gameLiquidatorCollapse');
+  const gameKillAbility = document.getElementById('gameKillAbility');
   const gameKillTimer = document.getElementById('gameKillTimer');
+  const gameWitnessOverlay = document.getElementById('gameWitnessOverlay');
+  const gameWitnessTitle = document.getElementById('gameWitnessTitle');
+  const gameWitnessKiller = document.getElementById('gameWitnessKiller');
+  const gameWitnessVictim = document.getElementById('gameWitnessVictim');
   const gameIdentityMask = document.getElementById('gameIdentityMask');
   const gameToggleColorText = document.getElementById('gameToggleColorText');
   const gameToggleShiftCrt = document.getElementById('gameToggleShiftCrt');
@@ -5619,6 +5660,9 @@
   let gameTasksCollapsed = false;
   let gameLiquidatorCollapsed = false;
   let gameIdentityMasked = false;
+  let gameKillTargeting = false;
+  let gameKillPending = false;
+  let gameWitnessTimeout = null;
 
   // Звук теперь принадлежит всему терминалу, а не только экрану смены.
   // Эти имена оставлены как совместимые точки входа для showGame/выхода.
@@ -5713,7 +5757,7 @@
       ['Коричневый','🟫'],['Чёрный','⬛'],['Белый','⬜'],['Голубой','🔵'],['Розовый','🔴'],['Серый','🔘']
     ];
     const staticCrew = botNames.map(function(name,index){
-      return {id:-(index + 1),name:name,color:botColors[index][0],color_emoji:botColors[index][1],is_bot:true,room_id:'central_hub',doing_task:index === 0};
+      return {id:-(index + 1),name:name,color:botColors[index][0],color_emoji:botColors[index][1],is_bot:true,room_id:'central_hub',doing_task:index === 0,role:'staff',alive:true};
     });
     offlineGameSession = {
       status:'active', game_id:'demo-admin', station:'АСТРАЛ-1', session_type:'admin_sandbox',
@@ -5726,6 +5770,7 @@
       },
       static_crew:staticCrew,
       nearby_crew:staticCrew.slice(),
+      corpses:[], journal_events:[], witness_events:[],
       task_progress:{current:0,target:1000},
       room_ui:{tasks_available:true,tasks_blocked:false,action:'emergency'},
       sabotage:{
@@ -5747,10 +5792,29 @@
     if (!initData) {
       const demo = offlineGameState();
       if (path === '/api/game/admin-solo/start') {
-        demo.player.role = payload && payload.role === 'liquidator' ? 'liquidator' : 'staff';
+        const selectedRole = payload && payload.role;
+        demo.player.role = selectedRole === 'liquidator' ? 'liquidator' : 'staff';
         demo.player.room_id = 'central_hub';
         demo.neighbors = demo.rooms.find(function(r){ return r.id === 'central_hub'; }).exits.slice();
-        demo.nearby_crew = demo.static_crew.slice();
+        demo.static_crew.forEach(function(bot){ bot.alive = true; bot.role = 'staff'; });
+        demo.corpses = [];
+        demo.journal_events = [];
+        demo.witness_events = [];
+        delete demo.kill_event;
+        demo.liquidator_ui.kill_cooldown_seconds = selectedRole === 'liquidator' ? 22 : 0;
+        if (selectedRole === 'staff' || selectedRole === 'witness') demo.static_crew[0].role = 'liquidator';
+        if (selectedRole === 'witness') {
+          const killer = demo.static_crew[0];
+          const victim = demo.static_crew[1];
+          victim.alive = false;
+          demo.corpses = [Object.assign({},victim)];
+          demo.witness_events = [{
+            killer_id:killer.id,killer_name:killer.name,killer_color:killer.color,killer_emoji:killer.color_emoji,killer_role:killer.role,
+            victim_id:victim.id,victim_name:victim.name,victim_color:victim.color,victim_emoji:victim.color_emoji,victim_role:victim.role,
+            room_id:'central_hub'
+          }];
+        }
+        demo.nearby_crew = demo.static_crew.filter(function(bot){ return bot.alive; });
         demo.room_ui = {tasks_available:true,tasks_blocked:false,action:'emergency'};
       }
       if (path === '/api/game/move') {
@@ -5764,13 +5828,28 @@
         demo.player.view_state = 'main';
         demo.player.pending_target = null;
         demo.neighbors = demo.rooms.find(function(r){ return r.id === target; }).exits.slice();
-        demo.nearby_crew = demo.static_crew.filter(function(bot){ return bot.room_id === target; });
+        demo.nearby_crew = demo.static_crew.filter(function(bot){ return bot.alive && bot.room_id === target; });
+        demo.corpses = demo.static_crew.filter(function(bot){ return !bot.alive && bot.room_id === target; });
         demo.room_ui = {
           tasks_available:demo.player.tasks.some(function(task){ return task.location_id === target; }),
           tasks_blocked:false,
           action:target === 'central_hub' ? 'emergency' : (target === 'security_control' ? 'cameras' : null)
         };
         demo.movement = {from:from,to:target,duration_seconds:1};
+      }
+      if (path === '/api/game/kill') {
+        if (demo.player.role !== 'liquidator') return {ok:false,status:403,data:{error:'not_liquidator'}};
+        const victimId = Number(payload && payload.victim_id);
+        const victim = demo.static_crew.find(function(bot){ return bot.id === victimId && bot.alive && bot.room_id === demo.player.room_id; });
+        if (!victim) return {ok:false,status:409,data:{error:'kill_rejected',reason:'Эта цель недоступна.'}};
+        victim.alive = false;
+        demo.nearby_crew = demo.static_crew.filter(function(bot){ return bot.alive && bot.room_id === demo.player.room_id; });
+        demo.corpses = demo.static_crew.filter(function(bot){ return !bot.alive && bot.room_id === demo.player.room_id; });
+        demo.liquidator_ui.kill_cooldown_seconds = 45;
+        demo.kill_event = {
+          killer:Object.assign({},demo.player), victim:Object.assign({},victim),
+          room_id:demo.player.room_id,room_name:demo.rooms.find(function(room){ return room.id === demo.player.room_id; }).name
+        };
       }
       return {ok:true,status:200,data:demo};
     }
@@ -5805,7 +5884,9 @@
     row.className = 'game-log-line';
     const now = new Date();
     const timeEl = document.createElement('time');
-    timeEl.textContent = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    const withoutTime = options && options.noTime;
+    timeEl.textContent = withoutTime ? '' : String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    if (withoutTime) row.classList.add('no-time');
     const textEl = document.createElement('div');
     textEl.className = 'game-log-message';
     if (Array.isArray(message)) {
@@ -5863,6 +5944,23 @@
         addGameSabotageLog(event);
         return;
       }
+      if (event.type === 'corpse_discovered') {
+        const observer = event.player || (gameStateData && gameStateData.player) || {};
+        const corpse = event.corpse || {};
+        addGameLog([
+          {colorSquare:observer.color || ''},
+          {text:(observer.color || '') + ' ',className:'game-color-text'},
+          {text:observer.name || 'ПЕРСОНАЛ',bold:true},
+          {text:' замечает труп '},
+          {colorSquare:corpse.color || ''},
+          {text:(corpse.color || '') + ' ',className:'game-color-text'},
+          {text:corpse.name || 'ПЕРСОНАЛА',bold:true},
+          {text:' в: '},
+          {text:event.room_name || 'неизвестная локация',bold:true},
+          {text:'.'}
+        ]);
+        return;
+      }
       if (event.type !== 'arrival' && event.type !== 'departure') return;
       const player = event.player || {};
       const verb = event.type === 'arrival' ? ' прибыл из: ' : ' отходит в: ';
@@ -5875,6 +5973,75 @@
         {text:'.'}
       ]);
     });
+  }
+
+  function witnessPerson(event,prefix){
+    return {
+      id:event[prefix + '_id'],
+      name:event[prefix + '_name'] || (prefix === 'killer' ? 'ЛИКВИДАТОР' : 'ПЕРСОНАЛ'),
+      color:event[prefix + '_color'] || '',
+      color_emoji:event[prefix + '_emoji'] || '',
+      role:event[prefix + '_role'] || null
+    };
+  }
+
+  function showGameWitness(event){
+    const observer = gameStateData.player || {};
+    const killer = witnessPerson(event,'killer');
+    const victim = witnessPerson(event,'victim');
+    const room = gameRoom(event.room_id || observer.room_id);
+    const roomName = (room && room.name) || event.room_name || 'неизвестная локация';
+    addGameLog([
+      {colorSquare:observer.color || ''},
+      {text:(observer.color || '') + ' ',className:'game-color-text'},
+      {text:observer.name || 'ПЕРСОНАЛ',bold:true},
+      {text:' становится свидетелем убийства:'}
+    ]);
+    addGameLog([
+      {colorSquare:killer.color},
+      {text:(killer.color || '') + ' ',className:'game-color-text'},
+      {text:killer.name,bold:true,className:'game-killer-name'},
+      {text:' убил '},
+      {colorSquare:victim.color},
+      {text:(victim.color || '') + ' ',className:'game-color-text'},
+      {text:victim.name,bold:true},
+      {text:' в: '},
+      {text:roomName,bold:true},
+      {text:'.'}
+    ],{noTime:true});
+
+    gameWitnessTitle.textContent = (observer.name || 'ПЕРСОНАЛ') + ' СВИДЕТЕЛЬ:';
+    gameWitnessKiller.textContent = killer.name;
+    gameWitnessVictim.textContent = victim.name;
+    gameWitnessOverlay.hidden = false;
+    if (gameWitnessTimeout) clearTimeout(gameWitnessTimeout);
+    gameWitnessTimeout = setTimeout(function(){
+      gameWitnessOverlay.hidden = true;
+      gameWitnessTimeout = null;
+    },5000);
+  }
+
+  function addGameKillLog(event){
+    if (!event) return;
+    const killer = event.killer || {};
+    const victim = event.victim || {};
+    addGameLog([
+      {colorSquare:killer.color || ''},
+      {text:(killer.color || '') + ' ',className:'game-color-text'},
+      {text:killer.name || 'ЛИКВИДАТОР',bold:true,className:'game-killer-name'},
+      {text:' убивает '},
+      {colorSquare:victim.color || ''},
+      {text:(victim.color || '') + ' ',className:'game-color-text'},
+      {text:victim.name || 'ПЕРСОНАЛА',bold:true},
+      {text:'.'}
+    ]);
+  }
+
+  function consumeGameEvents(data){
+    if (!data) return;
+    addGameJournalEvents(data.events);
+    addGameJournalEvents(data.journal_events);
+    (data.witness_events || []).forEach(showGameWitness);
   }
 
   function svgEl(name,attributes){
@@ -5966,17 +6133,30 @@
   function renderNearbyCrew(){
     gameCrewList.replaceChildren();
     const crew = gameStateData.nearby_crew || [];
-    if (!crew.length) {
+    const corpses = gameStateData.corpses || [];
+    if (!crew.length && !corpses.length) {
       const empty = document.createElement('div');
       empty.className = 'game-crew-empty';
       empty.textContent = 'НИКОГО РЯДОМ';
       gameCrewList.appendChild(empty);
       return;
     }
+    const targetMode = gameKillTargeting
+      && gameStateData.player.role === 'liquidator'
+      && Number(gameKillTimer.dataset.remaining || 0) <= 0
+      && !gameKillPending;
     crew.slice(0,12).forEach(function(member){
-      const item = document.createElement('div');
+      const item = document.createElement('button');
+      item.type = 'button';
       item.className = 'game-crew-member';
       item.title = member.color + ' ' + member.name;
+      item.dataset.playerId = String(member.id);
+      item.setAttribute('aria-disabled',String(!targetMode));
+      if (targetMode) {
+        item.classList.add('kill-target');
+        item.setAttribute('aria-label','Убить: ' + member.name);
+        item.addEventListener('click',function(){ killGameTarget(member.id); });
+      }
       const color = document.createElement('span');
       color.className = 'game-crew-color';
       color.style.setProperty('--crew-color',gameColorHex(member.color));
@@ -5988,6 +6168,21 @@
         taskMark.title = 'Выполняет задание';
         color.appendChild(taskMark);
       }
+      const colorText = document.createElement('span');
+      colorText.className = 'game-color-text';
+      colorText.textContent = member.color || '';
+      const name = document.createElement('strong');
+      name.textContent = member.name;
+      item.append(color,colorText,name);
+      gameCrewList.appendChild(item);
+    });
+    corpses.slice(0,Math.max(0,12 - crew.length)).forEach(function(member){
+      const item = document.createElement('div');
+      item.className = 'game-crew-member corpse';
+      item.title = 'Тело: ' + member.name;
+      const color = document.createElement('span');
+      color.className = 'game-crew-color';
+      color.setAttribute('aria-label','Бесцветный скафандр');
       const colorText = document.createElement('span');
       colorText.className = 'game-color-text';
       colorText.textContent = member.color || '';
@@ -6010,6 +6205,21 @@
     element.textContent = abilityTimerText(remaining,active);
   }
 
+  function updateKillAbilityState(){
+    if (!gameStateData) return;
+    const remaining = Number(gameKillTimer.dataset.remaining || 0);
+    const canKill = gameStateData.player.role === 'liquidator'
+      && gameStateData.player.alive !== false
+      && remaining <= 0
+      && (gameStateData.nearby_crew || []).length > 0
+      && !gameKillPending;
+    if (!canKill) gameKillTargeting = false;
+    gameKillAbility.disabled = !canKill;
+    gameKillAbility.classList.toggle('targeting',gameKillTargeting);
+    gameKillAbility.setAttribute('aria-pressed',String(gameKillTargeting));
+    gameKillAbility.setAttribute('aria-label',gameKillTargeting ? 'Отменить выбор цели' : 'Выбрать цель убийства');
+  }
+
   function renderLiquidatorAbilities(){
     const liquidatorUi = gameStateData.liquidator_ui || {};
     setAbilityTimer(gameKillTimer,liquidatorUi.kill_cooldown_seconds,false);
@@ -6019,6 +6229,30 @@
       const item = sabotageById[timer.dataset.sabotageTimer] || {};
       setAbilityTimer(timer,item.cooldown_seconds,item.active === true);
     });
+    updateKillAbilityState();
+  }
+
+  async function killGameTarget(victimId){
+    if (!gameKillTargeting || gameKillPending) return;
+    gameKillPending = true;
+    gameKillTargeting = false;
+    updateKillAbilityState();
+    renderNearbyCrew();
+    const result = await gameApiRequest('/api/game/kill','POST',{victim_id:victimId});
+    gameKillPending = false;
+    if (!result.ok) {
+      addGameLog(gameErrorText(result));
+      if (result.data && result.data.kill_cooldown_seconds != null) {
+        setAbilityTimer(gameKillTimer,result.data.kill_cooldown_seconds,false);
+      }
+      updateKillAbilityState();
+      renderNearbyCrew();
+      return;
+    }
+    gameStateData = result.data;
+    renderGameMap();
+    addGameKillLog(result.data.kill_event);
+    consumeGameEvents(result.data);
   }
 
   function renderRoomActions(){
@@ -6161,6 +6395,11 @@
 
   function showGame(data){
     gameStateData = data;
+    gameKillTargeting = false;
+    gameKillPending = false;
+    if (gameWitnessTimeout) clearTimeout(gameWitnessTimeout);
+    gameWitnessTimeout = null;
+    gameWitnessOverlay.hidden = true;
     gameIdentityMasked = false;
     gameTasksCollapsed = false;
     gameLiquidatorCollapsed = false;
@@ -6184,13 +6423,16 @@
     gameLogLines.replaceChildren();
     addGameLog('Начало смены.');
     addGameSabotageLog(gameStateData.sabotage);
-    addGameJournalEvents(gameStateData.events);
+    consumeGameEvents(gameStateData);
     requestAnimationFrame(function(){ focusGameRoom(gameStateData.player.room_id); });
     startGameAudio();
   }
 
   function gameErrorText(result){
     const code = result && result.data && result.data.error;
+    if (code === 'kill_rejected' && result.data.reason) return String(result.data.reason).toUpperCase();
+    if (code === 'not_liquidator') return 'УБИЙСТВО ДОСТУПНО ТОЛЬКО ЛИКВИДАТОРУ.';
+    if (code === 'bad_victim') return 'ЦЕЛЬ УБИЙСТВА НЕ ВЫБРАНА.';
     if (code === 'admin_only') return 'ДОСТУП РАЗРЕШЁН ТОЛЬКО АДМИНИСТРАТОРУ.';
     if (code === 'already_playing') return 'СНАЧАЛА ЗАВЕРШИТЕ ТЕКУЩУЮ ПАРТИЮ.';
     if (code === 'already_in_lobby') return 'СНАЧАЛА ПОКИНЬТЕ ТЕКУЩЕЕ ЛОББИ.';
@@ -6237,6 +6479,11 @@
   }
   function exitGameToMenu(){
     stopGameAudio();
+    gameKillTargeting = false;
+    gameKillPending = false;
+    if (gameWitnessTimeout) clearTimeout(gameWitnessTimeout);
+    gameWitnessTimeout = null;
+    gameWitnessOverlay.hidden = true;
     gameSettingsOverlay.classList.remove('shown');
     gameSettingsOverlay.hidden = true;
     selectedGameRoomId = null;
@@ -6275,6 +6522,13 @@
     requestAnimationFrame(function(){ gamePlayerTasks.classList.add('attention'); });
   });
 
+  gameKillAbility.addEventListener('click',function(){
+    if (gameKillAbility.disabled || gameKillPending) return;
+    gameKillTargeting = !gameKillTargeting;
+    updateKillAbilityState();
+    renderNearbyCrew();
+  });
+
   gameTasksCollapse.addEventListener('click',function(){
     gameTasksCollapsed = !gameTasksCollapsed;
     gameTasksPanel.classList.toggle('collapsed',gameTasksCollapsed);
@@ -6309,6 +6563,7 @@
       timer.dataset.remaining = String(remaining);
       timer.textContent = abilityTimerText(remaining,active);
     });
+    updateKillAbilityState();
   },1000);
 
   gameMoveConfirm.addEventListener('click',async function(){
@@ -6316,6 +6571,9 @@
     const targetRoom = gameRoom(targetId);
     if (!targetId || !targetRoom) return;
     gameMoveConfirm.disabled = true;
+    gameKillTargeting = false;
+    updateKillAbilityState();
+    renderNearbyCrew();
     gameMoveCard.hidden = true;
     gameTransitText.textContent = 'ПЕРЕХОД: ' + targetRoom.name.toUpperCase();
     gameTransit.hidden = false;
@@ -6334,6 +6592,7 @@
     focusGameRoom(gameStateData.player.room_id);
     const duration = result.data.movement && result.data.movement.duration_seconds;
     addGameLog(gameCrewLogParts(gameStateData.player,'прибыл в',gameRoom(gameStateData.player.room_id).name,duration));
+    consumeGameEvents(result.data);
   });
 
   gameMapViewport.addEventListener('click',function(event){
