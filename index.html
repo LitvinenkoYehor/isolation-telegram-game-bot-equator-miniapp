@@ -2653,6 +2653,10 @@
   .game-witness-overlay[hidden]{ display:none; }
   .game-witness-title{ margin-bottom:.55cqw; color:#f0d083; letter-spacing:.08em; }
   .game-witness-detail{ font-size:1.85cqw; }
+  .game-witness-color{
+    display:inline-grid; width:1.1em; height:1.1em; min-width:0; min-height:0;
+    margin-right:.28em; vertical-align:-.16em;
+  }
   .game-witness-killer{ color:#ef414d; }
   .game-screen.liquidator-view{
     background:linear-gradient(180deg,rgba(34,7,12,.985),rgba(18,3,7,.995));
@@ -4370,8 +4374,12 @@
               <div class="game-transit-box"><span id="gameTransitText">ПЕРЕХОД...</span><div class="game-transit-line"></div></div>
             </div>
             <div class="game-witness-overlay" id="gameWitnessOverlay" role="status" aria-live="assertive" hidden>
-              <div class="game-witness-title" id="gameWitnessTitle">ПЕРСОНАЛ СВИДЕТЕЛЬ:</div>
-              <div class="game-witness-detail"><span class="game-witness-killer" id="gameWitnessKiller"></span> убил <span id="gameWitnessVictim"></span></div>
+              <div class="game-witness-title">
+                <span class="game-crew-color game-witness-color" id="gameWitnessObserverColor"></span><span class="game-color-text" id="gameWitnessObserverColorText"></span><span id="gameWitnessObserverName">ПЕРСОНАЛ</span> СВИДЕТЕЛЬ:
+              </div>
+              <div class="game-witness-detail">
+                <span class="game-crew-color game-witness-color" id="gameWitnessKillerColor"></span><span class="game-color-text" id="gameWitnessKillerColorText"></span><span class="game-witness-killer" id="gameWitnessKiller"></span> убил <span class="game-crew-color game-witness-color" id="gameWitnessVictimColor"></span><span class="game-color-text" id="gameWitnessVictimColorText"></span><span id="gameWitnessVictim"></span>
+              </div>
             </div>
           </div>
         </section>
@@ -5629,8 +5637,14 @@
   const gameKillAbility = document.getElementById('gameKillAbility');
   const gameKillTimer = document.getElementById('gameKillTimer');
   const gameWitnessOverlay = document.getElementById('gameWitnessOverlay');
-  const gameWitnessTitle = document.getElementById('gameWitnessTitle');
+  const gameWitnessObserverColor = document.getElementById('gameWitnessObserverColor');
+  const gameWitnessObserverColorText = document.getElementById('gameWitnessObserverColorText');
+  const gameWitnessObserverName = document.getElementById('gameWitnessObserverName');
+  const gameWitnessKillerColor = document.getElementById('gameWitnessKillerColor');
+  const gameWitnessKillerColorText = document.getElementById('gameWitnessKillerColorText');
   const gameWitnessKiller = document.getElementById('gameWitnessKiller');
+  const gameWitnessVictimColor = document.getElementById('gameWitnessVictimColor');
+  const gameWitnessVictimColorText = document.getElementById('gameWitnessVictimColorText');
   const gameWitnessVictim = document.getElementById('gameWitnessVictim');
   const gameIdentityMask = document.getElementById('gameIdentityMask');
   const gameToggleColorText = document.getElementById('gameToggleColorText');
@@ -6017,8 +6031,17 @@
       {text:'.'}
     ],{noTime:true});
 
-    gameWitnessTitle.textContent = (observer.name || 'ПЕРСОНАЛ') + ' СВИДЕТЕЛЬ:';
+    gameWitnessObserverColor.style.setProperty('--crew-color',gameColorHex(observer.color));
+    gameWitnessObserverColor.setAttribute('aria-label',observer.color || 'Цвет скафандра');
+    gameWitnessObserverColorText.textContent = (observer.color || '') + ' ';
+    gameWitnessObserverName.textContent = observer.name || 'ПЕРСОНАЛ';
+    gameWitnessKillerColor.style.setProperty('--crew-color',gameColorHex(killer.color));
+    gameWitnessKillerColor.setAttribute('aria-label',killer.color || 'Цвет скафандра');
+    gameWitnessKillerColorText.textContent = (killer.color || '') + ' ';
     gameWitnessKiller.textContent = killer.name;
+    gameWitnessVictimColor.style.setProperty('--crew-color',gameColorHex(victim.color));
+    gameWitnessVictimColor.setAttribute('aria-label',victim.color || 'Цвет скафандра');
+    gameWitnessVictimColorText.textContent = (victim.color || '') + ' ';
     gameWitnessVictim.textContent = victim.name;
     gameWitnessOverlay.hidden = false;
     if (gameWitnessTimeout) clearTimeout(gameWitnessTimeout);
