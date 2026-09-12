@@ -5022,7 +5022,14 @@
   // первый вход (гейт "ВВЕДИТЕ ИМЯ").
   function offlineDemoProfile(){
     const isNew = location.search.includes('demo=new');
-    const isAdmin = location.search.includes('demo=admin');
+    // В локальной сборке сразу показываем инструменты тестовой смены:
+    // без Telegram initData они всё равно работают только как автономная
+    // симуляция. На опубликованной странице административный доступ, как
+    // и прежде, определяется сервером по подписанному Telegram-профилю.
+    const isLocalPreview = location.protocol === 'file:'
+      || location.hostname === 'localhost'
+      || location.hostname === '127.0.0.1';
+    const isAdmin = isLocalPreview || location.search.includes('demo=admin');
     if (isNew) {
       // Свежий профиль — ровно такие же нули/единицы, какие реальный
       // бэкенд (players_db.get_or_create_profile) отдаёт для только что
