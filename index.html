@@ -2320,6 +2320,17 @@
     font:700 1.35cqw/1 'IBM VGA 8x16',monospace; letter-spacing:.1em;
   }
   .game-task-score{ color:var(--scr-text); letter-spacing:.04em; }
+  .game-task-score-cluster{ position:relative; flex:0 0 auto; }
+  .game-task-gain{
+    position:absolute; right:100%; top:50%; margin-right:.8cqw; transform:translateY(-50%);
+    color:#8ce5ab; white-space:nowrap; pointer-events:none; opacity:0;
+  }
+  .game-task-gain.show{ animation:gameTaskGain 2.4s ease both; }
+  @keyframes gameTaskGain{
+    0%{ opacity:0; transform:translate(-.45cqw,-35%); }
+    24%,72%{ opacity:1; transform:translate(0,-50%); }
+    100%{ opacity:0; transform:translate(.25cqw,-65%); }
+  }
   .game-task-progress{
     height:1.2cqw; min-height:8px; overflow:hidden;
     border:1px solid var(--scr-line-strong); background:rgba(2,11,18,.84);
@@ -2432,6 +2443,10 @@
   .game-player-tasks{ display:flex; flex-direction:column; gap:.75cqw; }
   .game-player-tasks{ padding:.65cqw 1.1cqw 1cqw; }
   .game-player-task{ padding-top:.65cqw; border-top:1px solid rgba(105,196,226,.22); letter-spacing:.025em; }
+  button.game-player-task{ width:100%; background:transparent; text-align:left; font:inherit; }
+  .game-player-task.actionable{ cursor:pointer; border-right:1px solid rgba(76,210,244,.35); }
+  .game-player-task.actionable:hover{ background:rgba(76,210,244,.09); }
+  .game-player-task.active{ border-color:#d4b665; background:rgba(178,137,43,.1); }
   .game-player-task-title{ color:var(--scr-text); font-weight:700; line-height:1.25; }
   .game-player-task-stage{ color:var(--scr-amber); white-space:nowrap; }
   .game-player-task-desc{ margin-top:.3cqw; color:var(--scr-text-dim); line-height:1.3; }
@@ -2646,6 +2661,7 @@
   .game-log-message strong{ color:var(--scr-text); font-weight:700; }
   .game-log-line.no-time time{ visibility:hidden; }
   .game-log-message .game-killer-name{ color:#ef4c57; }
+  .game-log-line.warning .game-log-message{ color:#ef6670; font-weight:700; }
   .game-log-alert{ color:#e66f6f; font-weight:900; letter-spacing:.16em; text-shadow:0 0 7px rgba(230,72,72,.5); }
   .game-witness-overlay{
     position:absolute; left:0; right:0; top:50%; z-index:24; transform:translateY(-50%);
@@ -4340,7 +4356,7 @@
           <div class="brand-mark"></div>
           <div class="brand-text"><div class="b1">АСТРАЛ-1</div><div class="b2">КАРТА СМЕНЫ</div></div>
           <div class="game-task-header">
-            <div class="game-task-header-row"><span>ЗАДАНИЯ</span><span class="game-task-score" id="gameTaskScore">0/1000</span></div>
+            <div class="game-task-header-row"><span>ЗАДАНИЯ</span><span class="game-task-score-cluster"><span class="game-task-gain" id="gameTaskGain" hidden>+0</span><span class="game-task-score" id="gameTaskScore">0/1000</span></span></div>
             <div class="game-task-progress" role="progressbar" aria-label="Общая шкала заданий" aria-valuemin="0" aria-valuemax="1000" aria-valuenow="0"><span class="game-task-progress-fill" id="gameTaskProgressFill"></span></div>
           </div>
         </div>
@@ -4426,7 +4442,7 @@
             <div class="game-crew-empty">НИКОГО РЯДОМ</div>
           </div>
           <div class="game-room-actions">
-            <button class="game-room-action" id="gameTasksAction" type="button" disabled><span class="game-room-action-alert" id="gameTasksAlert" hidden>⚠</span>ЗАДАНИЯ</button>
+            <button class="game-room-action" id="gameTasksAction" type="button" disabled><span class="game-room-action-alert" id="gameTasksAlert" hidden>⚠</span><span id="gameTasksActionLabel">ЗАДАНИЯ</span></button>
             <button class="game-room-action" id="gameContextAction" type="button" hidden></button>
             <div class="game-emergency-confirm" id="gameEmergencyConfirm" hidden>
               <button class="game-room-action confirm" id="gameEmergencyPress" type="button">НАЖАТЬ</button>
@@ -5658,6 +5674,7 @@
   const gameLogLines = document.getElementById('gameLogLines');
   const gameToggleLog = document.getElementById('gameToggleLog');
   const gameTaskScore = document.getElementById('gameTaskScore');
+  const gameTaskGain = document.getElementById('gameTaskGain');
   const gameTaskProgress = document.querySelector('.game-task-progress');
   const gameTaskProgressFill = document.getElementById('gameTaskProgressFill');
   const gameClassificationName = document.getElementById('gameClassificationName');
@@ -5688,6 +5705,7 @@
   const gameToggleShiftCrt = document.getElementById('gameToggleShiftCrt');
   const gameCrewList = document.getElementById('gameCrewList');
   const gameTasksAction = document.getElementById('gameTasksAction');
+  const gameTasksActionLabel = document.getElementById('gameTasksActionLabel');
   const gameTasksAlert = document.getElementById('gameTasksAlert');
   const gameContextAction = document.getElementById('gameContextAction');
   const gameEmergencyConfirm = document.getElementById('gameEmergencyConfirm');
@@ -5724,6 +5742,8 @@
   let gameIdentificationTimeout = null;
   let gameSabotagePending = false;
   let gameStatePollPending = false;
+  let gameTaskPending = false;
+  let gameTaskGainTimeout = null;
 
   // Звук теперь принадлежит всему терминалу, а не только экрану смены.
   // Эти имена оставлены как совместимые точки входа для showGame/выхода.
@@ -5825,14 +5845,14 @@
       player:{
         id:0,name:(currentProfile && currentProfile.name) || 'ОПЕРАТОР',color:'Красный',color_emoji:'🟥',role:'staff',room_id:'central_hub',view_state:'main',pending_target:null,alive:true,
         tasks:[
-          {id:'t_reactor_check',name:'Проверить показания реактора',description:'Считать текущие показатели реактора и внести их в журнал.',location_id:'central_hub',location:'Центральный узел',stage_current:1,stage_total:1,complex:false},
-          {id:'t_docking_inspection',name:'Проверить стыковочные системы',description:'Осмотреть шлюз, сверить показания и завершить проверку в техотсеке.',location_id:'main_airlock',location:'Главный шлюз',stage_current:1,stage_total:3,complex:true}
+          {id:'t_reactor_check',name:'Проверить показания реактора',description:'Считать текущие показатели реактора и внести их в журнал.',location_id:'central_hub',location:'Центральный узел',stage_current:1,stage_total:1,complex:false,points:8,stage_rooms:['central_hub']},
+          {id:'t_docking_inspection',name:'Проверить стыковочные системы',description:'Осмотреть шлюз, сверить показания и завершить проверку в техотсеке.',location_id:'main_airlock',location:'Главный шлюз',stage_current:1,stage_total:3,complex:true,points:27,stage_rooms:['main_airlock','cargo_terminal','maintenance']}
         ]
       },
       static_crew:staticCrew,
       nearby_crew:staticCrew.slice(),
       corpses:[], journal_events:[], witness_events:[], web_events:[],
-      task_progress:{current:0,target:1000},
+      task_progress:{current:0,target:1000}, active_task:null,
       room_ui:{tasks_available:true,tasks_blocked:false,action:'emergency'},
       sabotage:{
         active_id:null,undock_sector:null,undock_sector_name:null,
@@ -5855,6 +5875,36 @@
     demo._sabotageCooldownEnds = demo._sabotageCooldownEnds || {costumes:now,tasks:now,undock:now + 64000};
     demo._killCooldownEnd = demo._killCooldownEnd || now;
     demo.liquidator_ui.kill_cooldown_seconds = Math.max(0,Math.ceil((demo._killCooldownEnd - now) / 1000));
+    if (demo.active_task && now >= demo.active_task.ends_at) {
+      const task = demo.player.tasks.find(function(entry){ return entry.id === demo.active_task.id; });
+      if (task && demo.sabotage.active_id !== 'tasks') {
+        const stageDone = task.stage_current;
+        const finished = stageDone >= task.stage_total;
+        const points = finished ? (task.points || 0) : 0;
+        demo._pendingWebEvents.push({
+          type:'task_completed',player:Object.assign({},demo.player),task_id:task.id,
+          task_name:task.name,stage_now:stageDone,stage_total:task.stage_total,
+          room_id:demo.player.room_id,points_awarded:points
+        });
+        if (finished) {
+          demo.task_progress.current = Math.min(demo.task_progress.target,demo.task_progress.current + points);
+          task.stage_current = 1;
+        } else {
+          task.stage_current += 1;
+          task.location_id = task.stage_rooms[task.stage_current - 1];
+          const nextRoom = demo.rooms.find(function(room){ return room.id === task.location_id; });
+          task.location = nextRoom ? nextRoom.name : task.location;
+        }
+      }
+      demo.active_task = null;
+    }
+    if (demo.active_task) {
+      demo.active_task.remaining_seconds = Math.max(0,Math.ceil((demo.active_task.ends_at - now) / 1000));
+    }
+    demo.player.tasks.forEach(function(task){
+      task.active = !!demo.active_task && demo.active_task.id === task.id;
+      task.available_here = !demo.active_task && demo.sabotage.active_id !== 'tasks' && task.location_id === demo.player.room_id;
+    });
     const sabotage = demo.sabotage;
     if (sabotage.active_id === 'costumes' && sabotage.ends_at && now >= sabotage.ends_at) {
       const entries = demo.static_crew
@@ -5887,7 +5937,7 @@
           : Object.assign({disguised:false},bot);
       });
     demo.room_ui.tasks_blocked = sabotage.active_id === 'tasks';
-    demo.room_ui.tasks_available = !demo.room_ui.tasks_blocked
+    demo.room_ui.tasks_available = !demo.room_ui.tasks_blocked && !demo.active_task
       && demo.player.tasks.some(function(task){ return task.location_id === demo.player.room_id; });
     demo.room_ui.action = demo.player.room_id === 'central_hub' ? 'emergency'
       : (demo.player.room_id === 'security_control' ? 'cameras' : null);
@@ -5928,12 +5978,13 @@
         demo._pendingWebEvents = [];
         demo._costumeNumbers = {};
         demo._tasksReminderSent = false;
+        demo._liquidatorTaskWarningShown = false;
+        demo.active_task = null;
         demo.sabotage.active_id = null;
         demo.sabotage.started_at = 0;
         demo.sabotage.ends_at = 0;
         const now = Date.now();
         demo._sabotageCooldownEnds = {costumes:now + 30000,tasks:now + 46000,undock:now + 64000};
-        demo._killCooldownEnd = selectedRole === 'liquidator' ? now + 22000 : now;
         demo._killCooldownEnd = selectedRole === 'liquidator' ? now + 22000 : now;
         delete demo.kill_event;
         demo.liquidator_ui.kill_cooldown_seconds = selectedRole === 'liquidator' ? 22 : 0;
@@ -5955,6 +6006,7 @@
       if (path === '/api/game/move') {
         const target = payload && payload.target_room;
         if (!demo.neighbors.includes(target)) return {ok:false,status:409,data:{error:'room_not_neighbor'}};
+        demo.active_task = null;
         if (demo.sabotage.active_id === 'costumes') {
           const oldId = demo._costumeNumbers[demo.player.id];
           const newId = 100 + Math.floor(Math.random() * 900);
@@ -5978,11 +6030,33 @@
         };
         demo.movement = {from:from,to:target,duration_seconds:1};
       }
+      if (path === '/api/game/task/start') {
+        if (demo.sabotage.active_id === 'tasks') return {ok:false,status:409,data:{error:'tasks_blocked'}};
+        if (demo.active_task) return {ok:false,status:409,data:{error:'task_already_running'}};
+        const taskId = payload && payload.task_id;
+        const task = demo.player.tasks.find(function(entry){ return entry.id === taskId && entry.location_id === demo.player.room_id; });
+        if (!task) return {ok:false,status:409,data:{error:'task_unavailable'}};
+        const now = Date.now();
+        const duration = task.complex ? 3500 : 6000;
+        demo.active_task = {
+          id:task.id,name:task.name,started_at:now,ends_at:now + duration,
+          remaining_seconds:Math.ceil(duration / 1000),stage_current:task.stage_current,stage_total:task.stage_total
+        };
+        if (demo.player.role === 'liquidator' && !demo._liquidatorTaskWarningShown) {
+          demo._liquidatorTaskWarningShown = true;
+          demo._pendingWebEvents.push({type:'liquidator_task_warning',task_id:task.id});
+        }
+      }
+      if (path === '/api/game/task/cancel') {
+        if (!demo.active_task) return {ok:false,status:409,data:{error:'no_active_task'}};
+        demo.active_task = null;
+      }
       if (path === '/api/game/sabotage/activate') {
         if (demo.player.role !== 'liquidator') return {ok:false,status:403,data:{error:'not_liquidator'}};
         const sabotageId = payload && payload.sabotage_id;
         const item = demo.sabotage.items.find(function(entry){ return entry.id === sabotageId; });
         if (!item || !item.available) return {ok:false,status:409,data:{error:'sabotage_unavailable'}};
+        demo.active_task = null;
         const now = Date.now();
         demo.sabotage.active_id = sabotageId;
         demo.sabotage.started_at = now;
@@ -6005,6 +6079,7 @@
       }
       if (path === '/api/game/kill') {
         if (demo.player.role !== 'liquidator') return {ok:false,status:403,data:{error:'not_liquidator'}};
+        demo.active_task = null;
         const victimId = Number(payload && payload.victim_id);
         const victim = demo.static_crew.find(function(bot){ return bot.id === victimId && bot.alive && bot.room_id === demo.player.room_id; });
         if (!victim) return {ok:false,status:409,data:{error:'kill_rejected',reason:'Эта цель недоступна.'}};
@@ -6056,6 +6131,7 @@
     const withoutTime = options && options.noTime;
     timeEl.textContent = withoutTime ? '' : String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
     if (withoutTime) row.classList.add('no-time');
+    if (options && options.warning) row.classList.add('warning');
     const textEl = document.createElement('div');
     textEl.className = 'game-log-message';
     if (Array.isArray(message)) {
@@ -6294,6 +6370,30 @@
         ]);
         return;
       }
+      if (event.type === 'liquidator_task_warning') {
+        addGameLog('ПРЕДУПРЕЖДЕНИЕ: выполняя задания, Ликвидатор приближает Персонал к победе.',{warning:true});
+        return;
+      }
+      if (event.type === 'task_completed') {
+        const actor = event.player || {};
+        const room = gameRoom(event.room_id);
+        const parts = [];
+        if (actor.disguised) {
+          parts.push({text:'ID ' + String(actor.disguise_id == null ? '—' : actor.disguise_id) + ' ',bold:true,className:'game-disguise-id'});
+        } else {
+          parts.push({colorSquare:actor.color || ''});
+          parts.push({text:(actor.color || '') + ' ',className:'game-color-text'});
+        }
+        parts.push({text:actor.name || 'Игрок',bold:true});
+        parts.push({text:' выполнил задание'});
+        if (Number(event.stage_total) > 1) parts.push({text:' (' + event.stage_now + '/' + event.stage_total + ')',bold:true});
+        parts.push({text:' в: '});
+        parts.push({text:(room && room.name) || event.room_name || 'неизвестная локация',bold:true});
+        parts.push({text:'.'});
+        addGameLog(parts);
+        if (Number(event.points_awarded) > 0) showGameTaskGain(event.points_awarded);
+        return;
+      }
       if (event.type === 'costumes_identification') showCostumeIdentification(event);
     });
   }
@@ -6357,8 +6457,12 @@
     gameIdentityMask.title = 'Режим отображения интерфейса';
     gamePlayerTasks.replaceChildren();
     (player.tasks || []).forEach(function(task){
-      const item = document.createElement('div');
+      const actionable = task.available_here === true && !gameTaskPending;
+      const item = document.createElement(actionable ? 'button' : 'div');
+      if (actionable) item.type = 'button';
       item.className = 'game-player-task';
+      item.classList.toggle('actionable',actionable);
+      item.classList.toggle('active',task.active === true);
       const title = document.createElement('div');
       title.className = 'game-player-task-title';
       title.textContent = task.name + ' (' + task.location + ')';
@@ -6372,8 +6476,28 @@
       description.className = 'game-player-task-desc';
       description.textContent = task.description;
       item.append(title,description);
+      if (actionable) {
+        item.title = 'Начать выполнение';
+        item.addEventListener('click',function(){ startGameTask(task.id); });
+      }
       gamePlayerTasks.appendChild(item);
     });
+  }
+
+  function showGameTaskGain(points){
+    const amount = Math.max(0,Math.round(Number(points) || 0));
+    if (!amount) return;
+    if (gameTaskGainTimeout) clearTimeout(gameTaskGainTimeout);
+    gameTaskGain.classList.remove('show');
+    gameTaskGain.hidden = false;
+    gameTaskGain.textContent = '+' + amount;
+    void gameTaskGain.offsetWidth;
+    gameTaskGain.classList.add('show');
+    gameTaskGainTimeout = setTimeout(function(){
+      gameTaskGain.classList.remove('show');
+      gameTaskGain.hidden = true;
+      gameTaskGainTimeout = null;
+    },2500);
   }
 
   function renderGameProgress(){
@@ -6550,8 +6674,17 @@
 
   function renderRoomActions(){
     const roomUi = gameStateData.room_ui || {};
-    gameTasksAction.disabled = !roomUi.tasks_available;
+    const activeTask = gameStateData.active_task;
+    gameTasksAction.disabled = gameTaskPending || (!activeTask && !roomUi.tasks_available);
     gameTasksAlert.hidden = !roomUi.tasks_blocked;
+    if (activeTask) {
+      const stage = Number(activeTask.stage_total) > 1 ? ' (' + activeTask.stage_current + '/' + activeTask.stage_total + ')' : '';
+      gameTasksActionLabel.textContent = 'ОТМЕНИТЬ ЗАДАНИЕ' + stage + ' // ' + Math.max(0,Number(activeTask.remaining_seconds) || 0) + ' СЕК.';
+      gameTasksAction.classList.add('cancel');
+    } else {
+      gameTasksActionLabel.textContent = roomUi.tasks_blocked ? 'ЗАДАНИЯ НЕДОСТУПНЫ' : 'ЗАДАНИЯ';
+      gameTasksAction.classList.remove('cancel');
+    }
     gameEmergencyConfirm.hidden = true;
     gameContextAction.hidden = !roomUi.action;
     const labels = {
@@ -6562,6 +6695,44 @@
     };
     gameContextAction.textContent = labels[roomUi.action] || '';
     gameContextAction.dataset.action = roomUi.action || '';
+  }
+
+  async function startGameTask(taskId){
+    if (gameTaskPending || !taskId) return;
+    gameTaskPending = true;
+    renderGamePlayerTasks();
+    renderRoomActions();
+    const result = await gameApiRequest('/api/game/task/start','POST',{task_id:taskId});
+    gameTaskPending = false;
+    if (!result.ok) {
+      addGameLog(gameErrorText(result));
+      renderGamePlayerTasks();
+      renderRoomActions();
+      return;
+    }
+    gameStateData = result.data;
+    renderGamePlayerTasks();
+    renderNearbyCrew();
+    renderRoomActions();
+    consumeGameEvents(result.data);
+  }
+
+  async function cancelGameTask(){
+    if (gameTaskPending || !gameStateData.active_task) return;
+    gameTaskPending = true;
+    renderRoomActions();
+    const result = await gameApiRequest('/api/game/task/cancel','POST',{});
+    gameTaskPending = false;
+    if (!result.ok) {
+      addGameLog(gameErrorText(result));
+      renderRoomActions();
+      return;
+    }
+    gameStateData = result.data;
+    renderGamePlayerTasks();
+    renderNearbyCrew();
+    renderRoomActions();
+    addGameLog('Выполнение задания отменено.');
   }
 
   function renderGameMap(){
@@ -6692,6 +6863,11 @@
     gameKillPending = false;
     gameSabotagePending = false;
     gameStatePollPending = false;
+    gameTaskPending = false;
+    if (gameTaskGainTimeout) clearTimeout(gameTaskGainTimeout);
+    gameTaskGainTimeout = null;
+    gameTaskGain.classList.remove('show');
+    gameTaskGain.hidden = true;
     if (gameWitnessTimeout) clearTimeout(gameWitnessTimeout);
     gameWitnessTimeout = null;
     gameWitnessOverlay.hidden = true;
@@ -6746,6 +6922,10 @@
     if (code === 'staff_only') return 'УСТРАНИТЬ НЕПОЛАДКУ МОЖЕТ ТОЛЬКО ПЕРСОНАЛ.';
     if (code === 'wrong_repair_room') return 'РЕМОНТ ВЫПОЛНЯЕТСЯ В ТЕХОБСЛУЖИВАНИИ.';
     if (code === 'nothing_to_repair') return 'АКТИВНОГО САБОТАЖА ЗАДАНИЙ НЕТ.';
+    if (code === 'tasks_blocked') return 'ЗАДАНИЯ НЕДОСТУПНЫ ИЗ-ЗА САБОТАЖА.';
+    if (code === 'task_already_running') return 'ВЫ УЖЕ ВЫПОЛНЯЕТЕ ЗАДАНИЕ.';
+    if (code === 'task_unavailable') return 'ЭТО ЗАДАНИЕ ЗДЕСЬ НЕДОСТУПНО.';
+    if (code === 'no_active_task') return 'АКТИВНОГО ЗАДАНИЯ НЕТ.';
     if (result && result.status === 401) return 'СЕАНС TELEGRAM УСТАРЕЛ. ПЕРЕОТКРОЙТЕ MINI APP.';
     return 'НЕТ СВЯЗИ С ДИСПЕТЧЕРСКОЙ. ПОПРОБУЙТЕ ЕЩЁ РАЗ.';
   }
@@ -6795,6 +6975,11 @@
     if (gameIdentificationTimeout) clearTimeout(gameIdentificationTimeout);
     gameIdentificationTimeout = null;
     gameIdentificationOverlay.hidden = true;
+    gameTaskPending = false;
+    if (gameTaskGainTimeout) clearTimeout(gameTaskGainTimeout);
+    gameTaskGainTimeout = null;
+    gameTaskGain.classList.remove('show');
+    gameTaskGain.hidden = true;
     gameSettingsOverlay.classList.remove('shown');
     gameSettingsOverlay.hidden = true;
     selectedGameRoomId = null;
@@ -6844,6 +7029,15 @@
   });
   gameTasksAction.addEventListener('click',function(){
     if (gameTasksAction.disabled) return;
+    if (gameStateData.active_task) {
+      cancelGameTask();
+      return;
+    }
+    const task = (gameStateData.player.tasks || []).find(function(entry){ return entry.available_here; });
+    if (task) {
+      startGameTask(task.id);
+      return;
+    }
     gamePlayerTasks.classList.remove('attention');
     requestAnimationFrame(function(){ gamePlayerTasks.classList.add('attention'); });
   });
