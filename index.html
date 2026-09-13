@@ -5845,8 +5845,8 @@
       player:{
         id:0,name:(currentProfile && currentProfile.name) || 'ОПЕРАТОР',color:'Красный',color_emoji:'🟥',role:'staff',room_id:'central_hub',view_state:'main',pending_target:null,alive:true,
         tasks:[
-          {id:'t_reactor_check',name:'Проверить показания реактора',description:'Считать текущие показатели реактора и внести их в журнал.',location_id:'central_hub',location:'Центральный узел',stage_current:1,stage_total:1,complex:false,points:8,stage_rooms:['central_hub']},
-          {id:'t_docking_inspection',name:'Проверить стыковочные системы',description:'Осмотреть шлюз, сверить показания и завершить проверку в техотсеке.',location_id:'main_airlock',location:'Главный шлюз',stage_current:1,stage_total:3,complex:true,points:27,stage_rooms:['main_airlock','cargo_terminal','maintenance']}
+          {id:'t_reactor_check',name:'Проверить показания реактора',description:'Считать текущие показатели реактора и внести их в журнал.',location_id:'central_hub',location:'Центральный узел',stage_current:0,stage_total:1,complex:false,points:8,stage_rooms:['central_hub']},
+          {id:'t_docking_inspection',name:'Проверить стыковочные системы',description:'Осмотреть шлюз, сверить показания и завершить проверку в техотсеке.',location_id:'main_airlock',location:'Главный шлюз',stage_current:0,stage_total:3,complex:true,points:27,stage_rooms:['main_airlock','cargo_terminal','maintenance']}
         ]
       },
       static_crew:staticCrew,
@@ -5878,7 +5878,7 @@
     if (demo.active_task && now >= demo.active_task.ends_at) {
       const task = demo.player.tasks.find(function(entry){ return entry.id === demo.active_task.id; });
       if (task && demo.sabotage.active_id !== 'tasks') {
-        const stageDone = task.stage_current;
+        const stageDone = task.stage_current + 1;
         const finished = stageDone >= task.stage_total;
         const points = finished ? (task.points || 0) : 0;
         demo._pendingWebEvents.push({
@@ -5888,10 +5888,13 @@
         });
         if (finished) {
           demo.task_progress.current = Math.min(demo.task_progress.target,demo.task_progress.current + points);
-          task.stage_current = 1;
+          task.stage_current = 0;
+          task.location_id = task.stage_rooms[0];
+          const firstRoom = demo.rooms.find(function(room){ return room.id === task.location_id; });
+          task.location = firstRoom ? firstRoom.name : task.location;
         } else {
-          task.stage_current += 1;
-          task.location_id = task.stage_rooms[task.stage_current - 1];
+          task.stage_current = stageDone;
+          task.location_id = task.stage_rooms[task.stage_current];
           const nextRoom = demo.rooms.find(function(room){ return room.id === task.location_id; });
           task.location = nextRoom ? nextRoom.name : task.location;
         }
@@ -6040,7 +6043,7 @@
         const duration = task.complex ? 3500 : 6000;
         demo.active_task = {
           id:task.id,name:task.name,started_at:now,ends_at:now + duration,
-          remaining_seconds:Math.ceil(duration / 1000),stage_current:task.stage_current,stage_total:task.stage_total
+          remaining_seconds:Math.ceil(duration / 1000),stage_current:task.stage_current + 1,stage_total:task.stage_total
         };
         if (demo.player.role === 'liquidator' && !demo._liquidatorTaskWarningShown) {
           demo._liquidatorTaskWarningShown = true;
