@@ -4787,6 +4787,13 @@
     announcementOn: 'Звуки/Инструментарий/Уведомления/Включение-Выключение/Включение.mp3',
     announcementOff: 'Звуки/Инструментарий/Уведомления/Включение-Выключение/Выключение.mp3'
   };
+  const TERMINAL_ANNOUNCEMENT_DIRECTORY = 'Звуки/Инструментарий/Уведомления/rus_sounds/';
+  const TERMINAL_ANNOUNCEMENT_CATALOG_URL =
+    'https://api.github.com/repos/LitvinenkoYehor/isolation-telegram-game-bot-equator-miniapp/contents/' +
+    TERMINAL_ANNOUNCEMENT_DIRECTORY.split('/').filter(Boolean).map(encodeURIComponent).join('/') +
+    '?ref=main';
+  const TERMINAL_ANNOUNCEMENT_CACHE_KEY = 'isolation-terminal-announcements-ru-v1';
+  const TERMINAL_ANNOUNCEMENT_EXTENSIONS = /\.(?:mp3|ogg|wav|m4a|aac)$/i;
 
   function createTerminalAudio(path, volume, loop){
     const audio = path ? new Audio(new URL(path, document.baseURI).href) : new Audio();
@@ -5011,18 +5018,20 @@
 
   function refreshTerminalAnnouncementSounds(){
     if (terminalAnnouncementCatalogPromise) return terminalAnnouncementCatalogPromise;
-    terminalAnnouncementCatalogPromise = fetch(
-      apiUrl('/api/audio/announcements?language=ru'),
-      { cache:'no-store' }
-    )
+    terminalAnnouncementCatalogPromise = fetch(TERMINAL_ANNOUNCEMENT_CATALOG_URL,{ cache:'no-store' })
       .then(response => {
         if (!response.ok) throw new Error('HTTP ' + response.status);
         return response.json();
       })
       .then(data => {
-        const files = Array.isArray(data.files)
-          ? data.files.filter(name => typeof name === 'string' && name.length > 0)
+        const files = Array.isArray(data)
+          ? data
+              .filter(item => item && item.type === 'file' && TERMINAL_ANNOUNCEMENT_EXTENSIONS.test(item.name || ''))
+              .map(item => item.name)
+              .sort((left,right) => left.localeCompare(right,'ru'))
           : [];
+        if (files.length === 0) throw new Error('Папка rus_sounds пуста');
+        try { localStorage.setItem(TERMINAL_ANNOUNCEMENT_CACHE_KEY,JSON.stringify(files)); } catch (e) {}
         const signature = JSON.stringify(files);
         if (signature === terminalAnnouncementCatalogSignature) return terminalAnnouncementPaths;
 
@@ -5031,9 +5040,10 @@
           audio.removeAttribute('src');
           audio.load();
         });
-        const paths = files.map(filename =>
-          apiUrl('/api/audio/announcement/ru/' + encodeURIComponent(filename))
-        );
+        const paths = files.map(filename => new URL(
+          TERMINAL_ANNOUNCEMENT_DIRECTORY + encodeURIComponent(filename),
+          document.baseURI
+        ).href);
         terminalAnnouncementPaths.splice(0,terminalAnnouncementPaths.length,...paths);
         terminalAnnouncementPreloads.splice(
           0,
@@ -5046,6 +5056,24 @@
       })
       .catch(error => {
         console.error('Не удалось получить список звуковых уведомлений:',error);
+        if (terminalAnnouncementPaths.length === 0) {
+          try {
+            const cached = JSON.parse(localStorage.getItem(TERMINAL_ANNOUNCEMENT_CACHE_KEY) || '[]');
+            if (Array.isArray(cached) && cached.length > 0) {
+              const paths = cached.map(filename => new URL(
+                TERMINAL_ANNOUNCEMENT_DIRECTORY + encodeURIComponent(filename),
+                document.baseURI
+              ).href);
+              terminalAnnouncementPaths.splice(0,terminalAnnouncementPaths.length,...paths);
+              terminalAnnouncementPreloads.splice(
+                0,
+                terminalAnnouncementPreloads.length,
+                ...paths.map(path => createTerminalAudio(path,0,false))
+              );
+              applyAudioSettings();
+            }
+          } catch (e) {}
+        }
         return terminalAnnouncementPaths;
       })
       .finally(() => { terminalAnnouncementCatalogPromise = null; });
@@ -5069,7 +5097,7 @@
     if (terminalAnnouncementPlaying) return;
     terminalAnnouncementPlaying = true;
     try {
-      await refreshTerminalAnnouncementSounds();
+      if (terminalAnnouncementPaths.length === 0) await refreshTerminalAnnouncementSounds();
       if (terminalAnnouncementPaths.length === 0) return;
       const selected = terminalAnnouncementPaths[
         Math.floor(Math.random() * terminalAnnouncementPaths.length)
@@ -5119,8 +5147,8 @@
     return API_BASE.replace(/\/$/, '') + path;
   }
 
-  // Каталог перечитывается и перед каждым объявлением, поэтому новый файл
-  // из rus_sounds начнёт участвовать в равномерном выборе без правки HTML.
+  // Список берём прямо из репозитория Mini App один раз при открытии.
+  // Новый файл из rus_sounds подхватится после следующего запуска страницы.
   refreshTerminalAnnouncementSounds();
 
   // Профиль по умолчанию для предпросмотра вне Telegram (например, открыли
