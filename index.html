@@ -2572,6 +2572,10 @@
   }
   .game-crew-member.corpse .game-color-text{ color:#7d252c; }
   .game-crew-member.corpse strong{ color:#d54952; }
+  .game-crew-member.corpse.disguised .game-crew-color{
+    --crew-color:#bd3e48 !important; filter:none; opacity:1;
+  }
+  .game-disguise-id{ color:#efc978; font-weight:800; letter-spacing:.06em; }
   .game-crew-color{
     position:relative; flex:0 0 auto; display:grid; place-items:center;
     width:1.8cqw; height:1.8cqw; min-width:20px; min-height:20px; box-sizing:border-box;
@@ -2658,12 +2662,38 @@
     margin-right:.28em; vertical-align:-.16em;
   }
   .game-witness-killer{ color:#ef414d; }
+  .game-identification-overlay{
+    position:absolute; left:0; right:0; top:50%; z-index:25; transform:translateY(-50%);
+    padding:1.5cqw 2cqw; box-sizing:border-box; border:0; pointer-events:none;
+    background:rgba(0,0,0,.78); color:#dce8ec;
+    font:700 1.35cqw/1.35 'IBM VGA 8x16',monospace; text-shadow:0 0 .55cqw #000;
+  }
+  .game-identification-overlay[hidden]{ display:none; }
+  .game-identification-title{ margin-bottom:.8cqw; color:#f0d083; text-align:center; letter-spacing:.08em; }
+  .game-identification-list{ display:grid; grid-template-columns:1fr; gap:.42cqw 1.5cqw; max-width:92%; margin:0 auto; }
+  .game-identification-list.two-columns{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .game-identification-entry{ min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .game-identification-number{ color:#f0d083; }
+  .game-identification-empty{ color:rgba(220,232,236,.62); text-align:center; }
   .game-screen.liquidator-view{
     background:linear-gradient(180deg,rgba(34,7,12,.985),rgba(18,3,7,.995));
   }
   .game-screen.liquidator-view .game-map-panel,
   .game-screen.liquidator-view .game-side-panel,
   .game-screen.liquidator-view .game-log{ border-color:rgba(187,71,78,.42); }
+  .game-screen.staff-sabotage{
+    background:linear-gradient(180deg,rgba(19,4,7,.992),rgba(7,2,4,.998));
+  }
+  .game-screen.staff-sabotage .game-map-panel,
+  .game-screen.staff-sabotage .game-side-panel,
+  .game-screen.staff-sabotage .game-log{ border-color:rgba(126,42,48,.52); background-color:rgba(14,3,6,.94); }
+  .game-screen.staff-sabotage .game-map-viewport{
+    background:
+      linear-gradient(rgba(137,48,55,.04) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(137,48,55,.04) 1px,transparent 1px),
+      radial-gradient(circle at 50% 48%,#301016 0%,#16070b 60%,#080306 100%);
+    background-size:3.2cqw 3.2cqw,3.2cqw 3.2cqw,auto;
+  }
   .game-mask-btn{
     opacity:.42; color:var(--scr-cyan); border-color:var(--scr-cyan);
     background:rgba(76,210,244,.12);
@@ -4347,11 +4377,11 @@
                 <span class="game-ability-copy"><strong>УБИЙСТВО</strong><span class="game-ability-timer" id="gameKillTimer">ГОТОВО</span></span>
               </div>
               <div class="game-ability-item" data-ability="costumes">
-                <span class="game-ability-icon">ID</span>
+                <button class="game-ability-icon" type="button" data-sabotage-action="costumes" aria-label="Активировать взлом костюмов">ID</button>
                 <span class="game-ability-copy"><strong>ВЗЛОМ КОСТЮМОВ</strong><span class="game-ability-timer" data-sabotage-timer="costumes">ГОТОВО</span></span>
               </div>
               <div class="game-ability-item" data-ability="tasks">
-                <span class="game-ability-icon">⌁</span>
+                <button class="game-ability-icon" type="button" data-sabotage-action="tasks" aria-label="Активировать взлом заданий">⌁</button>
                 <span class="game-ability-copy"><strong>ВЗЛОМ ЗАДАНИЙ</strong><span class="game-ability-timer" data-sabotage-timer="tasks">ГОТОВО</span></span>
               </div>
               <div class="game-ability-item" data-ability="undock">
@@ -4380,6 +4410,10 @@
               <div class="game-witness-detail">
                 <span class="game-crew-color game-witness-color" id="gameWitnessKillerColor"></span><span class="game-color-text" id="gameWitnessKillerColorText"></span><span class="game-witness-killer" id="gameWitnessKiller"></span> убил <span class="game-crew-color game-witness-color" id="gameWitnessVictimColor"></span><span class="game-color-text" id="gameWitnessVictimColorText"></span><span id="gameWitnessVictim"></span>
               </div>
+            </div>
+            <div class="game-identification-overlay" id="gameIdentificationOverlay" role="status" aria-live="assertive" hidden>
+              <div class="game-identification-title">ИДЕНТИФИКАЦИЯ ПЕРСОНАЛА:</div>
+              <div class="game-identification-list" id="gameIdentificationList"></div>
             </div>
           </div>
         </section>
@@ -5646,6 +5680,9 @@
   const gameWitnessVictimColor = document.getElementById('gameWitnessVictimColor');
   const gameWitnessVictimColorText = document.getElementById('gameWitnessVictimColorText');
   const gameWitnessVictim = document.getElementById('gameWitnessVictim');
+  const gameIdentificationOverlay = document.getElementById('gameIdentificationOverlay');
+  const gameIdentificationList = document.getElementById('gameIdentificationList');
+  const gameSabotageButtons = Array.from(document.querySelectorAll('[data-sabotage-action]'));
   const gameIdentityMask = document.getElementById('gameIdentityMask');
   const gameToggleColorText = document.getElementById('gameToggleColorText');
   const gameToggleShiftCrt = document.getElementById('gameToggleShiftCrt');
@@ -5684,6 +5721,9 @@
   let gameKillTargeting = false;
   let gameKillPending = false;
   let gameWitnessTimeout = null;
+  let gameIdentificationTimeout = null;
+  let gameSabotagePending = false;
+  let gameStatePollPending = false;
 
   // Звук теперь принадлежит всему терминалу, а не только экрану смены.
   // Эти имена оставлены как совместимые точки входа для showGame/выхода.
@@ -5791,7 +5831,7 @@
       },
       static_crew:staticCrew,
       nearby_crew:staticCrew.slice(),
-      corpses:[], journal_events:[], witness_events:[],
+      corpses:[], journal_events:[], witness_events:[], web_events:[],
       task_progress:{current:0,target:1000},
       room_ui:{tasks_available:true,tasks_blocked:false,action:'emergency'},
       sabotage:{
@@ -5808,10 +5848,73 @@
     return offlineGameSession;
   }
 
+  function updateOfflineSabotage(demo){
+    const now = Date.now();
+    demo._pendingWebEvents = demo._pendingWebEvents || [];
+    demo._costumeNumbers = demo._costumeNumbers || {};
+    demo._sabotageCooldownEnds = demo._sabotageCooldownEnds || {costumes:now,tasks:now,undock:now + 64000};
+    demo._killCooldownEnd = demo._killCooldownEnd || now;
+    demo.liquidator_ui.kill_cooldown_seconds = Math.max(0,Math.ceil((demo._killCooldownEnd - now) / 1000));
+    const sabotage = demo.sabotage;
+    if (sabotage.active_id === 'costumes' && sabotage.ends_at && now >= sabotage.ends_at) {
+      const entries = demo.static_crew
+        .filter(function(bot){ return bot.alive && bot.room_id === demo.player.room_id; })
+        .map(function(bot){ return {id:bot.id,number:demo._costumeNumbers[bot.id],name:bot.name,color:bot.color,color_emoji:bot.color_emoji}; });
+      demo._pendingWebEvents.push({type:'costumes_identification',room_id:demo.player.room_id,entries:entries});
+      sabotage.active_id = null;
+      sabotage.ends_at = 0;
+      demo._sabotageCooldownEnds.costumes = now + 90000;
+      demo._costumeNumbers = {};
+    }
+    if (sabotage.active_id === 'tasks' && !demo._tasksReminderSent && now - sabotage.started_at >= 60000) {
+      demo._tasksReminderSent = true;
+      demo._pendingWebEvents.push({type:'sabotage_reminder',sabotage_id:'tasks',started_at:sabotage.started_at});
+    }
+    const costumesActive = sabotage.active_id === 'costumes';
+    demo.player.disguise_id = costumesActive ? demo._costumeNumbers[demo.player.id] : null;
+    demo.nearby_crew = demo.static_crew
+      .filter(function(bot){ return bot.alive && bot.room_id === demo.player.room_id; })
+      .map(function(bot){
+        if (!costumesActive) return Object.assign({disguised:false},bot);
+        return {id:bot.id,name:'Неизвестный',color:'Красный',color_emoji:'🟥',is_bot:true,room_id:bot.room_id,doing_task:false,role:null,alive:true,disguised:true,disguise_id:demo._costumeNumbers[bot.id]};
+      });
+    demo.corpses = demo.static_crew
+      .filter(function(bot){ return !bot.alive && bot.room_id === demo.player.room_id; })
+      .map(function(bot){
+        const masked = costumesActive && demo._costumeNumbers[bot.id] != null;
+        return masked
+          ? {id:bot.id,name:'Неизвестный',color:'Красный',color_emoji:'🟥',alive:false,disguised:true,disguise_id:demo._costumeNumbers[bot.id]}
+          : Object.assign({disguised:false},bot);
+      });
+    demo.room_ui.tasks_blocked = sabotage.active_id === 'tasks';
+    demo.room_ui.tasks_available = !demo.room_ui.tasks_blocked
+      && demo.player.tasks.some(function(task){ return task.location_id === demo.player.room_id; });
+    demo.room_ui.action = demo.player.room_id === 'central_hub' ? 'emergency'
+      : (demo.player.room_id === 'security_control' ? 'cameras' : null);
+    if (demo.player.room_id === 'maintenance' && sabotage.active_id === 'tasks') demo.room_ui.action = 'repair_tasks';
+    if (demo._killCooldownEnd) {
+      demo.liquidator_ui.kill_cooldown_seconds = Math.max(0,Math.ceil((demo._killCooldownEnd - now) / 1000));
+    }
+    sabotage.items.forEach(function(item){
+      item.active = sabotage.active_id === item.id;
+      if (item.active) {
+        item.cooldown_seconds = item.id === 'costumes' ? Math.max(0,Math.ceil((sabotage.ends_at - now) / 1000)) : 0;
+      } else {
+        item.cooldown_seconds = Math.max(0,Math.ceil(((demo._sabotageCooldownEnds[item.id] || now) - now) / 1000));
+      }
+      item.available = !sabotage.active_id && item.cooldown_seconds <= 0 && item.id !== 'undock';
+    });
+  }
+
+  function deliverOfflineWebEvents(demo){
+    demo.web_events = (demo._pendingWebEvents || []).splice(0);
+  }
+
   async function gameApiRequest(path, method, payload){
     const initData = tg && tg.initData ? tg.initData : '';
     if (!initData) {
       const demo = offlineGameState();
+      updateOfflineSabotage(demo);
       if (path === '/api/game/admin-solo/start') {
         const selectedRole = payload && payload.role;
         demo.player.role = selectedRole === 'liquidator' ? 'liquidator' : 'staff';
@@ -5821,6 +5924,17 @@
         demo.corpses = [];
         demo.journal_events = [];
         demo.witness_events = [];
+        demo.web_events = [];
+        demo._pendingWebEvents = [];
+        demo._costumeNumbers = {};
+        demo._tasksReminderSent = false;
+        demo.sabotage.active_id = null;
+        demo.sabotage.started_at = 0;
+        demo.sabotage.ends_at = 0;
+        const now = Date.now();
+        demo._sabotageCooldownEnds = {costumes:now + 30000,tasks:now + 46000,undock:now + 64000};
+        demo._killCooldownEnd = selectedRole === 'liquidator' ? now + 22000 : now;
+        demo._killCooldownEnd = selectedRole === 'liquidator' ? now + 22000 : now;
         delete demo.kill_event;
         demo.liquidator_ui.kill_cooldown_seconds = selectedRole === 'liquidator' ? 22 : 0;
         if (selectedRole === 'staff' || selectedRole === 'witness') demo.static_crew[0].role = 'liquidator';
@@ -5841,6 +5955,12 @@
       if (path === '/api/game/move') {
         const target = payload && payload.target_room;
         if (!demo.neighbors.includes(target)) return {ok:false,status:409,data:{error:'room_not_neighbor'}};
+        if (demo.sabotage.active_id === 'costumes') {
+          const oldId = demo._costumeNumbers[demo.player.id];
+          const newId = 100 + Math.floor(Math.random() * 900);
+          demo._costumeNumbers[demo.player.id] = newId;
+          demo._pendingWebEvents.push({type:'costume_movement',old_id:oldId,new_id:newId,target_room_id:target});
+        }
         demo.player.view_state = 'transit';
         demo.player.pending_target = target;
         await delay(900);
@@ -5853,10 +5973,35 @@
         demo.corpses = demo.static_crew.filter(function(bot){ return !bot.alive && bot.room_id === target; });
         demo.room_ui = {
           tasks_available:demo.player.tasks.some(function(task){ return task.location_id === target; }),
-          tasks_blocked:false,
+          tasks_blocked:demo.sabotage.active_id === 'tasks',
           action:target === 'central_hub' ? 'emergency' : (target === 'security_control' ? 'cameras' : null)
         };
         demo.movement = {from:from,to:target,duration_seconds:1};
+      }
+      if (path === '/api/game/sabotage/activate') {
+        if (demo.player.role !== 'liquidator') return {ok:false,status:403,data:{error:'not_liquidator'}};
+        const sabotageId = payload && payload.sabotage_id;
+        const item = demo.sabotage.items.find(function(entry){ return entry.id === sabotageId; });
+        if (!item || !item.available) return {ok:false,status:409,data:{error:'sabotage_unavailable'}};
+        const now = Date.now();
+        demo.sabotage.active_id = sabotageId;
+        demo.sabotage.started_at = now;
+        demo.sabotage.ends_at = sabotageId === 'costumes' ? now + 30000 : 0;
+        demo._tasksReminderSent = false;
+        if (sabotageId === 'costumes') {
+          demo._costumeNumbers = {};
+          demo._costumeNumbers[demo.player.id] = 100 + Math.floor(Math.random() * 900);
+          demo.static_crew.forEach(function(bot,index){ demo._costumeNumbers[bot.id] = 200 + index; });
+        }
+        demo._pendingWebEvents.push({type:'sabotage_started',sabotage_id:sabotageId,started_at:now});
+      }
+      if (path === '/api/game/sabotage/repair-tasks') {
+        if (demo.player.role !== 'staff') return {ok:false,status:403,data:{error:'staff_only'}};
+        if (demo.player.room_id !== 'maintenance') return {ok:false,status:409,data:{error:'wrong_repair_room'}};
+        if (demo.sabotage.active_id !== 'tasks') return {ok:false,status:409,data:{error:'nothing_to_repair'}};
+        demo.sabotage.active_id = null;
+        demo._sabotageCooldownEnds.tasks = Date.now() + 90000;
+        demo._tasksReminderSent = false;
       }
       if (path === '/api/game/kill') {
         if (demo.player.role !== 'liquidator') return {ok:false,status:403,data:{error:'not_liquidator'}};
@@ -5866,12 +6011,15 @@
         victim.alive = false;
         demo.nearby_crew = demo.static_crew.filter(function(bot){ return bot.alive && bot.room_id === demo.player.room_id; });
         demo.corpses = demo.static_crew.filter(function(bot){ return !bot.alive && bot.room_id === demo.player.room_id; });
+        demo._killCooldownEnd = Date.now() + 45000;
         demo.liquidator_ui.kill_cooldown_seconds = 45;
         demo.kill_event = {
           killer:Object.assign({},demo.player), victim:Object.assign({},victim),
           room_id:demo.player.room_id,room_name:demo.rooms.find(function(room){ return room.id === demo.player.room_id; }).name
         };
       }
+      updateOfflineSabotage(demo);
+      deliverOfflineWebEvents(demo);
       return {ok:true,status:200,data:demo};
     }
     try {
@@ -5957,6 +6105,64 @@
     if (sabotage.active_id === 'tasks') message = 'Внимание! Отказ системы нарядов!';
     if (sabotage.active_id === 'undock') message = 'Внимание! Аварийная расстыковка: «' + (sabotage.undock_sector_name || 'неизвестный отсек') + '».';
     if (message) addGameLog(message,{sabotage:true});
+    if (sabotage.active_id === 'tasks') {
+      addGameLog([
+        {text:'Ремонт: '},
+        {text:'Техобслуживание',bold:true},
+        {text:'.'}
+      ],{noTime:true});
+    }
+  }
+
+  function showCostumeIdentification(event){
+    const entries = (event && event.entries) || [];
+    addGameLog('ИДЕНТИФИКАЦИЯ ПЕРСОНАЛА:');
+    if (!entries.length) {
+      addGameLog('<Нет данных...>',{noTime:true});
+    } else {
+      entries.forEach(function(entry){
+        addGameLog([
+          {text:String(entry.number == null ? '—' : entry.number) + ' -> ',bold:true,className:'game-disguise-id'},
+          {colorSquare:entry.color || ''},
+          {text:(entry.color || '') + ' ',className:'game-color-text'},
+          {text:entry.name || 'Неизвестный',bold:true}
+        ],{noTime:true});
+      });
+    }
+
+    gameIdentificationList.replaceChildren();
+    gameIdentificationList.classList.toggle('two-columns',entries.length >= 7);
+    if (!entries.length) {
+      const empty = document.createElement('div');
+      empty.className = 'game-identification-empty';
+      empty.textContent = '<Нет данных...>';
+      gameIdentificationList.appendChild(empty);
+    } else {
+      entries.forEach(function(entry){
+        const row = document.createElement('div');
+        row.className = 'game-identification-entry';
+        const number = document.createElement('span');
+        number.className = 'game-identification-number';
+        number.textContent = String(entry.number == null ? '—' : entry.number) + ' -> ';
+        const color = document.createElement('span');
+        color.className = 'game-crew-color game-witness-color';
+        color.style.setProperty('--crew-color',gameColorHex(entry.color));
+        color.setAttribute('aria-label',entry.color || 'Цвет скафандра');
+        const colorText = document.createElement('span');
+        colorText.className = 'game-color-text';
+        colorText.textContent = (entry.color || '') + ' ';
+        const name = document.createElement('strong');
+        name.textContent = entry.name || 'Неизвестный';
+        row.append(number,color,colorText,name);
+        gameIdentificationList.appendChild(row);
+      });
+    }
+    gameIdentificationOverlay.hidden = false;
+    if (gameIdentificationTimeout) clearTimeout(gameIdentificationTimeout);
+    gameIdentificationTimeout = setTimeout(function(){
+      gameIdentificationOverlay.hidden = true;
+      gameIdentificationTimeout = null;
+    },5000);
   }
 
   function addGameJournalEvents(events){
@@ -6072,6 +6278,24 @@
     addGameJournalEvents(data.events);
     addGameJournalEvents(data.journal_events);
     (data.witness_events || []).forEach(showGameWitness);
+    (data.web_events || []).forEach(function(event){
+      if (event.type === 'sabotage_started' || event.type === 'sabotage_reminder') {
+        addGameSabotageLog({active_id:event.sabotage_id});
+        return;
+      }
+      if (event.type === 'costume_movement') {
+        const room = gameRoom(event.target_room_id);
+        addGameLog([
+          {text:String(event.old_id == null ? '—' : event.old_id),bold:true,className:'game-disguise-id'},
+          {text:' -> '},
+          {text:String(event.new_id == null ? '—' : event.new_id),bold:true,className:'game-disguise-id'},
+          {text:': '},
+          {text:(room && room.name) || event.target_room_name || 'неизвестная локация',bold:true}
+        ]);
+        return;
+      }
+      if (event.type === 'costumes_identification') showCostumeIdentification(event);
+    });
   }
 
   function svgEl(name,attributes){
@@ -6120,11 +6344,13 @@
     const player = gameStateData.player;
     const isLiquidator = player.role === 'liquidator';
     const showLiquidator = isLiquidator && !gameIdentityMasked;
+    const staffSabotage = !isLiquidator && !!(gameStateData.sabotage && gameStateData.sabotage.active_id);
     gameClassificationName.textContent = player.name || 'ОПЕРАТОР';
     gameClassificationRole.textContent = showLiquidator ? 'ЛИКВИДАТОР' : 'ПЕРСОНАЛ';
     gameClassificationRole.classList.toggle('liquidator',showLiquidator);
     gameTasksPanelTitle.textContent = showLiquidator ? 'ПОД ПРИКРЫТИЕМ' : 'ЗАДАНИЯ';
     gameScreen.classList.toggle('liquidator-view',showLiquidator);
+    gameScreen.classList.toggle('staff-sabotage',staffSabotage);
     gameScreen.classList.toggle('identity-masked',isLiquidator && gameIdentityMasked);
     gameLiquidatorPanel.hidden = !showLiquidator;
     gameIdentityMask.setAttribute('aria-pressed',String(!showLiquidator));
@@ -6176,10 +6402,12 @@
       && Number(gameKillTimer.dataset.remaining || 0) <= 0
       && !gameKillPending;
     crew.slice(0,12).forEach(function(member){
+      const disguised = member.disguised === true;
       const item = document.createElement('button');
       item.type = 'button';
       item.className = 'game-crew-member';
-      item.title = member.color + ' ' + member.name;
+      if (disguised) item.classList.add('disguised');
+      item.title = disguised ? ('ID ' + (member.disguise_id == null ? '—' : member.disguise_id) + ' Неизвестный') : (member.color + ' ' + member.name);
       item.dataset.playerId = String(member.id);
       item.setAttribute('aria-disabled',String(!targetMode));
       if (targetMode) {
@@ -6199,23 +6427,26 @@
         color.appendChild(taskMark);
       }
       const colorText = document.createElement('span');
-      colorText.className = 'game-color-text';
-      colorText.textContent = member.color || '';
+      colorText.className = disguised ? 'game-disguise-id' : 'game-color-text';
+      colorText.textContent = disguised ? String(member.disguise_id == null ? '—' : member.disguise_id) : (member.color || '');
       const name = document.createElement('strong');
       name.textContent = member.name;
       item.append(color,colorText,name);
       gameCrewList.appendChild(item);
     });
     corpses.slice(0,Math.max(0,12 - crew.length)).forEach(function(member){
+      const disguised = member.disguised === true;
       const item = document.createElement('div');
       item.className = 'game-crew-member corpse';
-      item.title = 'Тело: ' + member.name;
+      if (disguised) item.classList.add('disguised');
+      item.title = disguised ? ('Тело: ID ' + (member.disguise_id == null ? '—' : member.disguise_id) + ' Неизвестный') : ('Тело: ' + member.name);
       const color = document.createElement('span');
       color.className = 'game-crew-color';
-      color.setAttribute('aria-label','Бесцветный скафандр');
+      if (disguised) color.style.setProperty('--crew-color',gameColorHex('Красный'));
+      color.setAttribute('aria-label',disguised ? 'Красный скафандр' : 'Бесцветный скафандр');
       const colorText = document.createElement('span');
-      colorText.className = 'game-color-text';
-      colorText.textContent = member.color || '';
+      colorText.className = disguised ? 'game-disguise-id' : 'game-color-text';
+      colorText.textContent = disguised ? String(member.disguise_id == null ? '—' : member.disguise_id) : (member.color || '');
       const name = document.createElement('strong');
       name.textContent = member.name;
       item.append(color,colorText,name);
@@ -6250,6 +6481,21 @@
     gameKillAbility.setAttribute('aria-label',gameKillTargeting ? 'Отменить выбор цели' : 'Выбрать цель убийства');
   }
 
+  function updateSabotageAbilityState(){
+    if (!gameStateData) return;
+    const isLiquidator = gameStateData.player.role === 'liquidator' && gameStateData.player.alive !== false;
+    const activeId = gameStateData.sabotage && gameStateData.sabotage.active_id;
+    gameSabotageButtons.forEach(function(button){
+      const id = button.dataset.sabotageAction;
+      const timer = document.querySelector('[data-sabotage-timer="' + id + '"]');
+      const remaining = timer ? Number(timer.dataset.remaining || 0) : 0;
+      const active = activeId === id;
+      button.disabled = !isLiquidator || gameSabotagePending || !!activeId || remaining > 0;
+      button.classList.toggle('targeting',active);
+      button.setAttribute('aria-pressed',String(active));
+    });
+  }
+
   function renderLiquidatorAbilities(){
     const liquidatorUi = gameStateData.liquidator_ui || {};
     setAbilityTimer(gameKillTimer,liquidatorUi.kill_cooldown_seconds,false);
@@ -6260,6 +6506,23 @@
       setAbilityTimer(timer,item.cooldown_seconds,item.active === true);
     });
     updateKillAbilityState();
+    updateSabotageAbilityState();
+  }
+
+  async function activateGameSabotage(sabotageId){
+    if (gameSabotagePending) return;
+    gameSabotagePending = true;
+    updateSabotageAbilityState();
+    const result = await gameApiRequest('/api/game/sabotage/activate','POST',{sabotage_id:sabotageId});
+    gameSabotagePending = false;
+    if (!result.ok) {
+      addGameLog(gameErrorText(result));
+      updateSabotageAbilityState();
+      return;
+    }
+    gameStateData = result.data;
+    renderGameMap();
+    consumeGameEvents(result.data);
   }
 
   async function killGameTarget(victimId){
@@ -6427,9 +6690,14 @@
     gameStateData = data;
     gameKillTargeting = false;
     gameKillPending = false;
+    gameSabotagePending = false;
+    gameStatePollPending = false;
     if (gameWitnessTimeout) clearTimeout(gameWitnessTimeout);
     gameWitnessTimeout = null;
     gameWitnessOverlay.hidden = true;
+    if (gameIdentificationTimeout) clearTimeout(gameIdentificationTimeout);
+    gameIdentificationTimeout = null;
+    gameIdentificationOverlay.hidden = true;
     gameIdentityMasked = false;
     gameTasksCollapsed = false;
     gameLiquidatorCollapsed = false;
@@ -6452,7 +6720,12 @@
     }
     gameLogLines.replaceChildren();
     addGameLog('Начало смены.');
-    addGameSabotageLog(gameStateData.sabotage);
+    const queuedStart = (gameStateData.web_events || []).some(function(event){
+      return event.type === 'sabotage_started'
+        && gameStateData.sabotage
+        && event.sabotage_id === gameStateData.sabotage.active_id;
+    });
+    if (!queuedStart) addGameSabotageLog(gameStateData.sabotage);
     consumeGameEvents(gameStateData);
     requestAnimationFrame(function(){ focusGameRoom(gameStateData.player.room_id); });
     startGameAudio();
@@ -6468,6 +6741,11 @@
     if (code === 'already_in_lobby') return 'СНАЧАЛА ПОКИНЬТЕ ТЕКУЩЕЕ ЛОББИ.';
     if (code === 'room_not_neighbor') return 'МАРШРУТ УЖЕ НЕДОСТУПЕН. ВЫБЕРИТЕ СОСЕДНЮЮ КОМНАТУ.';
     if (code === 'already_moving') return 'ПЕРЕХОД УЖЕ ВЫПОЛНЯЕТСЯ.';
+    if (code === 'sabotage_unavailable') return 'САБОТАЖ СЕЙЧАС НЕДОСТУПЕН.';
+    if (code === 'bad_sabotage') return 'НЕИЗВЕСТНЫЙ ТИП САБОТАЖА.';
+    if (code === 'staff_only') return 'УСТРАНИТЬ НЕПОЛАДКУ МОЖЕТ ТОЛЬКО ПЕРСОНАЛ.';
+    if (code === 'wrong_repair_room') return 'РЕМОНТ ВЫПОЛНЯЕТСЯ В ТЕХОБСЛУЖИВАНИИ.';
+    if (code === 'nothing_to_repair') return 'АКТИВНОГО САБОТАЖА ЗАДАНИЙ НЕТ.';
     if (result && result.status === 401) return 'СЕАНС TELEGRAM УСТАРЕЛ. ПЕРЕОТКРОЙТЕ MINI APP.';
     return 'НЕТ СВЯЗИ С ДИСПЕТЧЕРСКОЙ. ПОПРОБУЙТЕ ЕЩЁ РАЗ.';
   }
@@ -6514,6 +6792,9 @@
     if (gameWitnessTimeout) clearTimeout(gameWitnessTimeout);
     gameWitnessTimeout = null;
     gameWitnessOverlay.hidden = true;
+    if (gameIdentificationTimeout) clearTimeout(gameIdentificationTimeout);
+    gameIdentificationTimeout = null;
+    gameIdentificationOverlay.hidden = true;
     gameSettingsOverlay.classList.remove('shown');
     gameSettingsOverlay.hidden = true;
     selectedGameRoomId = null;
@@ -6533,10 +6814,25 @@
     if (event.key === 'Escape' && !gameSettingsOverlay.hidden) closeGameSettings();
   });
 
-  gameContextAction.addEventListener('click',function(){
-    if (gameContextAction.dataset.action !== 'emergency') return;
-    gameContextAction.hidden = true;
-    gameEmergencyConfirm.hidden = false;
+  gameContextAction.addEventListener('click',async function(){
+    const action = gameContextAction.dataset.action;
+    if (action === 'emergency') {
+      gameContextAction.hidden = true;
+      gameEmergencyConfirm.hidden = false;
+      return;
+    }
+    if (action !== 'repair_tasks' || gameContextAction.disabled) return;
+    gameContextAction.disabled = true;
+    const result = await gameApiRequest('/api/game/sabotage/repair-tasks','POST',{});
+    gameContextAction.disabled = false;
+    if (!result.ok) {
+      addGameLog(gameErrorText(result));
+      return;
+    }
+    gameStateData = result.data;
+    renderGameMap();
+    consumeGameEvents(result.data);
+    addGameLog('СИСТЕМА НАРЯДОВ ВОССТАНОВЛЕНА.');
   });
   gameEmergencyCancel.addEventListener('click',function(){
     gameEmergencyConfirm.hidden = true;
@@ -6557,6 +6853,12 @@
     gameKillTargeting = !gameKillTargeting;
     updateKillAbilityState();
     renderNearbyCrew();
+  });
+  gameSabotageButtons.forEach(function(button){
+    button.addEventListener('click',function(){
+      if (button.disabled) return;
+      activateGameSabotage(button.dataset.sabotageAction);
+    });
   });
 
   gameTasksCollapse.addEventListener('click',function(){
@@ -6594,7 +6896,28 @@
       timer.textContent = abilityTimerText(remaining,active);
     });
     updateKillAbilityState();
+    updateSabotageAbilityState();
   },1000);
+
+  async function refreshGameStateFromServer(){
+    if (!gameStateData || gameScreen.hidden || gameStatePollPending || !gameTransit.hidden) return;
+    gameStatePollPending = true;
+    const result = await gameApiRequest('/api/game/state','GET');
+    gameStatePollPending = false;
+    if (!result.ok || !result.data || result.data.status !== 'active' || gameScreen.hidden) return;
+    const previousRoomId = gameStateData.player && gameStateData.player.room_id;
+    gameStateData = result.data;
+    if (gameStateData.player.room_id !== previousRoomId) renderGameMap();
+    else {
+      renderGamePlayerTasks();
+      renderGameProgress();
+      renderNearbyCrew();
+      renderRoomActions();
+      renderLiquidatorAbilities();
+    }
+    consumeGameEvents(result.data);
+  }
+  setInterval(refreshGameStateFromServer,1000);
 
   gameMoveConfirm.addEventListener('click',async function(){
     const targetId = selectedGameRoomId;
