@@ -4784,19 +4784,12 @@
     ambience: 'Звуки/эмбиент.mp3',
     intro: 'Звуки/Инструментарий/Главное меню/музыка_интро.mp3',
     menuOn: 'Звуки/Инструментарий/Главное меню/Включениеменю.mp3',
-    announcementOn: 'Звуки/Инструментарий/Уведомления/Включение.mp3',
-    announcements: [
-      'Звуки/Инструментарий/Уведомления/Верген-Гефест.mp3',
-      'Звуки/Инструментарий/Уведомления/Гелиос-Нобель.mp3',
-      'Звуки/Инструментарий/Уведомления/Кобальт.mp3',
-      'Звуки/Инструментарий/Уведомления/Одиссей-Форт.mp3',
-      'Звуки/Инструментарий/Уведомления/Новость.mp3'
-    ],
-    announcementOff: 'Звуки/Инструментарий/Уведомления/Выключение.mp3'
+    announcementOn: 'Звуки/Инструментарий/Уведомления/Включение-Выключение/Включение.mp3',
+    announcementOff: 'Звуки/Инструментарий/Уведомления/Включение-Выключение/Выключение.mp3'
   };
 
   function createTerminalAudio(path, volume, loop){
-    const audio = new Audio(new URL(path, document.baseURI).href);
+    const audio = path ? new Audio(new URL(path, document.baseURI).href) : new Audio();
     audio.preload = 'auto';
     audio.volume = volume;
     audio.loop = loop === true;
@@ -4812,16 +4805,21 @@
   const terminalIntroAudio = createTerminalAudio(TERMINAL_AUDIO_PATHS.intro, 0.72, false);
   const terminalMenuOnAudio = createTerminalAudio(TERMINAL_AUDIO_PATHS.menuOn, 0.78, false);
   const terminalAnnouncementOnAudio = createTerminalAudio(TERMINAL_AUDIO_PATHS.announcementOn, 0.78, false);
-  const terminalAnnouncementAudios = TERMINAL_AUDIO_PATHS.announcements.map(path => createTerminalAudio(path, 0.9, false));
+  const terminalAnnouncementAudio = createTerminalAudio('', 0.9, false);
+  const terminalAnnouncementPaths = [];
+  const terminalAnnouncementPreloads = [];
   const terminalAnnouncementOffAudio = createTerminalAudio(TERMINAL_AUDIO_PATHS.announcementOff, 0.72, false);
-  const terminalForegroundAudios = [
-    terminalAmbienceAudios[1],
-    terminalIntroAudio,
-    terminalMenuOnAudio,
-    terminalAnnouncementOnAudio,
-    ...terminalAnnouncementAudios,
-    terminalAnnouncementOffAudio
-  ];
+
+  function allTerminalForegroundAudios(){
+    return [
+      terminalAmbienceAudios[1],
+      terminalIntroAudio,
+      terminalMenuOnAudio,
+      terminalAnnouncementOnAudio,
+      terminalAnnouncementAudio,
+      terminalAnnouncementOffAudio
+    ];
+  }
 
   const TERMINAL_AMBIENCE_CROSSFADE_SECONDS = 1.5;
   let terminalAmbienceActiveIndex = 0;
@@ -4831,6 +4829,8 @@
   let terminalAnnouncementTimer = null;
   let terminalAnnouncementPlaying = false;
   let terminalAnnouncementLoopStarted = false;
+  let terminalAnnouncementCatalogSignature = '';
+  let terminalAnnouncementCatalogPromise = null;
   let terminalAudioUnlocked = false;
 
   function audioLevel(settingName){
@@ -4848,7 +4848,7 @@
     applyTerminalAmbienceMix();
     terminalIntroAudio.volume = audioLevel('introVolume');
     terminalMenuOnAudio.volume = audioLevel('introVolume');
-    [terminalAnnouncementOnAudio, ...terminalAnnouncementAudios, terminalAnnouncementOffAudio]
+    [terminalAnnouncementOnAudio, terminalAnnouncementAudio, terminalAnnouncementOffAudio]
       .forEach(audio => { audio.volume = audioLevel('announcementVolume'); });
   }
 
@@ -4966,7 +4966,7 @@
     // iOS и Telegram WebView иногда требуют пользовательский жест для
     // каждого отдельного HTMLAudioElement. Бесшумно запускаем и сразу
     // возвращаем все отложенные звуки в начало, пока жест ещё активен.
-    terminalForegroundAudios.forEach(audio => {
+    allTerminalForegroundAudios().forEach(audio => {
       const previousMuted = audio.muted;
       audio.muted = true;
       const attempt = audio.play();
@@ -5009,6 +5009,49 @@
     return Math.round(delaySeconds * 1000);
   }
 
+  function refreshTerminalAnnouncementSounds(){
+    if (terminalAnnouncementCatalogPromise) return terminalAnnouncementCatalogPromise;
+    terminalAnnouncementCatalogPromise = fetch(
+      apiUrl('/api/audio/announcements?language=ru'),
+      { cache:'no-store' }
+    )
+      .then(response => {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.json();
+      })
+      .then(data => {
+        const files = Array.isArray(data.files)
+          ? data.files.filter(name => typeof name === 'string' && name.length > 0)
+          : [];
+        const signature = JSON.stringify(files);
+        if (signature === terminalAnnouncementCatalogSignature) return terminalAnnouncementPaths;
+
+        terminalAnnouncementPreloads.forEach(audio => {
+          audio.pause();
+          audio.removeAttribute('src');
+          audio.load();
+        });
+        const paths = files.map(filename =>
+          apiUrl('/api/audio/announcement/ru/' + encodeURIComponent(filename))
+        );
+        terminalAnnouncementPaths.splice(0,terminalAnnouncementPaths.length,...paths);
+        terminalAnnouncementPreloads.splice(
+          0,
+          terminalAnnouncementPreloads.length,
+          ...paths.map(path => createTerminalAudio(path,0,false))
+        );
+        terminalAnnouncementCatalogSignature = signature;
+        applyAudioSettings();
+        return terminalAnnouncementPaths;
+      })
+      .catch(error => {
+        console.error('Не удалось получить список звуковых уведомлений:',error);
+        return terminalAnnouncementPaths;
+      })
+      .finally(() => { terminalAnnouncementCatalogPromise = null; });
+    return terminalAnnouncementCatalogPromise;
+  }
+
   function scheduleNextTerminalAnnouncement(){
     if (!terminalAnnouncementLoopStarted || terminalAnnouncementTimer !== null || terminalAnnouncementPlaying) return;
     terminalAnnouncementTimer = setTimeout(runTerminalAnnouncement, nextAnnouncementDelayMs());
@@ -5026,11 +5069,15 @@
     if (terminalAnnouncementPlaying) return;
     terminalAnnouncementPlaying = true;
     try {
-      const selected = terminalAnnouncementAudios[
-        Math.floor(Math.random() * terminalAnnouncementAudios.length)
+      await refreshTerminalAnnouncementSounds();
+      if (terminalAnnouncementPaths.length === 0) return;
+      const selected = terminalAnnouncementPaths[
+        Math.floor(Math.random() * terminalAnnouncementPaths.length)
       ];
+      terminalAnnouncementAudio.src = selected;
+      terminalAnnouncementAudio.load();
       await playTerminalClip(terminalAnnouncementOnAudio);
-      await playTerminalClip(selected);
+      await playTerminalClip(terminalAnnouncementAudio);
       await playTerminalClip(terminalAnnouncementOffAudio);
     } finally {
       terminalAnnouncementPlaying = false;
@@ -5071,6 +5118,10 @@
   function apiUrl(path){
     return API_BASE.replace(/\/$/, '') + path;
   }
+
+  // Каталог перечитывается и перед каждым объявлением, поэтому новый файл
+  // из rus_sounds начнёт участвовать в равномерном выборе без правки HTML.
+  refreshTerminalAnnouncementSounds();
 
   // Профиль по умолчанию для предпросмотра вне Telegram (например, открыли
   // index.html в обычном браузере, а не через кнопку "Играть" в боте) —
