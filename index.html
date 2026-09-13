@@ -4787,12 +4787,12 @@
     announcementOn: 'Звуки/Инструментарий/Уведомления/Включение-Выключение/Включение.mp3',
     announcementOff: 'Звуки/Инструментарий/Уведомления/Включение-Выключение/Выключение.mp3'
   };
-  const TERMINAL_ANNOUNCEMENT_DIRECTORY = 'Звуки/Инструментарий/Уведомления/rus_sounds/';
+  const TERMINAL_ANNOUNCEMENT_DIRECTORY = 'Звуки/Инструментарий/Уведомления/rus_sounds/Фон/';
   const TERMINAL_ANNOUNCEMENT_CATALOG_URL =
     'https://api.github.com/repos/LitvinenkoYehor/isolation-telegram-game-bot-equator-miniapp/contents/' +
     TERMINAL_ANNOUNCEMENT_DIRECTORY.split('/').filter(Boolean).map(encodeURIComponent).join('/') +
     '?ref=main';
-  const TERMINAL_ANNOUNCEMENT_CACHE_KEY = 'isolation-terminal-announcements-ru-v1';
+  const TERMINAL_ANNOUNCEMENT_CACHE_KEY = 'isolation-terminal-announcements-ru-background-v1';
   const TERMINAL_ANNOUNCEMENT_EXTENSIONS = /\.(?:mp3|ogg|wav|m4a|aac)$/i;
 
   function createTerminalAudio(path, volume, loop){
@@ -5030,7 +5030,7 @@
               .map(item => item.name)
               .sort((left,right) => left.localeCompare(right,'ru'))
           : [];
-        if (files.length === 0) throw new Error('Папка rus_sounds пуста');
+        if (files.length === 0) throw new Error('Папка фоновых сигналов пуста');
         try { localStorage.setItem(TERMINAL_ANNOUNCEMENT_CACHE_KEY,JSON.stringify(files)); } catch (e) {}
         const signature = JSON.stringify(files);
         if (signature === terminalAnnouncementCatalogSignature) return terminalAnnouncementPaths;
@@ -5148,7 +5148,7 @@
   }
 
   // Список берём прямо из репозитория Mini App один раз при открытии.
-  // Новый файл из rus_sounds подхватится после следующего запуска страницы.
+  // Новый файл из rus_sounds/Фон подхватится после следующего запуска страницы.
   refreshTerminalAnnouncementSounds();
 
   // Профиль по умолчанию для предпросмотра вне Telegram (например, открыли
