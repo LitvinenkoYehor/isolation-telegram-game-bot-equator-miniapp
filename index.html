@@ -6749,10 +6749,11 @@
       room.classList.toggle('task-color-hint',isHighlighted && appSettings.nearbyTaskColorHint !== false);
       room.classList.toggle('task-dash-hint',isHighlighted && appSettings.nearbyTaskDashHint === true);
     });
-    gameTaskCollapseAlert.hidden = !(gameTasksCollapsed && hasNearbyTask);
+    const showCollapsedTaskAlert = gameTasksCollapsed && hasNearbyTask && appSettings.nearbyTaskTextHint === true;
+    gameTaskCollapseAlert.hidden = !showCollapsedTaskAlert;
     const collapseLabel = gameTasksCollapsed ? 'Показать задания' : 'Скрыть задания';
-    gameTasksCollapse.setAttribute('aria-label',collapseLabel + (gameTasksCollapsed && hasNearbyTask ? ': неподалёку есть задание' : ''));
-    gameTasksCollapse.title = collapseLabel + (gameTasksCollapsed && hasNearbyTask ? ' — неподалёку есть задание' : '');
+    gameTasksCollapse.setAttribute('aria-label',collapseLabel + (showCollapsedTaskAlert ? ': неподалёку есть задание' : ''));
+    gameTasksCollapse.title = collapseLabel + (showCollapsedTaskAlert ? ' — неподалёку есть задание' : '');
   }
 
   function showGameTaskGain(points){
