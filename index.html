@@ -2410,6 +2410,15 @@
   .player-marker .marker-ring{ fill:#071520; stroke:#fff; stroke-width:3; vector-effect:non-scaling-stroke; }
   .player-marker .marker-core{ fill:var(--scr-cyan); }
   .player-marker .marker-arrow{ fill:#fff; }
+  .game-task-markers{ pointer-events:none; }
+  .game-task-marker{
+    filter:drop-shadow(0 0 5px rgba(255,211,55,.78));
+  }
+  .game-task-marker .task-marker-triangle{
+    fill:#050708; stroke:#ffd337; stroke-width:3; stroke-linejoin:round;
+    vector-effect:non-scaling-stroke;
+  }
+  .game-task-marker .task-marker-symbol{ fill:#ffd337; }
   .game-map-label{
     position:absolute; left:1.2cqw; top:1.2cqw; z-index:7; pointer-events:none;
     width:min(34cqw,390px); overflow:hidden;
@@ -5826,6 +5835,9 @@
   let gameStatePollPending = false;
   let gameTaskPending = false;
   let gameTaskGainTimeout = null;
+  const gameRevealedTaskIds = new Set();
+  let gameHandledTaskMarkerEvents = new WeakSet();
+  let gameTaskSabotageWasActive = false;
 
   // Звук теперь принадлежит всему терминалу, а не только экрану смены.
   // Эти имена оставлены как совместимые точки входа для showGame/выхода.
@@ -6569,6 +6581,79 @@
     });
   }
 
+  function syncGameTaskMarkerKnowledge(){
+    if (!gameStateData || !gameStateData.player) return;
+    const tasks = gameStateData.player.tasks || [];
+    const currentIds = new Set(tasks.map(function(task){ return String(task.id); }));
+
+    // Завершённое задание может тут же выпасть игроку повторно с тем же id.
+    // Событие завершения позволяет считать его именно новым назначением.
+    ((gameStateData.web_events || [])).forEach(function(event){
+      if (!event || typeof event !== 'object' || gameHandledTaskMarkerEvents.has(event)) return;
+      gameHandledTaskMarkerEvents.add(event);
+      if (event.type === 'task_completed' && Number(event.points_awarded) > 0 && event.task_id != null) {
+        gameRevealedTaskIds.delete(String(event.task_id));
+      }
+    });
+    Array.from(gameRevealedTaskIds).forEach(function(taskId){
+      if (!currentIds.has(taskId)) gameRevealedTaskIds.delete(taskId);
+    });
+
+    const taskSabotageActive = !!(gameStateData.sabotage && gameStateData.sabotage.active_id === 'tasks');
+    // После устранения взлома сервер полностью заменяет список заданий.
+    // Если панель закрыта, новый список ждёт следующего раскрытия.
+    if (gameTasksCollapsed && gameTaskSabotageWasActive && !taskSabotageActive) {
+      gameRevealedTaskIds.clear();
+    }
+    gameTaskSabotageWasActive = taskSabotageActive;
+
+    // Открытая панель означает, что игрок увидел все текущие назначения.
+    if (!gameTasksCollapsed) {
+      currentIds.forEach(function(taskId){ gameRevealedTaskIds.add(taskId); });
+    }
+  }
+
+  function renderGameTaskMarkers(){
+    if (!gameStateData || !gameMapSvg) return;
+    syncGameTaskMarkerKnowledge();
+
+    let layer = gameMapSvg.querySelector('.game-task-markers');
+    if (!layer) {
+      layer = svgEl('g',{class:'game-task-markers','aria-hidden':'true'});
+      const playerMarker = gameMapSvg.querySelector('.player-marker');
+      gameMapSvg.insertBefore(layer,playerMarker || null);
+    }
+    layer.replaceChildren();
+
+    const currentId = gameStateData.player.room_id;
+    const nearbyRoomIds = new Set(gameStateData.neighbors || []);
+    nearbyRoomIds.add(currentId);
+    const markedRooms = new Set();
+    (gameStateData.player.tasks || []).forEach(function(task){
+      const taskId = String(task.id);
+      const roomId = task.location_id;
+      if (!gameRevealedTaskIds.has(taskId) || !nearbyRoomIds.has(roomId) || markedRooms.has(roomId)) return;
+      const pos = GAME_ROOM_POSITIONS[roomId];
+      if (!pos) return;
+      markedRooms.add(roomId);
+
+      const marker = svgEl('g',{
+        class:'game-task-marker',
+        transform:'translate(' + pos[0] + ' ' + pos[1] + ')'
+      });
+      marker.appendChild(svgEl('path',{
+        class:'task-marker-triangle',d:'M 0 -21 L 22 18 L -22 18 Z'
+      }));
+      marker.appendChild(svgEl('rect',{
+        class:'task-marker-symbol',x:-2.6,y:-10.5,width:5.2,height:16,rx:1.8
+      }));
+      marker.appendChild(svgEl('circle',{
+        class:'task-marker-symbol',cx:0,cy:11,r:2.9
+      }));
+      layer.appendChild(marker);
+    });
+  }
+
   function showGameTaskGain(points){
     const amount = Math.max(0,Math.round(Number(points) || 0));
     if (!amount) return;
@@ -6884,6 +6969,8 @@
       gameMapSvg.appendChild(group);
     });
 
+    renderGameTaskMarkers();
+
     const playerPos = GAME_ROOM_POSITIONS[currentId];
     if (playerPos) {
       const marker = svgEl('g',{class:'player-marker',transform:'translate(' + playerPos[0] + ' ' + (playerPos[1] - 50) + ')'});
@@ -6964,6 +7051,9 @@
     gameIdentificationOverlay.hidden = true;
     gameIdentityMasked = false;
     gameTasksCollapsed = false;
+    gameRevealedTaskIds.clear();
+    gameHandledTaskMarkerEvents = new WeakSet();
+    gameTaskSabotageWasActive = false;
     gameLiquidatorCollapsed = false;
     gameTasksPanel.classList.remove('collapsed');
     gameTasksCollapse.textContent = '‹';
@@ -7153,6 +7243,7 @@
     // overflow-контейнер вслед за сфокусированным элементом.
     gameMapViewport.scrollLeft = 0;
     gameMapViewport.scrollTop = 0;
+    renderGameTaskMarkers();
   });
 
   gameLiquidatorCollapse.addEventListener('click',function(){
@@ -7191,6 +7282,7 @@
     gameStateData = result.data;
     if (gameStateData.player.room_id !== previousRoomId) renderGameMap();
     else {
+      renderGameTaskMarkers();
       renderGamePlayerTasks();
       renderGameProgress();
       renderNearbyCrew();
