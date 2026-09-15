@@ -5678,6 +5678,9 @@
   //  браузере ?demo=admin включает автономный макет для визуальной проверки.
   // =========================================================
   const GAME_MAP_W = 1184, GAME_MAP_H = 814;
+  // Камера может заходить за край чертежа: по 25% размера карты с каждой
+  // стороны дают виртуальную область панорамирования размером 150%.
+  const MAP_PAN_PADDING_RATIO = 0.25;
   const GAME_ROOM_POSITIONS = {
     central_hub:[591,405],
     corridor_a:[405,405], crew_quarters:[105,330], dining_hall:[245,330], hydroponics:[245,490],
@@ -6902,8 +6905,11 @@
   function applyGameTransform(){
     const vw = gameMapViewport.clientWidth, vh = gameMapViewport.clientHeight;
     const lw = GAME_MAP_W * gameScale, lh = GAME_MAP_H * gameScale;
-    gameTx = lw <= vw ? (vw - lw) / 2 : Math.min(0,Math.max(vw - lw,gameTx));
-    gameTy = lh <= vh ? (vh - lh) / 2 : Math.min(0,Math.max(vh - lh,gameTy));
+    const padX = lw * MAP_PAN_PADDING_RATIO, padY = lh * MAP_PAN_PADDING_RATIO;
+    const minTx = vw - lw - padX, maxTx = padX;
+    const minTy = vh - lh - padY, maxTy = padY;
+    gameTx = minTx > maxTx ? (vw - lw) / 2 : Math.min(maxTx,Math.max(minTx,gameTx));
+    gameTy = minTy > maxTy ? (vh - lh) / 2 : Math.min(maxTy,Math.max(minTy,gameTy));
     gameMapLayer.style.transform = 'translate(' + gameTx + 'px,' + gameTy + 'px) scale(' + gameScale + ')';
   }
 
@@ -7373,10 +7379,11 @@
   function applyStationTransform(){
     const vw = stationMapViewport.clientWidth, vh = stationMapViewport.clientHeight;
     const lw = STATION_MAP_W * stationScale, lh = STATION_MAP_H * stationScale;
-    // Клэмп: если слой мельче вьюпорта по какой-то оси — центрируем по ней,
-    // иначе не даём краю карты оторваться от края вьюпорта.
-    stationTx = lw <= vw ? (vw - lw) / 2 : Math.min(0, Math.max(vw - lw, stationTx));
-    stationTy = lh <= vh ? (vh - lh) / 2 : Math.min(0, Math.max(vh - lh, stationTy));
+    const padX = lw * MAP_PAN_PADDING_RATIO, padY = lh * MAP_PAN_PADDING_RATIO;
+    const minTx = vw - lw - padX, maxTx = padX;
+    const minTy = vh - lh - padY, maxTy = padY;
+    stationTx = minTx > maxTx ? (vw - lw) / 2 : Math.min(maxTx, Math.max(minTx, stationTx));
+    stationTy = minTy > maxTy ? (vh - lh) / 2 : Math.min(maxTy, Math.max(minTy, stationTy));
     stationMapLayer.style.transform = `translate(${stationTx}px, ${stationTy}px) scale(${stationScale})`;
   }
 
