@@ -2836,19 +2836,32 @@
   }
   .game-settings-overlay .rename-actions{ padding:0 1.7cqw 1.7cqw; }
   .game-undock-overlay{
-    z-index:45; padding:clamp(12px,2cqw,26px);
+    z-index:45; padding:10px;
     background:rgba(0,7,12,.34);
     backdrop-filter:blur(1px);
     -webkit-backdrop-filter:blur(1px);
   }
-  .game-undock-window{ width:min(92%,480px); max-width:480px; }
+  .game-undock-window{
+    width:min(78%,350px); max-width:350px;
+    border-radius:6px;
+  }
+  .game-undock-window .rename-titlebar{
+    gap:8px; padding:8px 10px;
+  }
+  .game-undock-window .rename-titlebar-text{
+    font-size:clamp(11px,.9cqw,14px); letter-spacing:.07em;
+  }
+  .game-undock-window .rename-close{
+    width:26px; height:26px; min-width:26px; min-height:26px;
+    border-radius:4px; font-size:12px;
+  }
   .game-undock-sector-grid{
     display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:clamp(8px,1cqw,14px); padding:clamp(12px,1.5cqw,20px) clamp(14px,1.7cqw,22px);
+    gap:6px; padding:8px;
   }
   .game-undock-sector-btn{
-    min-height:clamp(58px,6cqw,78px); padding:clamp(10px,1.2cqw,16px);
-    font-size:clamp(13px,1.25cqw,17px); line-height:1.3;
+    min-height:38px; padding:6px 8px;
+    border-radius:4px; font-size:clamp(10px,.75cqw,12px); line-height:1.2;
   }
   .game-undock-sector-btn[data-undock-sector="living"]{
     color:#f1f8ff; border-color:#6ea9df;
@@ -2867,8 +2880,11 @@
     background:linear-gradient(135deg,#4d5b64,rgba(77,91,100,.55));
   }
   .game-undock-sector-btn:hover{ filter:brightness(1.14); }
-  .game-undock-cancel-row{ justify-content:center; padding-top:0; }
-  .game-undock-cancel-row .rename-btn{ flex:0 0 auto; min-width:clamp(120px,14cqw,180px); }
+  .game-undock-cancel-row{ justify-content:center; padding:0 8px 8px; }
+  .game-undock-cancel-row .rename-btn{
+    flex:0 0 auto; min-width:88px; padding:7px 12px;
+    border-radius:4px; font-size:clamp(10px,.75cqw,12px);
+  }
   .game-settings-exit{
     flex:0 0 auto; min-width:clamp(110px,12cqw,155px); margin:0 auto;
     padding:clamp(9px,1.15cqw,15px) clamp(14px,1.8cqw,23px);
