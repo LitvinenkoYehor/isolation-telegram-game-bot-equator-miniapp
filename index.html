@@ -2745,13 +2745,13 @@
   .game-screen.liquidator-view .game-map-panel,
   .game-screen.liquidator-view .game-side-panel,
   .game-screen.liquidator-view .game-log{ border-color:rgba(187,71,78,.42); }
-  .game-screen.staff-sabotage{
+  .game-screen.sabotage-active{
     background:linear-gradient(180deg,rgba(19,4,7,.992),rgba(7,2,4,.998));
   }
-  .game-screen.staff-sabotage .game-map-panel,
-  .game-screen.staff-sabotage .game-side-panel,
-  .game-screen.staff-sabotage .game-log{ border-color:rgba(126,42,48,.52); background-color:rgba(14,3,6,.94); }
-  .game-screen.staff-sabotage .game-map-viewport{
+  .game-screen.sabotage-active .game-map-panel,
+  .game-screen.sabotage-active .game-side-panel,
+  .game-screen.sabotage-active .game-log{ border-color:rgba(126,42,48,.52); background-color:rgba(14,3,6,.94); }
+  .game-screen.sabotage-active .game-map-viewport{
     background:
       linear-gradient(rgba(137,48,55,.04) 1px,transparent 1px),
       linear-gradient(90deg,rgba(137,48,55,.04) 1px,transparent 1px),
@@ -6648,13 +6648,13 @@
     const player = gameStateData.player;
     const isLiquidator = player.role === 'liquidator';
     const showLiquidator = isLiquidator && !gameIdentityMasked;
-    const staffSabotage = !isLiquidator && !!(gameStateData.sabotage && gameStateData.sabotage.active_id);
+    const sabotageActive = !!(gameStateData.sabotage && gameStateData.sabotage.active_id);
     gameClassificationName.textContent = player.name || 'ОПЕРАТОР';
     gameClassificationRole.textContent = showLiquidator ? 'ЛИКВИДАТОР' : 'ПЕРСОНАЛ';
     gameClassificationRole.classList.toggle('liquidator',showLiquidator);
     gameTasksPanelTitle.textContent = showLiquidator ? 'ПОД ПРИКРЫТИЕМ' : 'ЗАДАНИЯ';
     gameScreen.classList.toggle('liquidator-view',showLiquidator);
-    gameScreen.classList.toggle('staff-sabotage',staffSabotage);
+    gameScreen.classList.toggle('sabotage-active',sabotageActive);
     gameScreen.classList.toggle('identity-masked',isLiquidator && gameIdentityMasked);
     gameLiquidatorPanel.hidden = !showLiquidator;
     gameIdentityMask.setAttribute('aria-pressed',String(!showLiquidator));
