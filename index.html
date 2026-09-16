@@ -2835,6 +2835,22 @@
     left:calc(100% - var(--game-switch-thumb) - var(--game-switch-gap));
   }
   .game-settings-overlay .rename-actions{ padding:0 1.7cqw 1.7cqw; }
+  .game-undock-window{ max-width:min(48cqw,620px); }
+  .game-undock-copy{
+    margin:0; color:var(--scr-text-dim);
+    font:600 clamp(13px,1.25cqw,17px)/1.45 'IBM VGA 8x16',monospace;
+    letter-spacing:.025em;
+  }
+  .game-undock-sector-grid{
+    display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:clamp(8px,1cqw,14px); padding:clamp(12px,1.5cqw,20px) clamp(14px,1.7cqw,22px);
+  }
+  .game-undock-sector-btn{
+    min-height:clamp(58px,6cqw,78px); padding:clamp(10px,1.2cqw,16px);
+    font-size:clamp(13px,1.25cqw,17px); line-height:1.3;
+  }
+  .game-undock-cancel-row{ justify-content:center; padding-top:0; }
+  .game-undock-cancel-row .rename-btn{ flex:0 0 auto; min-width:clamp(120px,14cqw,180px); }
   .game-settings-exit{
     flex:0 0 auto; min-width:clamp(110px,12cqw,155px); margin:0 auto;
     padding:clamp(9px,1.15cqw,15px) clamp(14px,1.8cqw,23px);
@@ -4507,7 +4523,7 @@
                 <span class="game-ability-copy"><strong>ВЗЛОМ ЗАДАНИЙ</strong><span class="game-ability-timer" data-sabotage-timer="tasks">ГОТОВО</span></span>
               </div>
               <div class="game-ability-item" data-ability="undock">
-                <span class="game-ability-icon">⇹</span>
+                <button class="game-ability-icon" type="button" data-sabotage-action="undock" aria-label="Активировать отстыковку отсека">⇹</button>
                 <span class="game-ability-copy"><strong>ОТСТЫКОВКА ОТСЕКА</strong><span class="game-ability-timer" data-sabotage-timer="undock">ГОТОВО</span></span>
               </div>
             </div>
@@ -4622,6 +4638,26 @@
           </div>
           <div class="rename-actions">
             <button class="rename-btn game-settings-exit" id="gameExitBtn" type="button">ВЫХОД</button>
+          </div>
+        </div>
+      </div>
+      <div class="rename-overlay game-settings-overlay" id="gameUndockOverlay" hidden>
+        <div class="rename-window game-undock-window" role="dialog" aria-modal="true" aria-labelledby="gameUndockTitle">
+          <div class="rename-titlebar">
+            <span class="rename-titlebar-text" id="gameUndockTitle">ВЫБОР ОТСЕКА</span>
+            <button class="rename-close" id="gameUndockClose" type="button" aria-label="Отменить отстыковку">✕</button>
+          </div>
+          <div class="rename-body">
+            <p class="game-undock-copy">Выберите отсек, который будет изолирован от центрального узла.</p>
+          </div>
+          <div class="game-undock-sector-grid">
+            <button class="rename-btn game-undock-sector-btn" type="button" data-undock-sector="living">ЖИЛОЙ МОДУЛЬ</button>
+            <button class="rename-btn game-undock-sector-btn" type="button" data-undock-sector="science">НАУЧНЫЙ ОТСЕК</button>
+            <button class="rename-btn game-undock-sector-btn" type="button" data-undock-sector="security">МОДУЛЬ БЕЗОПАСНОСТИ</button>
+            <button class="rename-btn game-undock-sector-btn" type="button" data-undock-sector="cargo">ГРУЗОВОЙ И ТЕХНИЧЕСКИЙ ОТСЕК</button>
+          </div>
+          <div class="rename-actions game-undock-cancel-row">
+            <button class="rename-btn" id="gameUndockCancel" type="button">ОТМЕНА</button>
           </div>
         </div>
       </div>
@@ -5941,6 +5977,10 @@
   const gameMenuBtn = document.getElementById('gameMenuBtn');
   const gameSettingsOverlay = document.getElementById('gameSettingsOverlay');
   const gameSettingsClose = document.getElementById('gameSettingsClose');
+  const gameUndockOverlay = document.getElementById('gameUndockOverlay');
+  const gameUndockClose = document.getElementById('gameUndockClose');
+  const gameUndockCancel = document.getElementById('gameUndockCancel');
+  const gameUndockSectorButtons = Array.from(document.querySelectorAll('[data-undock-sector]'));
   const gameEffectsOff = document.getElementById('gameEffectsOff');
   const gameExitBtn = document.getElementById('gameExitBtn');
   const adminSandboxStart = document.getElementById('adminSandboxStart');
@@ -6129,7 +6169,7 @@
     const now = Date.now();
     demo._pendingWebEvents = demo._pendingWebEvents || [];
     demo._costumeNumbers = demo._costumeNumbers || {};
-    demo._sabotageCooldownEnds = demo._sabotageCooldownEnds || {costumes:now,tasks:now,undock:now + 64000};
+    demo._sabotageCooldownEnds = demo._sabotageCooldownEnds || {costumes:now,tasks:now,undock:now + 1000};
     demo._killCooldownEnd = demo._killCooldownEnd || now;
     demo.liquidator_ui.kill_cooldown_seconds = Math.max(0,Math.ceil((demo._killCooldownEnd - now) / 1000));
     if (demo.active_task && now >= demo.active_task.ends_at) {
@@ -6256,7 +6296,7 @@
         demo.sabotage.started_at = 0;
         demo.sabotage.ends_at = 0;
         const now = Date.now();
-        demo._sabotageCooldownEnds = {costumes:now + 30000,tasks:now + 46000,undock:now + 64000};
+        demo._sabotageCooldownEnds = {costumes:now + 30000,tasks:now + 46000,undock:now + 1000};
         demo._killCooldownEnd = selectedRole === 'liquidator' ? now + 30000 : now;
         delete demo.kill_event;
         demo.liquidator_ui.kill_cooldown_seconds = selectedRole === 'liquidator' ? 30 : 0;
@@ -6341,9 +6381,13 @@
           demo.static_crew.forEach(function(bot,index){ demo._costumeNumbers[bot.id] = 200 + index; });
         }
         if (sabotageId === 'undock') {
+          const sectorId = payload && payload.sector_id;
+          if (!Object.prototype.hasOwnProperty.call(OFFLINE_SECTOR_NAMES,sectorId)) {
+            demo.sabotage.active_id = null;
+            return {ok:false,status:400,data:{error:'bad_sector'}};
+          }
           demo._undockUsed = true;
           demo._undockRepairApplied = false;
-          const sectorId = offlineSectorForRoom(demo.player.room_id) || 'living';
           demo.sabotage.undock_sector = sectorId;
           demo.sabotage.undock_sector_name = OFFLINE_SECTOR_NAMES[sectorId];
           demo.player.isolated = offlineRoomIsolated(demo,demo.player.room_id);
@@ -6998,10 +7042,11 @@
     const activeId = gameStateData.sabotage && gameStateData.sabotage.active_id;
     gameSabotageButtons.forEach(function(button){
       const id = button.dataset.sabotageAction;
+      const item = ((gameStateData.sabotage && gameStateData.sabotage.items) || []).find(function(entry){ return entry.id === id; });
       const timer = document.querySelector('[data-sabotage-timer="' + id + '"]');
       const remaining = timer ? Number(timer.dataset.remaining || 0) : 0;
       const active = activeId === id;
-      button.disabled = !isLiquidator || gameSabotagePending || !!activeId || remaining > 0;
+      button.disabled = !isLiquidator || gameSabotagePending || !!activeId || remaining > 0 || !item || item.available !== true;
       button.classList.toggle('targeting',active);
       button.setAttribute('aria-pressed',String(active));
     });
@@ -7020,17 +7065,22 @@
     updateSabotageAbilityState();
   }
 
-  async function activateGameSabotage(sabotageId){
+  async function activateGameSabotage(sabotageId,sectorId){
     if (gameSabotagePending) return;
     gameSabotagePending = true;
+    gameUndockSectorButtons.forEach(function(button){ button.disabled = true; });
     updateSabotageAbilityState();
-    const result = await gameApiRequest('/api/game/sabotage/activate','POST',{sabotage_id:sabotageId});
+    const payload = {sabotage_id:sabotageId};
+    if (sectorId) payload.sector_id = sectorId;
+    const result = await gameApiRequest('/api/game/sabotage/activate','POST',payload);
     gameSabotagePending = false;
+    gameUndockSectorButtons.forEach(function(button){ button.disabled = false; });
     if (!result.ok) {
       addGameLog(gameErrorText(result));
       updateSabotageAbilityState();
       return;
     }
+    closeGameUndockPicker();
     gameStateData = result.data;
     renderGameMap();
     consumeGameEvents(result.data);
@@ -7318,6 +7368,7 @@
     if (code === 'already_moving') return 'ПЕРЕХОД УЖЕ ВЫПОЛНЯЕТСЯ.';
     if (code === 'sabotage_unavailable') return 'САБОТАЖ СЕЙЧАС НЕДОСТУПЕН.';
     if (code === 'bad_sabotage') return 'НЕИЗВЕСТНЫЙ ТИП САБОТАЖА.';
+    if (code === 'bad_sector') return 'НЕ УДАЛОСЬ ВЫБРАТЬ ОТСЕК ДЛЯ ИЗОЛЯЦИИ.';
     if (code === 'staff_only') return 'УСТРАНИТЬ НЕПОЛАДКУ МОЖЕТ ТОЛЬКО ПЕРСОНАЛ.';
     if (code === 'wrong_repair_room') return 'РЕМОНТ ВЫПОЛНЯЕТСЯ В ТЕХОБСЛУЖИВАНИИ.';
     if (code === 'nothing_to_repair') return 'АКТИВНОГО САБОТАЖА ЗАДАНИЙ НЕТ.';
@@ -7366,6 +7417,15 @@
     gameSettingsOverlay.classList.remove('shown');
     setTimeout(function(){ gameSettingsOverlay.hidden = true; },250);
   }
+  function openGameUndockPicker(){
+    gameUndockOverlay.hidden = false;
+    requestAnimationFrame(function(){ gameUndockOverlay.classList.add('shown'); });
+  }
+  function closeGameUndockPicker(){
+    if (gameSabotagePending) return;
+    gameUndockOverlay.classList.remove('shown');
+    setTimeout(function(){ gameUndockOverlay.hidden = true; },250);
+  }
   function exitGameToMenu(){
     stopGameAudio();
     gameKillTargeting = false;
@@ -7387,6 +7447,8 @@
     gameTaskGain.hidden = true;
     gameSettingsOverlay.classList.remove('shown');
     gameSettingsOverlay.hidden = true;
+    gameUndockOverlay.classList.remove('shown');
+    gameUndockOverlay.hidden = true;
     selectedGameRoomId = null;
     gameMoveCard.hidden = true;
     gameScreen.classList.remove('reveal');
@@ -7399,9 +7461,21 @@
   gameSettingsOverlay.addEventListener('click',function(event){
     if (event.target === gameSettingsOverlay) closeGameSettings();
   });
+  gameUndockClose.addEventListener('click',closeGameUndockPicker);
+  gameUndockCancel.addEventListener('click',closeGameUndockPicker);
+  gameUndockOverlay.addEventListener('click',function(event){
+    if (event.target === gameUndockOverlay) closeGameUndockPicker();
+  });
+  gameUndockSectorButtons.forEach(function(button){
+    button.addEventListener('click',function(){
+      activateGameSabotage('undock',button.dataset.undockSector);
+    });
+  });
   gameExitBtn.addEventListener('click',exitGameToMenu);
   document.addEventListener('keydown',function(event){
-    if (event.key === 'Escape' && !gameSettingsOverlay.hidden) closeGameSettings();
+    if (event.key !== 'Escape') return;
+    if (!gameUndockOverlay.hidden) closeGameUndockPicker();
+    else if (!gameSettingsOverlay.hidden) closeGameSettings();
   });
 
   gameContextAction.addEventListener('click',async function(){
@@ -7461,7 +7535,8 @@
   gameSabotageButtons.forEach(function(button){
     button.addEventListener('click',function(){
       if (button.disabled) return;
-      activateGameSabotage(button.dataset.sabotageAction);
+      if (button.dataset.sabotageAction === 'undock') openGameUndockPicker();
+      else activateGameSabotage(button.dataset.sabotageAction);
     });
   });
 
