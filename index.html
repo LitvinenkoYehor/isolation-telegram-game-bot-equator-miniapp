@@ -6274,7 +6274,6 @@
         demo._pendingWebEvents.push({type:'sabotage_started',sabotage_id:sabotageId,started_at:now});
       }
       if (path === '/api/game/sabotage/repair-tasks') {
-        if (demo.player.role !== 'staff') return {ok:false,status:403,data:{error:'staff_only'}};
         if (demo.player.room_id !== 'maintenance') return {ok:false,status:409,data:{error:'wrong_repair_room'}};
         if (demo.sabotage.active_id !== 'tasks') return {ok:false,status:409,data:{error:'nothing_to_repair'}};
         demo.sabotage.active_id = null;
