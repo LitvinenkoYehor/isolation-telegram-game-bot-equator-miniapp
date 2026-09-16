@@ -2835,12 +2835,13 @@
     left:calc(100% - var(--game-switch-thumb) - var(--game-switch-gap));
   }
   .game-settings-overlay .rename-actions{ padding:0 1.7cqw 1.7cqw; }
-  .game-undock-window{ max-width:min(48cqw,620px); }
-  .game-undock-copy{
-    margin:0; color:var(--scr-text-dim);
-    font:600 clamp(13px,1.25cqw,17px)/1.45 'IBM VGA 8x16',monospace;
-    letter-spacing:.025em;
+  .game-undock-overlay{
+    z-index:45; padding:clamp(12px,2cqw,26px);
+    background:rgba(0,7,12,.34);
+    backdrop-filter:blur(1px);
+    -webkit-backdrop-filter:blur(1px);
   }
+  .game-undock-window{ width:min(92%,480px); max-width:480px; }
   .game-undock-sector-grid{
     display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
     gap:clamp(8px,1cqw,14px); padding:clamp(12px,1.5cqw,20px) clamp(14px,1.7cqw,22px);
@@ -4575,6 +4576,23 @@
               <div class="game-identification-title">ИДЕНТИФИКАЦИЯ ПЕРСОНАЛА:</div>
               <div class="game-identification-list" id="gameIdentificationList"></div>
             </div>
+            <div class="rename-overlay game-undock-overlay" id="gameUndockOverlay" hidden>
+              <div class="rename-window game-undock-window" role="dialog" aria-modal="true" aria-labelledby="gameUndockTitle">
+                <div class="rename-titlebar">
+                  <span class="rename-titlebar-text" id="gameUndockTitle">ВЫБОР ОТСЕКА</span>
+                  <button class="rename-close" id="gameUndockClose" type="button" aria-label="Отменить отстыковку">✕</button>
+                </div>
+                <div class="game-undock-sector-grid">
+                  <button class="rename-btn game-undock-sector-btn" type="button" data-undock-sector="living">ЖИЛОЙ МОДУЛЬ</button>
+                  <button class="rename-btn game-undock-sector-btn" type="button" data-undock-sector="science">НАУЧНЫЙ ОТСЕК</button>
+                  <button class="rename-btn game-undock-sector-btn" type="button" data-undock-sector="security">МОДУЛЬ БЕЗОПАСНОСТИ</button>
+                  <button class="rename-btn game-undock-sector-btn" type="button" data-undock-sector="cargo">ГРУЗОВОЙ И ТЕХНИЧЕСКИЙ ОТСЕК</button>
+                </div>
+                <div class="rename-actions game-undock-cancel-row">
+                  <button class="rename-btn" id="gameUndockCancel" type="button">ОТМЕНА</button>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -4655,26 +4673,6 @@
           </div>
           <div class="rename-actions">
             <button class="rename-btn game-settings-exit" id="gameExitBtn" type="button">ВЫХОД</button>
-          </div>
-        </div>
-      </div>
-      <div class="rename-overlay game-settings-overlay" id="gameUndockOverlay" hidden>
-        <div class="rename-window game-undock-window" role="dialog" aria-modal="true" aria-labelledby="gameUndockTitle">
-          <div class="rename-titlebar">
-            <span class="rename-titlebar-text" id="gameUndockTitle">ВЫБОР ОТСЕКА</span>
-            <button class="rename-close" id="gameUndockClose" type="button" aria-label="Отменить отстыковку">✕</button>
-          </div>
-          <div class="rename-body">
-            <p class="game-undock-copy">Выберите отсек, который будет изолирован от центрального узла.</p>
-          </div>
-          <div class="game-undock-sector-grid">
-            <button class="rename-btn game-undock-sector-btn" type="button" data-undock-sector="living">ЖИЛОЙ МОДУЛЬ</button>
-            <button class="rename-btn game-undock-sector-btn" type="button" data-undock-sector="science">НАУЧНЫЙ ОТСЕК</button>
-            <button class="rename-btn game-undock-sector-btn" type="button" data-undock-sector="security">МОДУЛЬ БЕЗОПАСНОСТИ</button>
-            <button class="rename-btn game-undock-sector-btn" type="button" data-undock-sector="cargo">ГРУЗОВОЙ И ТЕХНИЧЕСКИЙ ОТСЕК</button>
-          </div>
-          <div class="rename-actions game-undock-cancel-row">
-            <button class="rename-btn" id="gameUndockCancel" type="button">ОТМЕНА</button>
           </div>
         </div>
       </div>
@@ -7490,7 +7488,10 @@
   gameUndockCancel.addEventListener('click',closeGameUndockPicker);
   gameUndockOverlay.addEventListener('click',function(event){
     if (event.target === gameUndockOverlay) closeGameUndockPicker();
+    event.stopPropagation();
   });
+  gameUndockOverlay.addEventListener('pointerdown',function(event){ event.stopPropagation(); });
+  gameUndockOverlay.addEventListener('wheel',function(event){ event.stopPropagation(); });
   gameUndockSectorButtons.forEach(function(button){
     button.addEventListener('click',function(){
       activateGameSabotage('undock',button.dataset.undockSector);
