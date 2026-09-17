@@ -2304,6 +2304,10 @@
   }
   .game-screen.shift-crt-off::before,
   .game-screen.shift-crt-off::after{ display:none; }
+  /* Камера наблюдения всегда остаётся ЭЛТ-экраном. Этот более точный
+     селектор намеренно отменяет пользовательское отключение эффекта. */
+  .game-screen.camera-mode.shift-crt-off::before,
+  .game-screen.camera-mode.shift-crt-off::after{ display:block; }
   @keyframes gameCrtSweep{
     from{ background-position:center,center -32%; }
     to{ background-position:center,center 132%; }
@@ -2375,6 +2379,10 @@
   .game-station-base{ opacity:.22; filter:saturate(.42) brightness(.58); pointer-events:none; }
   .game-room{ cursor:default; outline:none; }
   .game-room .room-art{ opacity:0; pointer-events:none; transition:opacity .2s ease,filter .2s ease; }
+  .game-room .room-camera-fill{
+    opacity:0; pointer-events:none; fill:#c8ccca;
+    transition:opacity .2s ease,filter .2s ease;
+  }
   .game-room .room-hit{
     fill:transparent; stroke:transparent; stroke-width:2; vector-effect:non-scaling-stroke;
     pointer-events:none; transition:stroke .18s ease;
@@ -2442,6 +2450,47 @@
   @keyframes centralHubOutline{
     0%,100%{stroke-opacity:.48}
     50%{stroke-opacity:1}
+  }
+  /* Видеонаблюдение: белое поле, четыре одинаковых светло-серых
+     видеоканала и принудительная ЭЛТ-развёртка поверх интерфейса. */
+  .game-screen.camera-mode .game-map-panel,
+  .game-screen.camera-mode .game-map-viewport{
+    background:#f1f2ef;
+  }
+  .game-screen.camera-mode .game-map-viewport{
+    background-image:
+      linear-gradient(rgba(83,88,86,.035) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(83,88,86,.035) 1px,transparent 1px);
+    background-size:3.2cqw 3.2cqw;
+  }
+  .game-screen.camera-mode .game-station-base{
+    opacity:.09; filter:grayscale(1) brightness(1.7) contrast(.68);
+  }
+  .game-screen.camera-mode .game-tasks-panel{ display:none; }
+  .game-screen.camera-mode .game-room.camera-option .room-art{ display:none; }
+  .game-screen.camera-mode .game-room.camera-option .room-camera-fill{
+    opacity:.62; fill:#bcc1bf;
+  }
+  .game-screen.camera-mode .game-room.camera-option.neighbor .room-camera-fill{
+    animation:cameraRoomPulse 2.15s ease-in-out infinite;
+    animation-delay:var(--room-pulse-delay,0s);
+  }
+  .game-screen.camera-mode .game-room.camera-option.camera-selected .room-camera-fill{
+    opacity:.92; filter:drop-shadow(0 0 7px rgba(76,82,80,.38));
+  }
+  .game-screen.camera-mode .game-room.camera-option.camera-selected .room-hit{
+    stroke:rgba(70,76,74,.76); stroke-width:3;
+  }
+  .game-screen.camera-mode .game-room.camera-option:hover .room-camera-fill{
+    opacity:.86; filter:drop-shadow(0 0 5px rgba(76,82,80,.28));
+  }
+  .game-screen.camera-mode .game-room.camera-option:hover .room-hit{
+    stroke:rgba(70,76,74,.52);
+  }
+  .game-screen.camera-mode .game-side-title{ color:#fff; }
+  @keyframes cameraRoomPulse{
+    0%,100%{opacity:.52;filter:brightness(.98) drop-shadow(0 0 1px rgba(76,82,80,.1))}
+    50%{opacity:.84;filter:brightness(1.06) drop-shadow(0 0 5px rgba(76,82,80,.28))}
   }
   .player-marker{ pointer-events:none; filter:drop-shadow(0 0 8px rgba(255,255,255,.9)); }
   .player-marker .marker-ring{ fill:#071520; stroke:#fff; stroke-width:3; vector-effect:non-scaling-stroke; }
@@ -4613,7 +4662,7 @@
         </section>
 
         <aside class="game-side-panel">
-          <div class="game-side-kicker">ТЕКУЩАЯ ЛОКАЦИЯ</div>
+          <div class="game-side-kicker" id="gameRoomKicker">ТЕКУЩАЯ ЛОКАЦИЯ</div>
           <div class="game-side-title" id="gameRoomTitle">—</div>
           <div class="game-side-kicker game-nearby-title">БЛИЖАЙШИЙ ЭКИПАЖ:</div>
           <div class="game-crew-list" id="gameCrewList">
@@ -5882,6 +5931,7 @@
   //  браузере ?demo=admin включает автономный макет для визуальной проверки.
   // =========================================================
   const GAME_MAP_W = 1184, GAME_MAP_H = 814;
+  const DEFAULT_SECURITY_CAMERA_ROOMS = ['corridor_a','corridor_b','security_hub','cargo_tech_hub'];
   // Камера может заходить за край чертежа: по 25% размера карты с каждой
   // стороны дают виртуальную область панорамирования размером 150%.
   const MAP_PAN_PADDING_RATIO = 0.25;
@@ -5998,6 +6048,7 @@
   const gameToggleNearbyTaskColorHint = document.getElementById('gameToggleNearbyTaskColorHint');
   const gameToggleNearbyTaskDashHint = document.getElementById('gameToggleNearbyTaskDashHint');
   const gameCrewList = document.getElementById('gameCrewList');
+  const gameRoomKicker = document.getElementById('gameRoomKicker');
   const gameTasksAction = document.getElementById('gameTasksAction');
   const gameTasksActionLabel = document.getElementById('gameTasksActionLabel');
   const gameTasksAlert = document.getElementById('gameTasksAlert');
@@ -6043,6 +6094,7 @@
   let gameSabotagePending = false;
   let gameStatePollPending = false;
   let gameTaskPending = false;
+  let gameCameraPending = false;
   let gameTaskGainTimeout = null;
   const gameAcknowledgedTaskIds = new Set();
   let gameHandledTaskEvents = new WeakSet();
@@ -6171,7 +6223,7 @@
     offlineGameSession = {
       status:'active', game_id:'demo-admin', station:'АСТРАЛ-1', session_type:'admin_sandbox',
       player:{
-        id:0,name:(currentProfile && currentProfile.name) || 'ОПЕРАТОР',color:'Красный',color_emoji:'🟥',role:'staff',room_id:'central_hub',view_state:'main',pending_target:null,alive:true,isolated:false,
+        id:0,name:(currentProfile && currentProfile.name) || 'ОПЕРАТОР',color:'Красный',color_emoji:'🟥',role:'staff',room_id:'central_hub',view_state:'main',camera_target:null,pending_target:null,alive:true,isolated:false,
         tasks:[
           {id:'t_reactor_check',name:'Проверить показания реактора',description:'Считать текущие показатели реактора и внести их в журнал.',location_id:'central_hub',location:'Центральный узел',stage_current:0,stage_total:1,complex:false,points:8,stage_rooms:['central_hub']},
           {id:'t_docking_inspection',name:'Проверить стыковочные системы',description:'Осмотреть шлюз, сверить показания и завершить проверку в техотсеке.',location_id:'main_airlock',location:'Главный шлюз',stage_current:0,stage_total:3,complex:true,points:27,stage_rooms:['main_airlock','cargo_terminal','maintenance']}
@@ -6191,13 +6243,17 @@
         ]
       },
       liquidator_ui:{kill_cooldown_seconds:30},
-      neighbors:roomMap.central_hub.exits.slice(), rooms:Object.values(roomMap)
+      neighbors:roomMap.central_hub.exits.slice(), camera_rooms:DEFAULT_SECURITY_CAMERA_ROOMS.slice(), rooms:Object.values(roomMap)
     };
     return offlineGameSession;
   }
 
   function updateOfflineSabotage(demo){
     const now = Date.now();
+    const cameraMode = demo.player.view_state === 'camera_list' || demo.player.view_state === 'camera_view';
+    const visibleRoomId = cameraMode
+      ? (demo.player.view_state === 'camera_view' ? demo.player.camera_target : null)
+      : demo.player.room_id;
     demo._pendingWebEvents = demo._pendingWebEvents || [];
     demo._costumeNumbers = demo._costumeNumbers || {};
     demo._sabotageCooldownEnds = demo._sabotageCooldownEnds || {costumes:now,tasks:now,undock:now + 1000};
@@ -6234,7 +6290,7 @@
     }
     demo.player.tasks.forEach(function(task){
       task.active = !!demo.active_task && demo.active_task.id === task.id;
-      task.available_here = !demo.active_task && demo.sabotage.active_id !== 'tasks' && task.location_id === demo.player.room_id;
+      task.available_here = !cameraMode && !demo.active_task && demo.sabotage.active_id !== 'tasks' && task.location_id === demo.player.room_id;
     });
     const sabotage = demo.sabotage;
     if (sabotage.active_id === 'costumes' && sabotage.ends_at && now >= sabotage.ends_at) {
@@ -6260,13 +6316,13 @@
     const costumesActive = sabotage.active_id === 'costumes';
     demo.player.disguise_id = costumesActive ? demo._costumeNumbers[demo.player.id] : null;
     demo.nearby_crew = demo.static_crew
-      .filter(function(bot){ return bot.alive && bot.room_id === demo.player.room_id; })
+      .filter(function(bot){ return visibleRoomId && bot.alive && bot.room_id === visibleRoomId; })
       .map(function(bot){
         if (!costumesActive) return Object.assign({disguised:false},bot);
         return {id:bot.id,name:'Неизвестный',color:'Красный',color_emoji:'🟥',is_bot:true,room_id:bot.room_id,doing_task:false,role:null,alive:true,disguised:true,disguise_id:demo._costumeNumbers[bot.id]};
       });
     demo.corpses = demo.static_crew
-      .filter(function(bot){ return !bot.alive && bot.room_id === demo.player.room_id; })
+      .filter(function(bot){ return visibleRoomId && !bot.alive && bot.room_id === visibleRoomId; })
       .map(function(bot){
         const masked = costumesActive && demo._costumeNumbers[bot.id] != null;
         return masked
@@ -6274,17 +6330,17 @@
           : Object.assign({disguised:false},bot);
       });
     demo.room_ui.tasks_blocked = sabotage.active_id === 'tasks';
-    demo.room_ui.tasks_available = !demo.room_ui.tasks_blocked && !demo.active_task
+    demo.room_ui.tasks_available = !cameraMode && !demo.room_ui.tasks_blocked && !demo.active_task
       && demo.player.tasks.some(function(task){ return task.location_id === demo.player.room_id; });
-    demo.room_ui.action = demo.player.room_id === 'central_hub' ? 'emergency'
-      : (demo.player.room_id === 'security_control' ? 'cameras' : null);
-    if (demo.player.room_id === 'maintenance' && sabotage.active_id === 'tasks') demo.room_ui.action = 'repair_tasks';
-    if (demo.player.room_id === 'central_hub' && sabotage.active_id === 'undock' && !demo._undockRepairApplied) demo.room_ui.action = 'accelerate_docking';
+    demo.room_ui.action = cameraMode ? 'camera_exit' : (demo.player.room_id === 'central_hub' ? 'emergency'
+      : (demo.player.room_id === 'security_control' ? 'cameras' : null));
+    if (!cameraMode && demo.player.room_id === 'maintenance' && sabotage.active_id === 'tasks') demo.room_ui.action = 'repair_tasks';
+    if (!cameraMode && demo.player.room_id === 'central_hub' && sabotage.active_id === 'undock' && !demo._undockRepairApplied) demo.room_ui.action = 'accelerate_docking';
     if (demo._killCooldownEnd) {
       demo.liquidator_ui.kill_cooldown_seconds = Math.max(0,Math.ceil((demo._killCooldownEnd - now) / 1000));
     }
     demo.player.isolated = offlineRoomIsolated(demo,demo.player.room_id);
-    demo.neighbors = offlineAvailableNeighbors(demo,demo.player.room_id);
+    demo.neighbors = cameraMode ? [] : offlineAvailableNeighbors(demo,demo.player.room_id);
     sabotage.items.forEach(function(item){
       item.active = sabotage.active_id === item.id;
       if (item.active) {
@@ -6309,6 +6365,8 @@
         const selectedRole = payload && payload.role;
         demo.player.role = selectedRole === 'liquidator' ? 'liquidator' : 'staff';
         demo.player.room_id = 'central_hub';
+        demo.player.view_state = 'main';
+        demo.player.camera_target = null;
         demo.player.isolated = false;
         demo.neighbors = offlineAvailableNeighbors(demo,'central_hub');
         demo.static_crew.forEach(function(bot){ bot.alive = true; bot.role = 'staff'; });
@@ -6346,7 +6404,27 @@
         demo.nearby_crew = demo.static_crew.filter(function(bot){ return bot.alive; });
         demo.room_ui = {tasks_available:true,tasks_blocked:false,action:'emergency'};
       }
+      if (path === '/api/game/camera/open') {
+        if (demo.player.room_id !== 'security_control') return {ok:false,status:409,data:{error:'camera_unavailable'}};
+        demo.active_task = null;
+        demo.player.view_state = 'camera_list';
+        demo.player.camera_target = null;
+      }
+      if (path === '/api/game/camera/view') {
+        const roomId = payload && payload.room_id;
+        if (!DEFAULT_SECURITY_CAMERA_ROOMS.includes(roomId)) return {ok:false,status:400,data:{error:'bad_camera_room'}};
+        if (demo.player.room_id !== 'security_control' || !['camera_list','camera_view'].includes(demo.player.view_state)) {
+          return {ok:false,status:409,data:{error:'camera_unavailable'}};
+        }
+        demo.player.view_state = 'camera_view';
+        demo.player.camera_target = roomId;
+      }
+      if (path === '/api/game/camera/exit') {
+        demo.player.view_state = 'main';
+        demo.player.camera_target = null;
+      }
       if (path === '/api/game/move') {
+        if (['camera_list','camera_view'].includes(demo.player.view_state)) return {ok:false,status:409,data:{error:'camera_active'}};
         const target = payload && payload.target_room;
         if (!demo.neighbors.includes(target)) return {ok:false,status:409,data:{error:'room_not_neighbor'}};
         demo.active_task = null;
@@ -6486,6 +6564,18 @@
 
   function gameRoom(roomId){
     return gameStateData && gameStateData.rooms.find(function(room){ return room.id === roomId; });
+  }
+
+  function gameCameraMode(){
+    const state = gameStateData && gameStateData.player && gameStateData.player.view_state;
+    return state === 'camera_list' || state === 'camera_view';
+  }
+
+  function gameCameraRooms(){
+    const roomIds = gameStateData && Array.isArray(gameStateData.camera_rooms)
+      ? gameStateData.camera_rooms
+      : DEFAULT_SECURITY_CAMERA_ROOMS;
+    return new Set(roomIds);
   }
 
   function gameRoomImageUrl(room){
@@ -6843,6 +6933,7 @@
 
   function renderGamePlayerTasks(){
     const player = gameStateData.player;
+    const cameraMode = gameCameraMode();
     const isLiquidator = player.role === 'liquidator';
     const showLiquidator = isLiquidator && !gameIdentityMasked;
     const sabotageActive = !!(gameStateData.sabotage && gameStateData.sabotage.active_id);
@@ -6854,12 +6945,12 @@
     gameScreen.classList.toggle('sabotage-active',sabotageActive);
     gameScreen.classList.toggle('identity-masked',isLiquidator && gameIdentityMasked);
     syncGameIsolationState();
-    gameLiquidatorPanel.hidden = !showLiquidator;
+    gameLiquidatorPanel.hidden = !showLiquidator || cameraMode;
     gameIdentityMask.setAttribute('aria-pressed',String(!showLiquidator));
     gameIdentityMask.title = 'Режим отображения интерфейса';
     gamePlayerTasks.replaceChildren();
     (player.tasks || []).forEach(function(task){
-      const actionable = task.available_here === true && !gameTaskPending;
+      const actionable = !cameraMode && task.available_here === true && !gameTaskPending;
       const item = document.createElement(actionable ? 'button' : 'div');
       if (actionable) item.type = 'button';
       item.className = 'game-player-task';
@@ -6928,6 +7019,13 @@
 
   function renderGameTaskHighlights(){
     if (!gameStateData || !gameMapSvg) return;
+    if (gameCameraMode()) {
+      gameMapSvg.querySelectorAll('.game-room').forEach(function(room){
+        room.classList.remove('task-location','task-color-hint','task-dash-hint');
+      });
+      gameTaskCollapseAlert.hidden = true;
+      return;
+    }
     syncGameTaskHighlightKnowledge();
 
     const currentId = gameStateData.player.room_id;
@@ -6987,7 +7085,9 @@
     if (!crew.length && !corpses.length) {
       const empty = document.createElement('div');
       empty.className = 'game-crew-empty';
-      empty.textContent = 'НИКОГО РЯДОМ';
+      empty.textContent = gameCameraMode() && !gameStateData.player.camera_target
+        ? 'ВЫБЕРИТЕ КАМЕРУ'
+        : 'НИКОГО РЯДОМ';
       gameCrewList.appendChild(empty);
       return;
     }
@@ -7151,7 +7251,8 @@
   function renderRoomActions(){
     const roomUi = gameStateData.room_ui || {};
     const activeTask = gameStateData.active_task;
-    gameTasksAction.disabled = gameTaskPending || (!activeTask && !roomUi.tasks_available);
+    const cameraMode = gameCameraMode();
+    gameTasksAction.disabled = gameTaskPending || cameraMode || (!activeTask && !roomUi.tasks_available);
     gameTasksAlert.hidden = !roomUi.tasks_blocked;
     if (activeTask) {
       const stage = Number(activeTask.stage_total) > 1 ? ' (' + activeTask.stage_current + '/' + activeTask.stage_total + ')' : '';
@@ -7167,7 +7268,8 @@
       emergency:'ТРЕВОЖНАЯ КНОПКА',
       repair_tasks:'УСТРАНИТЬ НЕПОЛАДКУ',
       accelerate_docking:'УСКОРИТЬ ПРИСТЫКОВКУ',
-      cameras:'КАМЕРА ВИДЕОНАБЛЮДЕНИЯ'
+      cameras:'КАМЕРА ВИДЕОНАБЛЮДЕНИЯ',
+      camera_exit:'ВЫЙТИ ИЗ КАМЕРЫ'
     };
     gameContextAction.textContent = labels[roomUi.action] || '';
     gameContextAction.dataset.action = roomUi.action || '';
@@ -7211,10 +7313,30 @@
     addGameLog('Выполнение задания отменено.');
   }
 
+  async function selectGameCamera(roomId){
+    if (gameCameraPending || !gameCameraMode() || !gameCameraRooms().has(roomId)) return;
+    gameCameraPending = true;
+    const result = await gameApiRequest('/api/game/camera/view','POST',{room_id:roomId});
+    gameCameraPending = false;
+    if (!result.ok) {
+      addGameLog(gameErrorText(result));
+      return;
+    }
+    gameStateData = result.data;
+    selectedGameRoomId = null;
+    gameMoveCard.hidden = true;
+    renderGameMap();
+    consumeGameEvents(result.data);
+  }
+
   function renderGameMap(){
     if (!gameStateData) return;
     const currentId = gameStateData.player.room_id;
     const neighbors = new Set(gameStateData.neighbors || []);
+    const cameraMode = gameCameraMode();
+    const cameraRooms = gameCameraRooms();
+    const cameraTarget = cameraMode ? gameStateData.player.camera_target : null;
+    gameScreen.classList.toggle('camera-mode',cameraMode);
     gameMapSvg.replaceChildren();
 
     const blueprintUrl = getGameStationBlueprintUrl();
@@ -7239,10 +7361,20 @@
 
       const group = svgEl('g',{class:'game-room','data-room':room.id});
       group.style.setProperty('--room-pulse-delay',(-roomIndex * .13) + 's');
-      if (room.id === currentId) group.classList.add('current');
-      else if (neighbors.has(room.id)) group.classList.add('neighbor');
-      else group.classList.add('distant');
-      if (room.id === selectedGameRoomId) group.classList.add('selected');
+      if (cameraMode) {
+        if (cameraRooms.has(room.id)) {
+          group.classList.add('camera-option');
+          if (room.id === cameraTarget) group.classList.add('current','camera-selected');
+          else group.classList.add('neighbor');
+        } else {
+          group.classList.add('distant');
+        }
+      } else {
+        if (room.id === currentId) group.classList.add('current');
+        else if (neighbors.has(room.id)) group.classList.add('neighbor');
+        else group.classList.add('distant');
+        if (room.id === selectedGameRoomId) group.classList.add('selected');
+      }
 
       const title = svgEl('title');
       title.textContent = room.name;
@@ -7251,24 +7383,30 @@
         class:'room-art',x:0,y:0,width:GAME_MAP_W,height:GAME_MAP_H,
         href:blueprintUrl,preserveAspectRatio:'none','clip-path':'url(#' + clipId + ')'
       }));
+      geometry.forEach(function(spec){ appendGameRoomShape(group,spec,'room-camera-fill'); });
       geometry.forEach(function(spec){ appendGameRoomShape(group,spec,'room-hit'); });
 
-      if (neighbors.has(room.id)) {
+      const roomIsInteractive = cameraMode ? cameraRooms.has(room.id) : neighbors.has(room.id);
+      if (roomIsInteractive) {
         group.setAttribute('role','button');
         group.setAttribute('tabindex','0');
-        group.setAttribute('aria-label','Перейти: ' + room.name);
+        group.setAttribute('aria-label',(cameraMode ? 'Камера: ' : 'Перейти: ') + room.name);
       }
-      if (neighbors.has(room.id)) {
+      if (roomIsInteractive) {
         group.addEventListener('click',function(event){
           if (gamePointerMoved) return;
           event.stopPropagation();
-          openGameMoveCard(room.id,event);
+          if (cameraMode) selectGameCamera(room.id);
+          else openGameMoveCard(room.id,event);
         });
         group.addEventListener('keydown',function(event){
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
-            const rect = group.getBoundingClientRect();
-            openGameMoveCard(room.id,{clientX:rect.left + rect.width / 2,clientY:rect.top});
+            if (cameraMode) selectGameCamera(room.id);
+            else {
+              const rect = group.getBoundingClientRect();
+              openGameMoveCard(room.id,{clientX:rect.left + rect.width / 2,clientY:rect.top});
+            }
           }
         });
       }
@@ -7278,7 +7416,7 @@
     renderGameTaskHighlights();
 
     const playerPos = GAME_ROOM_POSITIONS[currentId];
-    if (playerPos) {
+    if (!cameraMode && playerPos) {
       const marker = svgEl('g',{class:'player-marker',transform:'translate(' + playerPos[0] + ' ' + (playerPos[1] - 50) + ')'});
       marker.appendChild(svgEl('circle',{class:'marker-ring',cx:0,cy:0,r:15}));
       marker.appendChild(svgEl('circle',{class:'marker-core',cx:0,cy:0,r:7}));
@@ -7286,8 +7424,11 @@
       gameMapSvg.appendChild(marker);
     }
 
-    const currentRoom = gameRoom(currentId);
-    document.getElementById('gameRoomTitle').textContent = currentRoom ? currentRoom.emoji + ' ' + currentRoom.name.toUpperCase() : '—';
+    const currentRoom = gameRoom(cameraMode ? cameraTarget : currentId);
+    gameRoomKicker.textContent = cameraMode ? 'ТЕКУЩАЯ ЛОКАЦИЯ: КАМЕРА' : 'ТЕКУЩАЯ ЛОКАЦИЯ';
+    document.getElementById('gameRoomTitle').textContent = currentRoom
+      ? currentRoom.emoji + ' ' + currentRoom.name.toUpperCase()
+      : (cameraMode ? 'ВЫБЕРИТЕ ЛОКАЦИЮ' : '—');
     renderGamePlayerTasks();
     renderGameProgress();
     renderNearbyCrew();
@@ -7345,6 +7486,7 @@
     gameSabotagePending = false;
     gameStatePollPending = false;
     gameTaskPending = false;
+    gameCameraPending = false;
     if (gameTaskGainTimeout) clearTimeout(gameTaskGainTimeout);
     gameTaskGainTimeout = null;
     gameTaskGain.classList.remove('show');
@@ -7391,7 +7533,10 @@
     });
     if (!queuedStart) addGameSabotageLog(gameStateData.sabotage);
     consumeGameEvents(gameStateData);
-    requestAnimationFrame(function(){ focusGameRoom(gameStateData.player.room_id); });
+    requestAnimationFrame(function(){
+      if (gameCameraMode()) fitGameMap();
+      else focusGameRoom(gameStateData.player.room_id);
+    });
     startGameAudio();
   }
 
@@ -7405,6 +7550,9 @@
     if (code === 'already_in_lobby') return 'СНАЧАЛА ПОКИНЬТЕ ТЕКУЩЕЕ ЛОББИ.';
     if (code === 'room_not_neighbor') return 'МАРШРУТ УЖЕ НЕДОСТУПЕН. ВЫБЕРИТЕ СОСЕДНЮЮ КОМНАТУ.';
     if (code === 'already_moving') return 'ПЕРЕХОД УЖЕ ВЫПОЛНЯЕТСЯ.';
+    if (code === 'camera_active') return 'СНАЧАЛА ВЫЙДИТЕ ИЗ РЕЖИМА ВИДЕОНАБЛЮДЕНИЯ.';
+    if (code === 'camera_unavailable') return 'КАМЕРА ДОСТУПНА ТОЛЬКО В БЕЗОПАСНОСТИ И КОНТРОЛЕ.';
+    if (code === 'bad_camera_room') return 'ЭТА ЛОКАЦИЯ НЕ ПОДКЛЮЧЕНА К ВИДЕОНАБЛЮДЕНИЮ.';
     if (code === 'sabotage_unavailable') return 'САБОТАЖ СЕЙЧАС НЕДОСТУПЕН.';
     if (code === 'bad_sabotage') return 'НЕИЗВЕСТНЫЙ ТИП САБОТАЖА.';
     if (code === 'bad_sector') return 'НЕ УДАЛОСЬ ВЫБРАТЬ ОТСЕК ДЛЯ ИЗОЛЯЦИИ.';
@@ -7522,6 +7670,28 @@
 
   gameContextAction.addEventListener('click',async function(){
     const action = gameContextAction.dataset.action;
+    if ((action === 'cameras' || action === 'camera_exit') && !gameCameraPending) {
+      gameCameraPending = true;
+      gameContextAction.disabled = true;
+      const path = action === 'cameras' ? '/api/game/camera/open' : '/api/game/camera/exit';
+      const result = await gameApiRequest(path,'POST',{});
+      gameCameraPending = false;
+      gameContextAction.disabled = false;
+      if (!result.ok) {
+        addGameLog(gameErrorText(result));
+        return;
+      }
+      gameStateData = result.data;
+      selectedGameRoomId = null;
+      gameMoveCard.hidden = true;
+      renderGameMap();
+      consumeGameEvents(result.data);
+      requestAnimationFrame(function(){
+        if (gameCameraMode()) fitGameMap();
+        else focusGameRoom(gameStateData.player.room_id);
+      });
+      return;
+    }
     if (action === 'emergency') {
       gameContextAction.hidden = true;
       gameEmergencyConfirm.hidden = false;
@@ -7628,12 +7798,16 @@
     gameStatePollPending = false;
     if (!result.ok || !result.data || result.data.status !== 'active' || gameScreen.hidden) return;
     const previousRoomId = gameStateData.player && gameStateData.player.room_id;
+    const previousViewState = gameStateData.player && gameStateData.player.view_state;
+    const previousCameraTarget = gameStateData.player && gameStateData.player.camera_target;
     const previousNeighbors = (gameStateData.neighbors || []).slice().sort().join('|');
     const previousIsolation = gameStateData.player && gameStateData.player.isolated === true;
     gameStateData = result.data;
     const currentNeighbors = (gameStateData.neighbors || []).slice().sort().join('|');
     const isolationChanged = (gameStateData.player.isolated === true) !== previousIsolation;
-    if (gameStateData.player.room_id !== previousRoomId || currentNeighbors !== previousNeighbors || isolationChanged) renderGameMap();
+    const cameraChanged = gameStateData.player.view_state !== previousViewState
+      || gameStateData.player.camera_target !== previousCameraTarget;
+    if (gameStateData.player.room_id !== previousRoomId || currentNeighbors !== previousNeighbors || isolationChanged || cameraChanged) renderGameMap();
     else {
       renderGameTaskHighlights();
       renderGamePlayerTasks();
