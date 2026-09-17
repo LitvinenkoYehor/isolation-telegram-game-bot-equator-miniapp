@@ -2928,6 +2928,13 @@
     color:var(--scr-text); font:600 1.35cqw/1.35 'IBM VGA 8x16',monospace;
     letter-spacing:.025em;
   }
+  .game-role-logo-size{
+    padding:1.25cqw 0; border-bottom:1px solid var(--scr-line);
+  }
+  .game-role-logo-size .game-transit-control-label{
+    margin-bottom:.8cqw; color:var(--scr-text);
+    font-weight:600; letter-spacing:.025em;
+  }
   .game-settings-switch{
     --game-switch-thumb:clamp(14px,1.9cqw,25px);
     --game-switch-gap:clamp(3px,.35cqw,5px);
@@ -4765,6 +4772,11 @@
                 <span class="switch-track"><span class="switch-thumb"></span></span>
               </label>
             </div>
+            <div class="game-settings-group-label">ИНТРО РОЛИ</div>
+            <label class="game-role-logo-size" for="gameRoleLogoSize">
+              <span class="game-transit-control-label"><span>РАЗМЕР ЛОГОТИПА</span><output id="gameRoleLogoSizeValue" for="gameRoleLogoSize">50</output></span>
+              <input class="game-transit-range" id="gameRoleLogoSize" type="range" min="0" max="100" step="1" value="50">
+            </label>
             <div class="game-settings-option">
               <span class="game-settings-option-text">ПОКАЗЫВАТЬ ЦВЕТ ТЕКСТОМ</span>
               <label class="switch game-settings-switch" aria-label="Показывать название цвета текстом">
@@ -10011,6 +10023,8 @@
   const toggleNearbyTaskDashHint = document.getElementById('toggleNearbyTaskDashHint');
   const roleLogoSize = document.getElementById('roleLogoSize');
   const roleLogoSizeValue = document.getElementById('roleLogoSizeValue');
+  const gameRoleLogoSize = document.getElementById('gameRoleLogoSize');
+  const gameRoleLogoSizeValue = document.getElementById('gameRoleLogoSizeValue');
   const rowGlitch   = document.getElementById('rowGlitch');
   const stageEl     = document.querySelector('.stage');
 
@@ -10133,7 +10147,16 @@
     roleLogoSizeValue.value = value;
     roleLogoSizeValue.textContent = value;
     roleLogoSize.style.setProperty('--range-value',value + '%');
+    gameRoleLogoSize.value = value;
+    gameRoleLogoSizeValue.value = value;
+    gameRoleLogoSizeValue.textContent = value;
     roleRevealEmblem.style.setProperty('--role-emblem-size-scale',String(value / 50));
+  }
+
+  function updateRoleLogoSize(input){
+    appSettings.roleLogoSize = Number(input.value);
+    applyRoleLogoSize();
+    saveSettings();
   }
 
   toggleCrt.checked = !appSettings.crtOff;
@@ -10161,9 +10184,10 @@
     saveSettings();
   });
   roleLogoSize.addEventListener('input', () => {
-    appSettings.roleLogoSize = Number(roleLogoSize.value);
-    applyRoleLogoSize();
-    saveSettings();
+    updateRoleLogoSize(roleLogoSize);
+  });
+  gameRoleLogoSize.addEventListener('input', () => {
+    updateRoleLogoSize(gameRoleLogoSize);
   });
   toggleWallpaper.addEventListener('change', () => {
     appSettings.wallpaperOff = !toggleWallpaper.checked;
