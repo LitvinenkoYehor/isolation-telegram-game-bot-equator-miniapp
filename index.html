@@ -4670,7 +4670,7 @@
         <aside class="game-side-panel">
           <div class="game-side-kicker" id="gameRoomKicker">ТЕКУЩАЯ ЛОКАЦИЯ</div>
           <div class="game-side-title" id="gameRoomTitle">—</div>
-          <div class="game-side-kicker game-nearby-title">БЛИЖАЙШИЙ ЭКИПАЖ:</div>
+          <div class="game-side-kicker game-nearby-title" id="gameCrewTitle">БЛИЖАЙШИЙ ЭКИПАЖ:</div>
           <div class="game-crew-list" id="gameCrewList">
             <div class="game-crew-empty">НИКОГО РЯДОМ</div>
           </div>
@@ -6054,6 +6054,7 @@
   const gameToggleNearbyTaskColorHint = document.getElementById('gameToggleNearbyTaskColorHint');
   const gameToggleNearbyTaskDashHint = document.getElementById('gameToggleNearbyTaskDashHint');
   const gameCrewList = document.getElementById('gameCrewList');
+  const gameCrewTitle = document.getElementById('gameCrewTitle');
   const gameRoomKicker = document.getElementById('gameRoomKicker');
   const gameTasksAction = document.getElementById('gameTasksAction');
   const gameTasksActionLabel = document.getElementById('gameTasksActionLabel');
@@ -7085,14 +7086,16 @@
   }
 
   function renderNearbyCrew(){
+    const cameraMode = gameCameraMode();
+    gameCrewTitle.textContent = cameraMode ? 'ВИДИМЫЙ ЭКИПАЖ:' : 'БЛИЖАЙШИЙ ЭКИПАЖ:';
     gameCrewList.replaceChildren();
     const crew = gameStateData.nearby_crew || [];
     const corpses = gameStateData.corpses || [];
     if (!crew.length && !corpses.length) {
       const empty = document.createElement('div');
       empty.className = 'game-crew-empty';
-      empty.textContent = gameCameraMode() && !gameStateData.player.camera_target
-        ? 'ВЫБЕРИТЕ КАМЕРУ'
+      empty.textContent = cameraMode
+        ? (gameStateData.player.camera_target ? 'Н/Д' : 'ВЫБЕРИТЕ КАМЕРУ')
         : 'НИКОГО РЯДОМ';
       gameCrewList.appendChild(empty);
       return;
