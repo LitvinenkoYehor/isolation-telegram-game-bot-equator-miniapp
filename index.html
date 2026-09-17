@@ -2293,6 +2293,89 @@
     color:var(--scr-text);
   }
 
+  /* ================= DISCUSSION INTRO =================
+     Полноэкранный лист протокола намеренно находится вне терминала:
+     это отдельная заставка собрания, собранная по макету из PDF. */
+  .discussion-intro{
+    position:fixed; inset:0; z-index:1200;
+    overflow:hidden; background:#000;
+    font-family:'Courier New','IBM VGA 8x16',monospace;
+    color:#161616; pointer-events:auto;
+  }
+  .discussion-intro[hidden]{ display:none; }
+  .discussion-intro-paper{
+    position:absolute; inset:0;
+    background:#f0efeb;
+    opacity:0;
+  }
+  .discussion-intro-paper.shown{ opacity:1; }
+  .discussion-intro-protocol{ position:absolute; inset:0; }
+  .discussion-intro-title,
+  .discussion-intro-line{
+    position:absolute; left:8vw; right:8vw;
+    margin:0; text-align:center;
+  }
+  .discussion-intro-title{
+    top:27%;
+    font-size:clamp(19px,2.45vw,38px);
+    line-height:1.2; font-weight:700;
+    letter-spacing:.025em;
+  }
+  .discussion-intro-line{
+    font-size:clamp(15px,1.75vw,27px);
+    line-height:1.35;
+  }
+  .discussion-intro-registration{ top:37%; }
+  .discussion-intro-station{ top:42%; }
+  .discussion-intro-date{ top:47%; }
+  .discussion-intro-status{
+    top:54%; left:13vw; right:13vw;
+    font-size:clamp(13px,1.5vw,23px);
+    font-style:italic;
+  }
+  .discussion-intro-attendance{ top:64%; }
+  .discussion-intro-line[hidden]{ display:none; }
+  .discussion-intro-fadable{
+    opacity:1;
+    transition:opacity 1s ease;
+  }
+  .discussion-intro-fadable.fade-out{ opacity:0; }
+  .discussion-intro-cursor::after{
+    content:'|'; margin-left:.08em;
+    animation:discussionCursorBlink .7s steps(1,end) infinite;
+  }
+  @keyframes discussionCursorBlink{ 0%,48%{opacity:1} 49%,100%{opacity:0} }
+  .discussion-intro-protocol.compact .discussion-intro-title{ top:34%; }
+  .discussion-intro-protocol.compact .discussion-intro-date{ top:47%; }
+  .discussion-intro-protocol.compact .discussion-intro-attendance{ top:54%; }
+  .discussion-intro-reason{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:clamp(14px,2vw,28px);
+    padding:8vw; text-align:center;
+  }
+  .discussion-intro-reason[hidden]{ display:none; }
+  .discussion-intro-reason-text{
+    max-width:1050px;
+    font-size:clamp(24px,4vw,62px);
+    font-weight:700; line-height:1.22;
+    letter-spacing:.025em;
+  }
+  @media(max-width:700px){
+    .discussion-intro-title,
+    .discussion-intro-line{ left:5vw; right:5vw; }
+    .discussion-intro-title{ top:24%; }
+    .discussion-intro-registration{ top:36%; }
+    .discussion-intro-station{ top:42%; }
+    .discussion-intro-date{ top:48%; }
+    .discussion-intro-status{ top:55%; left:7vw; right:7vw; }
+    .discussion-intro-attendance{ top:67%; }
+    .discussion-intro-protocol.compact .discussion-intro-title{ top:31%; }
+    .discussion-intro-protocol.compact .discussion-intro-date{ top:47%; }
+    .discussion-intro-protocol.compact .discussion-intro-attendance{ top:56%; }
+  }
+
   /* ================= EARLY GAME / ADMIN EMPTY SHIFT =================
      В игре используется тот же детальный SVG, что и в «Станциях».
      Поверх него лежат семантические контуры помещений: они отвечают
@@ -2314,14 +2397,14 @@
   .admin-role-choice{ margin-top:1.25cqw; padding-top:1.25cqw; border-top:1px solid rgba(255,191,77,.3); }
   .admin-role-choice[hidden]{ display:none; }
   .admin-role-choice-title{ margin-bottom:.8cqw; color:var(--scr-text-dim); font:700 1.35cqw/1.2 'IBM VGA 8x16',monospace; letter-spacing:.08em; }
-  .admin-role-choice-buttons{ display:grid; grid-template-columns:repeat(3,1fr); gap:.8cqw; }
+  .admin-role-choice-buttons{ display:grid; grid-template-columns:repeat(2,1fr); gap:.8cqw; }
   .admin-role-btn{
     padding:1.2cqw; border:1px solid rgba(83,196,133,.72); border-radius:.4cqw;
     background:rgba(42,123,77,.15); color:#94ddb5; cursor:pointer;
     font:700 1.5cqw/1 'IBM VGA 8x16',monospace; letter-spacing:.06em;
   }
   .admin-role-btn.danger{ border-color:rgba(190,91,91,.72); background:rgba(128,42,42,.18); color:#dc9696; }
-  .admin-role-btn.witness{ border-color:rgba(212,180,58,.72); background:rgba(113,88,22,.18); color:#e5cb72; }
+  .admin-role-btn.discussion{ border-color:rgba(212,180,58,.72); background:rgba(113,88,22,.18); color:#e5cb72; }
   .admin-role-btn:hover{ filter:brightness(1.18); }
   .admin-role-btn:disabled{ opacity:.45; cursor:wait; }
   .admin-sandbox-status{ min-height:1.4em; margin-top:1cqw; color:var(--scr-text-dim); font-size:1.4cqw; }
@@ -3556,14 +3639,15 @@
             <div class="profile-section-label">АДМИНИСТРАТОР</div>
             <div class="admin-sandbox-card">
               <div class="admin-sandbox-kicker">ТЕСТОВАЯ СМЕНА // DEV</div>
-              <p class="admin-sandbox-copy">Открыть «Астрал-1» с 11 неподвижными ботами в Центральном узле. Перед запуском можно выбрать роль игрока.</p>
+              <p class="admin-sandbox-copy">Открыть «Астрал-1» с 11 неподвижными ботами в Центральном узле. Перед запуском можно выбрать роль или сценарий интро.</p>
               <button class="admin-sandbox-btn" id="adminSandboxStart" type="button">▸ НАЧАТЬ В ПОЛНОМ ОДИНОЧЕСТВЕ</button>
               <div class="admin-role-choice" id="adminRoleChoice" hidden>
-                <div class="admin-role-choice-title">ВЫБЕРИТЕ КЛАССИФИКАЦИЮ</div>
+                <div class="admin-role-choice-title">ВЫБЕРИТЕ ТЕСТОВЫЙ СЦЕНАРИЙ</div>
                 <div class="admin-role-choice-buttons">
                   <button class="admin-role-btn" type="button" data-role="staff">ПЕРСОНАЛ</button>
                   <button class="admin-role-btn danger" type="button" data-role="liquidator">ЛИКВИДАТОР</button>
-                  <button class="admin-role-btn witness" type="button" data-role="witness">СВИДЕТЕЛЬ</button>
+                  <button class="admin-role-btn discussion" type="button" data-role="discussion1">ДИСКУССИЯ1</button>
+                  <button class="admin-role-btn discussion" type="button" data-role="discussion2">ДИСКУССИЯ2</button>
                 </div>
               </div>
               <div class="admin-sandbox-status" id="adminSandboxStatus" aria-live="polite"></div>
@@ -4946,6 +5030,23 @@
   </div>
 </div>
 
+<!-- ================= DISCUSSION INTRO — полноэкранный протокол собрания ================= -->
+<div class="discussion-intro" id="discussionIntro" hidden>
+  <div class="discussion-intro-paper" id="discussionIntroPaper">
+    <div class="discussion-intro-protocol" id="discussionIntroProtocol">
+      <h1 class="discussion-intro-title discussion-intro-fadable" id="discussionIntroTitle"></h1>
+      <p class="discussion-intro-line discussion-intro-registration discussion-intro-fadable" id="discussionIntroRegistration"></p>
+      <p class="discussion-intro-line discussion-intro-station discussion-intro-fadable" id="discussionIntroStation"></p>
+      <p class="discussion-intro-line discussion-intro-date" id="discussionIntroDate" hidden></p>
+      <p class="discussion-intro-line discussion-intro-status discussion-intro-fadable" id="discussionIntroStatus"></p>
+      <p class="discussion-intro-line discussion-intro-attendance" id="discussionIntroAttendance" hidden></p>
+    </div>
+    <div class="discussion-intro-reason" id="discussionIntroReason" hidden>
+      <div class="discussion-intro-reason-text" id="discussionIntroReasonText"></div>
+    </div>
+  </div>
+</div>
+
 <script>
   // =========================================================
   //  DEVICE / PLATFORM DETECTION
@@ -6182,6 +6283,17 @@
   const adminRoleChoice = document.getElementById('adminRoleChoice');
   const adminRoleButtons = Array.from(document.querySelectorAll('.admin-role-btn'));
   const adminSandboxStatus = document.getElementById('adminSandboxStatus');
+  const discussionIntro = document.getElementById('discussionIntro');
+  const discussionIntroPaper = document.getElementById('discussionIntroPaper');
+  const discussionIntroProtocol = document.getElementById('discussionIntroProtocol');
+  const discussionIntroTitle = document.getElementById('discussionIntroTitle');
+  const discussionIntroRegistration = document.getElementById('discussionIntroRegistration');
+  const discussionIntroStation = document.getElementById('discussionIntroStation');
+  const discussionIntroDate = document.getElementById('discussionIntroDate');
+  const discussionIntroStatus = document.getElementById('discussionIntroStatus');
+  const discussionIntroAttendance = document.getElementById('discussionIntroAttendance');
+  const discussionIntroReason = document.getElementById('discussionIntroReason');
+  const discussionIntroReasonText = document.getElementById('discussionIntroReasonText');
 
   if (IS_DESKTOP) {
     gameScreen.classList.add('game-desktop');
@@ -6209,6 +6321,8 @@
   let gameTaskPending = false;
   let gameCameraPending = false;
   let gameTaskGainTimeout = null;
+  let discussionIntroRunToken = 0;
+  let discussionIntroDay = 0;
   const gameAcknowledgedTaskIds = new Set();
   let gameHandledTaskEvents = new WeakSet();
   let gameTaskSabotageWasActive = false;
@@ -7684,13 +7798,172 @@
     return 'НЕТ СВЯЗИ С ДИСПЕТЧЕРСКОЙ. ПОПРОБУЙТЕ ЕЩЁ РАЗ.';
   }
 
+  function resetDiscussionIntroView(){
+    discussionIntroPaper.classList.remove('shown');
+    discussionIntroProtocol.classList.remove('compact');
+    discussionIntroProtocol.hidden = false;
+    discussionIntroReason.hidden = true;
+    discussionIntroTitle.classList.remove('discussion-intro-cursor','fade-out');
+    [discussionIntroRegistration,discussionIntroStation,discussionIntroStatus].forEach(function(element){
+      element.classList.remove('fade-out');
+    });
+    discussionIntroTitle.textContent = '';
+    discussionIntroRegistration.textContent = '';
+    discussionIntroStation.textContent = '';
+    discussionIntroDate.textContent = '';
+    discussionIntroStatus.textContent = '';
+    discussionIntroAttendance.textContent = '';
+    discussionIntroReasonText.textContent = '';
+    discussionIntroDate.hidden = true;
+    discussionIntroAttendance.hidden = true;
+  }
+
+  function closeDiscussionIntro(){
+    discussionIntroRunToken += 1;
+    discussionIntro.hidden = true;
+    resetDiscussionIntroView();
+  }
+
+  function discussionIntroPause(ms,token){
+    return new Promise(function(resolve){
+      setTimeout(function(){ resolve(token === discussionIntroRunToken); },ms);
+    });
+  }
+
+  function typeDiscussionText(element,text,durationMs,token,startLength){
+    const safeText = String(text || '');
+    const from = Math.max(0,Math.min(Number(startLength) || 0,safeText.length));
+    element.textContent = safeText.slice(0,from);
+    if (token !== discussionIntroRunToken) return Promise.resolve(false);
+    if (from >= safeText.length || durationMs <= 0) {
+      element.textContent = safeText;
+      return Promise.resolve(true);
+    }
+    return new Promise(function(resolve){
+      const startedAt = performance.now();
+      function writeFrame(now){
+        if (token !== discussionIntroRunToken) {
+          resolve(false);
+          return;
+        }
+        const progress = Math.min(1,(now - startedAt) / durationMs);
+        const count = from + Math.floor((safeText.length - from) * progress);
+        element.textContent = safeText.slice(0,count);
+        if (progress < 1) requestAnimationFrame(writeFrame);
+        else {
+          element.textContent = safeText;
+          resolve(true);
+        }
+      }
+      requestAnimationFrame(writeFrame);
+    });
+  }
+
+  function discussionCrewCount(data){
+    const crew = new Map();
+    function remember(member,aliveFallback){
+      if (!member) return;
+      const key = member.id != null ? String(member.id) : String(member.name || crew.size);
+      const previous = crew.get(key);
+      const alive = member.alive == null ? aliveFallback : member.alive !== false;
+      crew.set(key,{alive:previous ? previous.alive && alive : alive});
+    }
+    remember(data && data.player,true);
+    (data && data.static_crew || []).forEach(function(member){ remember(member,true); });
+    (data && data.nearby_crew || []).forEach(function(member){ remember(member,true); });
+    (data && data.corpses || []).forEach(function(member){ remember(member,false); });
+    const members = Array.from(crew.values());
+    return {
+      alive:members.filter(function(member){ return member.alive; }).length,
+      total:members.length
+    };
+  }
+
+  async function playDiscussionIntro(variant,reasonKind){
+    const token = ++discussionIntroRunToken;
+    const data = gameStateData || {};
+    const playerName = String(data.player && data.player.name || 'ИГРОК').toUpperCase();
+    const stationName = String(data.station || 'АСТРАЛ-1').toUpperCase();
+    const crewCount = discussionCrewCount(data);
+    const day = ++discussionIntroDay;
+    const titleText = 'ПРОТОКОЛ ЭКСТРЕННОГО СОБРАНИЯ ЭКИПАЖА';
+    const dateLabel = 'Дата:';
+    const attendanceLabel = 'Присутствуют:';
+    const dateText = dateLabel + ' ' + day + '-й день транзитного цикла';
+    const attendanceText = attendanceLabel + ' ' + crewCount.alive + ' из ' + crewCount.total + ' членов экипажа станции';
+    const reasonText = reasonKind === 'corpse'
+      ? 'ИГРОК ' + playerName + ' ОБНАРУЖИЛ ТРУП'
+      : 'ИГРОК ' + playerName + ' НАЖАЛ ТРЕВОЖНУЮ КНОПКУ';
+    const isFull = variant === 'discussion1';
+
+    resetDiscussionIntroView();
+    if (!isFull) discussionIntroProtocol.classList.add('compact');
+    discussionIntro.hidden = false;
+
+    if (!await discussionIntroPause(isFull ? 1000 : 500,token)) return;
+    discussionIntroPaper.classList.add('shown');
+
+    if (isFull) {
+      if (!await typeDiscussionText(discussionIntroTitle,titleText,2000,token)) return;
+      discussionIntroTitle.classList.add('discussion-intro-cursor');
+      if (!await discussionIntroPause(1500,token)) return;
+      discussionIntroTitle.classList.remove('discussion-intro-cursor');
+
+      const detailsPrinted = await Promise.all([
+        typeDiscussionText(discussionIntroRegistration,'Регистрационный номер: TC-MRD00147',3000,token),
+        typeDiscussionText(discussionIntroStation,'Станция: «' + stationName + '»',3000,token),
+        typeDiscussionText(discussionIntroStatus,'Статус: собрание созвано в соответствии с протоколом чрезвычайного оповещения',3000,token)
+      ]);
+      if (detailsPrinted.some(function(done){ return !done; })) return;
+      if (!await discussionIntroPause(2000,token)) return;
+
+      discussionIntroDate.hidden = false;
+      discussionIntroAttendance.hidden = false;
+      const labelsPrinted = await Promise.all([
+        typeDiscussionText(discussionIntroDate,dateLabel,500,token),
+        typeDiscussionText(discussionIntroAttendance,attendanceLabel,500,token)
+      ]);
+      if (labelsPrinted.some(function(done){ return !done; })) return;
+      if (!await discussionIntroPause(500,token)) return;
+
+      [discussionIntroTitle,discussionIntroRegistration,discussionIntroStation,discussionIntroStatus].forEach(function(element){
+        element.classList.add('fade-out');
+      });
+      const summaryPrinted = await Promise.all([
+        typeDiscussionText(discussionIntroDate,dateText,1000,token,dateLabel.length),
+        typeDiscussionText(discussionIntroAttendance,attendanceText,1000,token,attendanceLabel.length)
+      ]);
+      if (summaryPrinted.some(function(done){ return !done; })) return;
+      if (!await discussionIntroPause(2000,token)) return;
+    } else {
+      if (!await typeDiscussionText(discussionIntroTitle,titleText,1000,token)) return;
+      if (!await discussionIntroPause(1000,token)) return;
+      discussionIntroDate.hidden = false;
+      discussionIntroAttendance.hidden = false;
+      const summaryPrinted = await Promise.all([
+        typeDiscussionText(discussionIntroDate,dateText,1000,token),
+        typeDiscussionText(discussionIntroAttendance,attendanceText,1000,token)
+      ]);
+      if (summaryPrinted.some(function(done){ return !done; })) return;
+      if (!await discussionIntroPause(2000,token)) return;
+    }
+
+    discussionIntroProtocol.hidden = true;
+    discussionIntroReason.hidden = false;
+    if (!await typeDiscussionText(discussionIntroReasonText,reasonText,1000,token)) return;
+    if (!await discussionIntroPause(2000,token)) return;
+    if (token === discussionIntroRunToken) closeDiscussionIntro();
+  }
+
   async function startAdminSandbox(role){
     if (!currentProfile || !currentProfile.is_admin) return;
     adminSandboxStart.disabled = true;
     adminRoleButtons.forEach(function(button){ button.disabled = true; });
     adminSandboxStatus.classList.remove('error');
     adminSandboxStatus.textContent = 'ПОДГОТОВКА ТЕСТОВОЙ СМЕНЫ...';
-    const result = await gameApiRequest('/api/game/admin-solo/start','POST',{role:role});
+    const discussionVariant = role === 'discussion1' || role === 'discussion2' ? role : null;
+    const apiRole = role === 'discussion1' ? 'witness' : (role === 'discussion2' ? 'staff' : role);
+    const result = await gameApiRequest('/api/game/admin-solo/start','POST',{role:apiRole});
     adminSandboxStart.disabled = false;
     adminRoleButtons.forEach(function(button){ button.disabled = false; });
     if (!result.ok) {
@@ -7700,7 +7973,13 @@
     }
     adminSandboxStatus.textContent = '';
     adminRoleChoice.hidden = true;
+    discussionIntroDay = 0;
     showGame(result.data);
+    if (discussionVariant) {
+      requestAnimationFrame(function(){
+        playDiscussionIntro(discussionVariant,discussionVariant === 'discussion1' ? 'corpse' : 'emergency');
+      });
+    }
   }
 
   adminSandboxStart.addEventListener('click',function(){
@@ -7730,6 +8009,7 @@
   }
   function exitGameToMenu(){
     stopGameAudio();
+    closeDiscussionIntro();
     gameKillTargeting = false;
     gameKillPending = false;
     if (gameWitnessTimeout) clearTimeout(gameWitnessTimeout);
