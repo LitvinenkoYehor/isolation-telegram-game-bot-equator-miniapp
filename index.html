@@ -2304,10 +2304,34 @@
   }
   .game-screen.shift-crt-off::before,
   .game-screen.shift-crt-off::after{ display:none; }
-  /* Камера наблюдения всегда остаётся ЭЛТ-экраном. Этот более точный
-     селектор намеренно отменяет пользовательское отключение эффекта. */
-  .game-screen.camera-mode.shift-crt-off::before,
-  .game-screen.camera-mode.shift-crt-off::after{ display:block; }
+  /* В режиме камер общий ЭЛТ-слой отключён: принудительная развёртка
+     располагается только внутри территории карты станции. */
+  .game-screen.camera-mode::before,
+  .game-screen.camera-mode::after{ display:none; }
+  .game-screen.camera-mode .game-map-panel::before,
+  .game-screen.camera-mode .game-map-panel::after{
+    content:''; position:absolute; inset:0; z-index:30; pointer-events:none;
+  }
+  .game-screen.camera-mode .game-map-panel::before{
+    background:repeating-linear-gradient(
+      to bottom,
+      rgba(10,14,18,.16) 0,
+      rgba(10,14,18,.16) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode:multiply;
+  }
+  .game-screen.camera-mode .game-map-panel::after{
+    z-index:31;
+    background-image:
+      radial-gradient(120% 100% at 50% 45%,transparent 55%,rgba(0,0,0,.55) 100%),
+      linear-gradient(to bottom,transparent 0%,rgba(210,235,255,.065) 45%,transparent 100%);
+    background-size:100% 100%,100% 24%;
+    background-repeat:no-repeat;
+    background-position:center,center -32%;
+    animation:gameCrtSweep 8s linear infinite;
+  }
   @keyframes gameCrtSweep{
     from{ background-position:center,center -32%; }
     to{ background-position:center,center 132%; }
@@ -2451,47 +2475,12 @@
     0%,100%{stroke-opacity:.48}
     50%{stroke-opacity:1}
   }
-  /* Видеонаблюдение: тёмно-серое поле, четыре одинаковых светло-серых
-     видеоканала и принудительная ЭЛТ-развёртка поверх интерфейса. */
-  .game-screen.camera-mode .game-map-panel,
-  .game-screen.camera-mode .game-map-viewport{
-    background:#292d2c;
-  }
-  .game-screen.camera-mode .game-map-viewport{
-    background-image:
-      linear-gradient(rgba(220,225,223,.035) 1px,transparent 1px),
-      linear-gradient(90deg,rgba(220,225,223,.035) 1px,transparent 1px);
-    background-size:3.2cqw 3.2cqw;
-  }
+  /* Видеонаблюдение сохраняет исходные цвета четырёх камерных локаций. */
   .game-screen.camera-mode .game-station-base{
     opacity:.09; filter:grayscale(1) brightness(1.7) contrast(.68);
   }
   .game-screen.camera-mode .game-tasks-panel{ display:none; }
-  .game-screen.camera-mode .game-room.camera-option .room-art{ display:none; }
-  .game-screen.camera-mode .game-room.camera-option .room-camera-fill{
-    opacity:.62; fill:#bcc1bf;
-  }
-  .game-screen.camera-mode .game-room.camera-option.neighbor .room-camera-fill{
-    animation:cameraRoomPulse 2.15s ease-in-out infinite;
-    animation-delay:var(--room-pulse-delay,0s);
-  }
-  .game-screen.camera-mode .game-room.camera-option.camera-selected .room-camera-fill{
-    opacity:.92; filter:drop-shadow(0 0 7px rgba(76,82,80,.38));
-  }
-  .game-screen.camera-mode .game-room.camera-option.camera-selected .room-hit{
-    stroke:rgba(70,76,74,.76); stroke-width:3;
-  }
-  .game-screen.camera-mode .game-room.camera-option:hover .room-camera-fill{
-    opacity:.86; filter:drop-shadow(0 0 5px rgba(76,82,80,.28));
-  }
-  .game-screen.camera-mode .game-room.camera-option:hover .room-hit{
-    stroke:rgba(70,76,74,.52);
-  }
   .game-screen.camera-mode .game-side-title{ color:#fff; }
-  @keyframes cameraRoomPulse{
-    0%,100%{opacity:.52;filter:brightness(.98) drop-shadow(0 0 1px rgba(76,82,80,.1))}
-    50%{opacity:.84;filter:brightness(1.06) drop-shadow(0 0 5px rgba(76,82,80,.28))}
-  }
   .player-marker{ pointer-events:none; filter:drop-shadow(0 0 8px rgba(255,255,255,.9)); }
   .player-marker .marker-ring{ fill:#071520; stroke:#fff; stroke-width:3; vector-effect:non-scaling-stroke; }
   .player-marker .marker-core{ fill:var(--scr-cyan); }
@@ -2826,6 +2815,23 @@
   }
   .game-screen.isolated.liquidator-view{
     background:linear-gradient(180deg,rgba(27,3,7,.998),rgba(8,0,2,1));
+  }
+  /* Камерный режим повторяет мягкую тонировку саботажа, но в нейтральной
+     тёмно-серой гамме. Правила стоят после аварийных тем и имеют приоритет. */
+  .game-screen.camera-mode{
+    background:linear-gradient(180deg,rgba(18,20,20,.992),rgba(7,8,8,.998));
+  }
+  .game-screen.camera-mode .game-map-panel,
+  .game-screen.camera-mode .game-side-panel,
+  .game-screen.camera-mode .game-log{
+    border-color:rgba(112,120,118,.45); background-color:rgba(11,12,12,.94);
+  }
+  .game-screen.camera-mode .game-map-viewport{
+    background:
+      linear-gradient(rgba(150,158,156,.035) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(150,158,156,.035) 1px,transparent 1px),
+      radial-gradient(circle at 50% 48%,#2b302f 0%,#161918 60%,#080909 100%);
+    background-size:3.2cqw 3.2cqw,3.2cqw 3.2cqw,auto;
   }
   .game-mask-btn{
     opacity:.42; color:var(--scr-cyan); border-color:var(--scr-cyan);
