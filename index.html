@@ -2196,7 +2196,8 @@
   .role-reveal[hidden]{ display:none; }
   .role-reveal-emblem{
     --role-emblem-opacity:.18;
-    --role-emblem-size-scale:1;
+    /* Выбранный итоговый размер: 60 (где прежние 50 соответствовали масштабу 1). */
+    --role-emblem-size-scale:1.2;
     position:absolute; left:50%; top:50%; z-index:0;
     width:min(88vw,860px); height:min(88vh,860px);
     transform:translate(-50%,-50%) scale(var(--role-emblem-size-scale)) scale(.94);
@@ -2928,13 +2929,6 @@
     color:var(--scr-text); font:600 1.35cqw/1.35 'IBM VGA 8x16',monospace;
     letter-spacing:.025em;
   }
-  .game-role-logo-size{
-    padding:1.25cqw 0; border-bottom:1px solid var(--scr-line);
-  }
-  .game-role-logo-size .game-transit-control-label{
-    margin-bottom:.8cqw; color:var(--scr-text);
-    font-weight:600; letter-spacing:.025em;
-  }
   .game-settings-switch{
     --game-switch-thumb:clamp(14px,1.9cqw,25px);
     --game-switch-gap:clamp(3px,.35cqw,5px);
@@ -3516,10 +3510,6 @@
                 <span class="switch-track"><span class="switch-thumb"></span></span>
               </label>
             </div>
-            <label class="settings-audio-row" for="roleLogoSize">
-              <span class="settings-audio-head"><span class="settings-label">РАЗМЕР ЛОГОТИПА РОЛИ</span><output class="settings-audio-value" id="roleLogoSizeValue" for="roleLogoSize">50</output></span>
-              <input class="settings-range" id="roleLogoSize" type="range" min="0" max="100" step="1" value="50">
-            </label>
             <div class="settings-row">
               <span class="settings-label">ОБОИ</span>
               <label class="switch">
@@ -4772,11 +4762,6 @@
                 <span class="switch-track"><span class="switch-thumb"></span></span>
               </label>
             </div>
-            <div class="game-settings-group-label">ИНТРО РОЛИ</div>
-            <label class="game-role-logo-size" for="gameRoleLogoSize">
-              <span class="game-transit-control-label"><span>РАЗМЕР ЛОГОТИПА</span><output id="gameRoleLogoSizeValue" for="gameRoleLogoSize">50</output></span>
-              <input class="game-transit-range" id="gameRoleLogoSize" type="range" min="0" max="100" step="1" value="50">
-            </label>
             <div class="game-settings-option">
               <span class="game-settings-option-text">ПОКАЗЫВАТЬ ЦВЕТ ТЕКСТОМ</span>
               <label class="switch game-settings-switch" aria-label="Показывать название цвета текстом">
@@ -5108,7 +5093,6 @@
     nearbyTaskTextHint: false,
     nearbyTaskColorHint: true,
     nearbyTaskDashHint: false,
-    roleLogoSize: 50,
     masterVolume: 100,
     introVolume: 80,
     ambienceVolume: 100,
@@ -5120,11 +5104,6 @@
     const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
     appSettings = Object.assign(appSettings, saved);
   } catch (e) { /* ignore corrupt/missing storage */ }
-
-  const savedRoleLogoSize = Number(appSettings.roleLogoSize);
-  appSettings.roleLogoSize = Number.isFinite(savedRoleLogoSize)
-    ? Math.max(0, Math.min(100, Math.round(savedRoleLogoSize)))
-    : 50;
 
   const AUDIO_SETTING_DEFAULTS = {
     masterVolume: 100,
@@ -10021,10 +10000,6 @@
   const toggleNearbyTaskTextHint = document.getElementById('toggleNearbyTaskTextHint');
   const toggleNearbyTaskColorHint = document.getElementById('toggleNearbyTaskColorHint');
   const toggleNearbyTaskDashHint = document.getElementById('toggleNearbyTaskDashHint');
-  const roleLogoSize = document.getElementById('roleLogoSize');
-  const roleLogoSizeValue = document.getElementById('roleLogoSizeValue');
-  const gameRoleLogoSize = document.getElementById('gameRoleLogoSize');
-  const gameRoleLogoSizeValue = document.getElementById('gameRoleLogoSizeValue');
   const rowGlitch   = document.getElementById('rowGlitch');
   const stageEl     = document.querySelector('.stage');
 
@@ -10140,25 +10115,6 @@
     }
   }
 
-  function applyRoleLogoSize(){
-    const value = Math.max(0,Math.min(100,Math.round(Number(appSettings.roleLogoSize) || 0)));
-    appSettings.roleLogoSize = value;
-    roleLogoSize.value = value;
-    roleLogoSizeValue.value = value;
-    roleLogoSizeValue.textContent = value;
-    roleLogoSize.style.setProperty('--range-value',value + '%');
-    gameRoleLogoSize.value = value;
-    gameRoleLogoSizeValue.value = value;
-    gameRoleLogoSizeValue.textContent = value;
-    roleRevealEmblem.style.setProperty('--role-emblem-size-scale',String(value / 50));
-  }
-
-  function updateRoleLogoSize(input){
-    appSettings.roleLogoSize = Number(input.value);
-    applyRoleLogoSize();
-    saveSettings();
-  }
-
   toggleCrt.checked = !appSettings.crtOff;
   toggleGlitch.checked = !appSettings.glitchesOff;
   toggleIntro.checked = !appSettings.skipIntro;
@@ -10168,7 +10124,6 @@
   applyColorTextState();
   applyShiftCrtState();
   applyNearbyTaskHintState();
-  applyRoleLogoSize();
 
   toggleCrt.addEventListener('change', () => {
     appSettings.crtOff = !toggleCrt.checked;
@@ -10182,12 +10137,6 @@
   toggleIntro.addEventListener('change', () => {
     appSettings.skipIntro = !toggleIntro.checked;
     saveSettings();
-  });
-  roleLogoSize.addEventListener('input', () => {
-    updateRoleLogoSize(roleLogoSize);
-  });
-  gameRoleLogoSize.addEventListener('input', () => {
-    updateRoleLogoSize(gameRoleLogoSize);
   });
   toggleWallpaper.addEventListener('change', () => {
     appSettings.wallpaperOff = !toggleWallpaper.checked;
