@@ -2929,7 +2929,7 @@
     pointer-events:none; border-top:1px solid rgba(240,208,131,.45);
     border-bottom:1px solid rgba(240,208,131,.45);
     background:linear-gradient(90deg,rgba(5,12,16,.92),rgba(12,18,20,.98),rgba(5,12,16,.92));
-    color:#f3eee2; font:700 1.7cqw/1.5 'IBM VGA 8x16',monospace;
+    color:#f3eee2; font:700 1.7cqw/1.5 'IBM VGA 8x16',monospace; text-align:center;
     text-shadow:0 0 .55cqw #000; box-shadow:0 0 2cqw rgba(0,0,0,.72);
   }
   .game-discussion-notice[hidden]{ display:none; }
@@ -7825,6 +7825,7 @@
     const roomUi = gameStateData.room_ui || {};
     const activeTask = gameStateData.active_task;
     const cameraMode = gameCameraMode();
+    const emergencyConfirmationOpen = roomUi.action === 'emergency' && !gameEmergencyConfirm.hidden;
     gameTasksAction.disabled = gameTaskPending || cameraMode || (!activeTask && !roomUi.tasks_available);
     gameTasksAlert.hidden = !roomUi.tasks_blocked;
     if (activeTask) {
@@ -7835,8 +7836,8 @@
       gameTasksActionLabel.textContent = roomUi.tasks_blocked ? 'ЗАДАНИЯ НЕДОСТУПНЫ' : 'ЗАДАНИЯ';
       gameTasksAction.classList.remove('cancel');
     }
-    gameEmergencyConfirm.hidden = true;
-    gameContextAction.hidden = !roomUi.action;
+    gameEmergencyConfirm.hidden = !emergencyConfirmationOpen;
+    gameContextAction.hidden = emergencyConfirmationOpen || !roomUi.action;
     const labels = {
       emergency:'ТРЕВОЖНАЯ КНОПКА',
       report_body:'ОБЪЯВИТЬ О ТРУПЕ',
