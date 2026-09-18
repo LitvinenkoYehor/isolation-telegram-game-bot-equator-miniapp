@@ -2356,26 +2356,27 @@
   .discussion-intro-reason{
     position:absolute; inset:0;
     display:flex; flex-direction:column;
-    align-items:center; justify-content:center;
-    gap:clamp(14px,2vw,28px);
-    padding:8vw; text-align:center;
+    align-items:stretch; justify-content:center;
+    padding:8vh 6vw;
   }
   .discussion-intro-reason[hidden]{ display:none; }
   .discussion-intro-reason-text{
-    max-width:1050px;
-    font-size:clamp(21px,3.2vw,50px);
-    font-weight:700; line-height:1.22;
+    width:100%; max-width:none;
+    font-size:clamp(16px,1.85vw,30px);
+    font-weight:400; line-height:1.42;
     letter-spacing:.025em;
   }
+  .discussion-intro-reason-paragraph{ text-align:center; }
   .discussion-intro-reason-paragraph + .discussion-intro-reason-paragraph{
-    margin-top:clamp(28px,5vh,58px);
+    margin-top:clamp(30px,5vh,52px);
+    text-align:left;
   }
   .discussion-intro-reason-label{
-    display:block; margin-bottom:.55em;
-    color:#4c4c4c;
-    font-size:.58em; letter-spacing:.09em;
+    display:inline; margin:0 .45em 0 0;
+    color:inherit; font-size:inherit;
+    font-weight:900; letter-spacing:.025em;
   }
-  .discussion-intro-reason-body{ display:block; }
+  .discussion-intro-reason-body{ display:inline; }
   .discussion-intro-member{
     display:inline-flex; align-items:center; gap:.28em;
     white-space:nowrap; vertical-align:.04em;
