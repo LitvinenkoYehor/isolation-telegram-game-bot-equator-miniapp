@@ -8121,12 +8121,12 @@
       discussionIntroReasonText.appendChild(emergencyParagraph);
 
       if (!await typeDiscussionText(emergencyLabel,'Основание созыва:',700,token)) return;
-      if (!await discussionIntroPause(2000,token)) return;
+      if (!await discussionIntroPause(1000,token)) return;
       if (!await typeDiscussionReason(emergencyBody,[
         {member:reporter},
         {text:' активировал тревожную кнопку в ' + stationTime + ' по внутреннему времени станции.'}
       ],1200,token)) return;
-      if (!await discussionIntroPause(1000,token)) return;
+      if (!await discussionIntroPause(3000,token)) return;
     }
     if (token === discussionIntroRunToken) closeDiscussionIntro();
   }
