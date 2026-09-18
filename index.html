@@ -2457,10 +2457,20 @@
     border-bottom:1px solid rgba(122,169,153,.18);
     background:rgba(2,5,4,.97);
   }
+  .discussion-chat-heading{
+    display:flex; align-items:baseline; justify-content:space-between; gap:20px;
+  }
   .discussion-chat-title{
     color:#aab5b1; font-size:clamp(13px,1.25vw,18px);
     letter-spacing:.28em;
   }
+  .discussion-chat-timer{
+    flex:0 0 auto; color:#60f4a5;
+    font-size:clamp(15px,1.35vw,20px); font-variant-numeric:tabular-nums;
+    letter-spacing:.12em; text-shadow:0 0 7px rgba(96,244,165,.34);
+  }
+  .discussion-chat-timer[hidden]{ display:none; }
+  .discussion-chat-timer-label{ color:#687a72; font-size:.72em; }
   .discussion-chat-status{
     margin-top:8px; display:flex; flex-wrap:wrap; gap:.8em;
     color:#53625d; font-size:clamp(10px,.9vw,13px);
@@ -2549,7 +2559,9 @@
   .discussion-chat-input:disabled{ opacity:.45; cursor:wait; }
   @media(max-width:700px){
     .discussion-chat-header{ padding:16px 16px 12px; }
+    .discussion-chat-heading{ gap:10px; }
     .discussion-chat-title{ line-height:1.5; }
+    .discussion-chat-timer-label{ display:none; }
     .discussion-chat-messages{ padding:18px 16px 28px; }
     .discussion-chat-composer{ padding:12px 16px; gap:8px; }
     .discussion-chat-message{ grid-template-columns:28px minmax(0,1fr); gap:9px; }
@@ -5251,7 +5263,10 @@
   <div class="discussion-chat-shell">
     <div class="discussion-chat-boot" id="discussionChatBoot" aria-hidden="true" hidden></div>
     <header class="discussion-chat-header">
-      <div class="discussion-chat-title">ВНУТРЕННЯЯ СВЯЗЬ&nbsp;&nbsp;·&nbsp;&nbsp;СТАНЦИЯ «<span id="discussionChatStation">АСТРАЛ-1</span>»</div>
+      <div class="discussion-chat-heading">
+        <div class="discussion-chat-title">ВНУТРЕННЯЯ СВЯЗЬ&nbsp;&nbsp;·&nbsp;&nbsp;СТАНЦИЯ «<span id="discussionChatStation">АСТРАЛ-1</span>»</div>
+        <div class="discussion-chat-timer" id="discussionChatTimer" role="timer" aria-live="off" hidden><span class="discussion-chat-timer-label">ДИСКУССИЯ&nbsp;//&nbsp;</span><span id="discussionChatTimerValue">00:45</span></div>
+      </div>
       <div class="discussion-chat-status">
         <span id="discussionChatChannel">КАНАЛ ОБСУЖДЕНИЯ ОТКРЫТ</span>
         <span>·</span>
@@ -6525,6 +6540,8 @@
   const discussionChatBoot = document.getElementById('discussionChatBoot');
   const discussionChatStation = document.getElementById('discussionChatStation');
   const discussionChatChannel = document.getElementById('discussionChatChannel');
+  const discussionChatTimer = document.getElementById('discussionChatTimer');
+  const discussionChatTimerValue = document.getElementById('discussionChatTimerValue');
   const discussionChatMessages = document.getElementById('discussionChatMessages');
   const discussionChatSystem = document.getElementById('discussionChatSystem');
   const discussionChatPlayerMessages = document.getElementById('discussionChatPlayerMessages');
@@ -6570,6 +6587,9 @@
   let discussionSequenceToken = 0;
   let discussionChatSending = false;
   let discussionChatRenderedSignature = '';
+  let discussionTimerInterval = null;
+  let discussionTimerStartedAt = 0;
+  let discussionTimerDeadlineMs = 0;
   const gameAcknowledgedTaskIds = new Set();
   let gameHandledTaskEvents = new WeakSet();
   let gameTaskSabotageWasActive = false;
@@ -6706,7 +6726,7 @@
       static_crew:staticCrew,
       nearby_crew:staticCrew.slice(),
       corpses:[], journal_events:[], witness_events:[], web_events:[],
-      discussion:{active:false,phase:'none',started_at:0,participant_count:0,alive_count:12,total_count:12,reason:null,day:1,notice_ready_count:0,notice_all_ready:false,notice_all_ready_at:0,chat_ready_count:0,chat_all_ready:false,chat_all_ready_at:0,messages:[]},
+      discussion:{active:false,phase:'none',started_at:0,participant_count:0,alive_count:12,total_count:12,reason:null,day:1,notice_ready_count:0,notice_all_ready:false,notice_all_ready_at:0,chat_ready_count:0,chat_all_ready:false,chat_all_ready_at:0,timer_seconds:45,messages:[]},
       task_progress:{current:0,target:1000}, active_task:null,
       room_ui:{tasks_available:true,tasks_blocked:false,action:'emergency'},
       sabotage:{
@@ -6862,7 +6882,7 @@
           participant_count:payload && payload.discussion_mode ? 1 : 0,
           alive_count:12,total_count:12,reason:null,
           day:1,notice_ready_count:0,notice_all_ready:false,notice_all_ready_at:0,
-          chat_ready_count:0,chat_all_ready:false,chat_all_ready_at:0,
+          chat_ready_count:0,chat_all_ready:false,chat_all_ready_at:0,timer_seconds:45,
           messages:[]
         };
         demo._discussionNextMessageId = 1;
@@ -6948,7 +6968,7 @@
           total_count:1 + demo.static_crew.length,messages:[],
           day:(demo._discussionDay || 0) + 1,
           notice_ready_count:0,notice_all_ready:false,notice_all_ready_at:0,
-          chat_ready_count:0,chat_all_ready:false,chat_all_ready_at:0,
+          chat_ready_count:0,chat_all_ready:false,chat_all_ready_at:0,timer_seconds:45,
           reason:{
             kind:reportingBody ? 'corpse' : 'emergency',
             reporter:Object.assign({},demo.player),
@@ -8155,6 +8175,52 @@
     return String(date.getHours()).padStart(2,'0') + ':' + String(date.getMinutes()).padStart(2,'0');
   }
 
+  function discussionCountdownText(seconds){
+    const total = Math.max(0,Math.ceil(Number(seconds) || 0));
+    const minutes = Math.floor(total / 60);
+    return String(minutes).padStart(2,'0') + ':' + String(total % 60).padStart(2,'0');
+  }
+
+  function updateDiscussionTimer(){
+    const remaining = Math.max(0,(discussionTimerDeadlineMs - Date.now()) / 1000);
+    discussionChatTimerValue.textContent = discussionCountdownText(remaining);
+    if (remaining <= 0 && discussionTimerInterval !== null) {
+      clearInterval(discussionTimerInterval);
+      discussionTimerInterval = null;
+    }
+  }
+
+  function stopDiscussionTimer(){
+    if (discussionTimerInterval !== null) clearInterval(discussionTimerInterval);
+    discussionTimerInterval = null;
+    discussionTimerStartedAt = 0;
+    discussionTimerDeadlineMs = 0;
+    discussionChatTimer.hidden = true;
+    discussionChatTimerValue.textContent = '00:00';
+  }
+
+  function startDiscussionTimer(){
+    const discussion = gameStateData && gameStateData.discussion;
+    const startedAt = Number(discussion && discussion.chat_all_ready_at) || 0;
+    const duration = Math.max(0,Number(discussion && discussion.timer_seconds) || 0);
+    if (!discussion || !discussion.active || !discussionSystemIntroComplete || !startedAt || !duration) return;
+
+    if (discussionTimerStartedAt !== startedAt) {
+      if (discussionTimerInterval !== null) clearInterval(discussionTimerInterval);
+      discussionTimerInterval = null;
+      discussionTimerStartedAt = startedAt;
+      const serverNow = Number(gameStateData.server_time) || Date.now() / 1000;
+      const remaining = Math.max(0,duration - Math.max(0,serverNow - startedAt));
+      discussionTimerDeadlineMs = Date.now() + remaining * 1000;
+    }
+
+    discussionChatTimer.hidden = false;
+    updateDiscussionTimer();
+    if (discussionTimerDeadlineMs > Date.now() && discussionTimerInterval === null) {
+      discussionTimerInterval = setInterval(updateDiscussionTimer,250);
+    }
+  }
+
   function renderDiscussionChat(force){
     const discussion = gameStateData && gameStateData.discussion;
     if (!discussion || !discussion.active) return;
@@ -8215,6 +8281,7 @@
     const inputAvailable = discussionSystemIntroComplete && !discussionSystemIntroRunning;
     discussionChatInput.disabled = !inputAvailable;
     discussionChatSend.disabled = !inputAvailable;
+    if (inputAvailable) startDiscussionTimer();
     if (wasHidden && inputAvailable) requestAnimationFrame(function(){ discussionChatInput.focus(); });
   }
 
@@ -8237,6 +8304,7 @@
     discussionTransitionPending = false;
     discussionChatInput.disabled = false;
     discussionChatSend.disabled = false;
+    stopDiscussionTimer();
   }
 
   function syncDiscussionChatState(){
@@ -8369,6 +8437,7 @@
     discussionChatCaret.hidden = false;
     discussionChatInput.disabled = false;
     discussionChatSend.disabled = false;
+    startDiscussionTimer();
     discussionChatMessages.scrollTop = discussionChatMessages.scrollHeight;
     discussionChatInput.focus();
   }
