@@ -8110,7 +8110,19 @@
       if (!await typeDiscussionReason(witnessBody,[{member:reporter}],650,token)) return;
       if (!await discussionIntroPause(3000,token)) return;
     } else {
-      if (!await typeDiscussionReason(discussionIntroReasonText,[
+      discussionIntroReasonText.replaceChildren();
+      const emergencyParagraph = document.createElement('div');
+      emergencyParagraph.className = 'discussion-intro-reason-paragraph';
+      const emergencyLabel = document.createElement('span');
+      emergencyLabel.className = 'discussion-intro-reason-label';
+      const emergencyBody = document.createElement('span');
+      emergencyBody.className = 'discussion-intro-reason-body';
+      emergencyParagraph.append(emergencyLabel,emergencyBody);
+      discussionIntroReasonText.appendChild(emergencyParagraph);
+
+      if (!await typeDiscussionText(emergencyLabel,'Основание созыва:',700,token)) return;
+      if (!await discussionIntroPause(2000,token)) return;
+      if (!await typeDiscussionReason(emergencyBody,[
         {member:reporter},
         {text:' активировал тревожную кнопку в ' + stationTime + ' по внутреннему времени станции.'}
       ],1200,token)) return;
