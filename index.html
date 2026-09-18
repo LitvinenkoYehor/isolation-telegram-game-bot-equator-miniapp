@@ -8075,6 +8075,14 @@
   }
 
   function showGame(data){
+    // Новая смена не должна наследовать незавершённую анимацию/ожидание
+    // готовности от игры, которую пользователь завершил через /exit.
+    closeDiscussionIntro();
+    closeDiscussionChat();
+    discussionHandledStartedAt = 0;
+    gameDiscussionNotice.hidden = true;
+    gameScreen.classList.remove('discussion-locked');
+    gameScreen.inert = false;
     gameStateData = data;
     gameKillTargeting = false;
     gameKillPending = false;
@@ -8994,6 +9002,7 @@
     gameScreen.hidden = true;
     mainMenu.hidden = false;
     mainMenu.classList.add('reveal');
+    gameStateData = null;
   }
   gameMenuBtn.addEventListener('click',openGameSettings);
   gameSettingsClose.addEventListener('click',closeGameSettings);
@@ -9156,7 +9165,13 @@
     gameStatePollPending = true;
     const result = await gameApiRequest('/api/game/state','GET');
     gameStatePollPending = false;
-    if (!result.ok || !result.data || result.data.status !== 'active' || gameScreen.hidden) return;
+    if (!result.ok || !result.data || gameScreen.hidden) return;
+    if (result.data.status !== 'active') {
+      // Например, пользователь выполнил /exit в Telegram, пока Mini App
+      // оставался открытым. Не оставляем на экране кнопки удалённой игры.
+      exitGameToMenu();
+      return;
+    }
     const previousRoomId = gameStateData.player && gameStateData.player.room_id;
     const previousViewState = gameStateData.player && gameStateData.player.view_state;
     const previousCameraTarget = gameStateData.player && gameStateData.player.camera_target;
