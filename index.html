@@ -2340,6 +2340,11 @@
     transition:opacity 1s ease;
   }
   .discussion-intro-fadable.fade-out{ opacity:0; }
+  .discussion-intro-summary{
+    opacity:1;
+    transition:opacity 1.1s ease;
+  }
+  .discussion-intro-summary.fade-out{ opacity:0; }
   .discussion-intro-cursor::after{
     content:'|'; margin-left:.08em;
     animation:discussionCursorBlink .7s steps(1,end) infinite;
@@ -2362,6 +2367,15 @@
     font-weight:700; line-height:1.22;
     letter-spacing:.025em;
   }
+  .discussion-intro-reason-paragraph + .discussion-intro-reason-paragraph{
+    margin-top:clamp(28px,5vh,58px);
+  }
+  .discussion-intro-reason-label{
+    display:block; margin-bottom:.55em;
+    color:#4c4c4c;
+    font-size:.58em; letter-spacing:.09em;
+  }
+  .discussion-intro-reason-body{ display:block; }
   .discussion-intro-member{
     display:inline-flex; align-items:center; gap:.28em;
     white-space:nowrap; vertical-align:.04em;
@@ -5049,9 +5063,9 @@
       <h1 class="discussion-intro-title discussion-intro-fadable" id="discussionIntroTitle"></h1>
       <p class="discussion-intro-line discussion-intro-registration discussion-intro-fadable" id="discussionIntroRegistration"></p>
       <p class="discussion-intro-line discussion-intro-station discussion-intro-fadable" id="discussionIntroStation"></p>
-      <p class="discussion-intro-line discussion-intro-date" id="discussionIntroDate" hidden></p>
+      <p class="discussion-intro-line discussion-intro-date discussion-intro-summary" id="discussionIntroDate" hidden></p>
       <p class="discussion-intro-line discussion-intro-status discussion-intro-fadable" id="discussionIntroStatus"></p>
-      <p class="discussion-intro-line discussion-intro-attendance" id="discussionIntroAttendance" hidden></p>
+      <p class="discussion-intro-line discussion-intro-attendance discussion-intro-summary" id="discussionIntroAttendance" hidden></p>
     </div>
     <div class="discussion-intro-reason" id="discussionIntroReason" hidden>
       <div class="discussion-intro-reason-text" id="discussionIntroReasonText"></div>
@@ -7819,6 +7833,9 @@
     [discussionIntroRegistration,discussionIntroStation,discussionIntroStatus].forEach(function(element){
       element.classList.remove('fade-out');
     });
+    [discussionIntroDate,discussionIntroAttendance].forEach(function(element){
+      element.classList.remove('fade-out');
+    });
     discussionIntroTitle.textContent = '';
     discussionIntroRegistration.textContent = '';
     discussionIntroStation.textContent = '';
@@ -7994,17 +8011,10 @@
     const attendanceLabel = 'Присутствуют:';
     const dateText = dateLabel + ' ' + day + '-й день транзитного цикла';
     const attendanceText = attendanceLabel + ' ' + crewCount.alive + ' из ' + crewCount.total + ' членов экипажа станции';
-    const reasonParts = reasonKind === 'corpse'
-      ? [
-          {member:reporter},
-          {text:' обнаружил труп '},
-          {member:corpse},
-          {text:' в ' + stationTime + ' по внутреннему времени станции.'}
-        ]
-      : [
-          {member:reporter},
-          {text:' активировал тревожную кнопку в ' + stationTime + ' по внутреннему времени станции.'}
-        ];
+    const registrationText = 'Регистрационный номер: TC-MRD00147';
+    const stationText = 'Станция: «' + stationName + '»';
+    const statusText = 'Статус: собрание созвано в соответствии с протоколом чрезвычайного оповещения';
+    const statusCharacterDuration = 3000 / statusText.length;
     const isFull = variant === 'discussion1';
 
     resetDiscussionIntroView();
@@ -8021,9 +8031,9 @@
       discussionIntroTitle.classList.remove('discussion-intro-cursor');
 
       const detailsPrinted = await Promise.all([
-        typeDiscussionText(discussionIntroRegistration,'Регистрационный номер: TC-MRD00147',3000,token),
-        typeDiscussionText(discussionIntroStation,'Станция: «' + stationName + '»',3000,token),
-        typeDiscussionText(discussionIntroStatus,'Статус: собрание созвано в соответствии с протоколом чрезвычайного оповещения',3000,token)
+        typeDiscussionText(discussionIntroRegistration,registrationText,registrationText.length * statusCharacterDuration,token),
+        typeDiscussionText(discussionIntroStation,stationText,stationText.length * statusCharacterDuration,token),
+        typeDiscussionText(discussionIntroStatus,statusText,3000,token)
       ]);
       if (detailsPrinted.some(function(done){ return !done; })) return;
       if (!await discussionIntroPause(2000,token)) return;
@@ -8045,7 +8055,10 @@
         typeDiscussionText(discussionIntroAttendance,attendanceText,1000,token,attendanceLabel.length)
       ]);
       if (summaryPrinted.some(function(done){ return !done; })) return;
-      if (!await discussionIntroPause(2000,token)) return;
+      if (!await discussionIntroPause(3000,token)) return;
+      discussionIntroDate.classList.add('fade-out');
+      discussionIntroAttendance.classList.add('fade-out');
+      if (!await discussionIntroPause(1100,token)) return;
     } else {
       if (!await typeDiscussionText(discussionIntroTitle,titleText,1000,token)) return;
       if (!await discussionIntroPause(1000,token)) return;
@@ -8061,8 +8074,47 @@
 
     discussionIntroProtocol.hidden = true;
     discussionIntroReason.hidden = false;
-    if (!await typeDiscussionReason(discussionIntroReasonText,reasonParts,1200,token)) return;
-    if (!await discussionIntroPause(2000,token)) return;
+    if (reasonKind === 'corpse') {
+      discussionIntroReasonText.replaceChildren();
+
+      const basisParagraph = document.createElement('div');
+      basisParagraph.className = 'discussion-intro-reason-paragraph';
+      const basisLabel = document.createElement('span');
+      basisLabel.className = 'discussion-intro-reason-label';
+      const basisBody = document.createElement('span');
+      basisBody.className = 'discussion-intro-reason-body';
+      basisParagraph.append(basisLabel,basisBody);
+      discussionIntroReasonText.appendChild(basisParagraph);
+
+      if (!await typeDiscussionText(basisLabel,'Основание созыва:',700,token)) return;
+      if (!await discussionIntroPause(2000,token)) return;
+      if (!await typeDiscussionReason(basisBody,[
+        {text:'обнаружено тело члена экипажа '},
+        {member:corpse},
+        {text:' в ' + stationTime + ' по внутреннему времени станции.'}
+      ],1700,token)) return;
+      if (!await discussionIntroPause(3000,token)) return;
+
+      const witnessParagraph = document.createElement('div');
+      witnessParagraph.className = 'discussion-intro-reason-paragraph';
+      const witnessLabel = document.createElement('span');
+      witnessLabel.className = 'discussion-intro-reason-label';
+      const witnessBody = document.createElement('span');
+      witnessBody.className = 'discussion-intro-reason-body';
+      witnessParagraph.append(witnessLabel,witnessBody);
+      discussionIntroReasonText.appendChild(witnessParagraph);
+
+      if (!await typeDiscussionText(witnessLabel,'Свидетель:',500,token)) return;
+      if (!await discussionIntroPause(1000,token)) return;
+      if (!await typeDiscussionReason(witnessBody,[{member:reporter}],650,token)) return;
+      if (!await discussionIntroPause(3000,token)) return;
+    } else {
+      if (!await typeDiscussionReason(discussionIntroReasonText,[
+        {member:reporter},
+        {text:' активировал тревожную кнопку в ' + stationTime + ' по внутреннему времени станции.'}
+      ],1200,token)) return;
+      if (!await discussionIntroPause(2000,token)) return;
+    }
     if (token === discussionIntroRunToken) closeDiscussionIntro();
   }
 
