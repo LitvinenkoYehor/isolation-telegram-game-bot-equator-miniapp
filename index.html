@@ -2477,8 +2477,20 @@
     color:#c8d2ce; font-size:clamp(14px,1.3vw,18px);
     line-height:1.45; white-space:pre-wrap; overflow-wrap:anywhere;
   }
-  .discussion-chat-empty{
+  .discussion-chat-caret-line{
+    display:flex; align-items:center; gap:10px;
+    min-height:18px; margin:4px 0 0 48px;
     color:#5ef4a0; font-size:16px;
+  }
+  .discussion-chat-caret-block{
+    display:inline-block; width:9px; height:16px;
+    background:#60f4a5;
+    box-shadow:0 0 6px rgba(96,244,165,.5);
+    animation:discussionChatCaretBlink 2s steps(1,end) infinite;
+  }
+  @keyframes discussionChatCaretBlink{
+    0%,49.999%{ opacity:1; }
+    50%,100%{ opacity:0; }
   }
   .discussion-chat-composer{
     display:grid; grid-template-columns:auto minmax(0,1fr) 42px;
@@ -2513,6 +2525,7 @@
     .discussion-chat-message{ grid-template-columns:28px minmax(0,1fr); gap:9px; }
     .discussion-chat-avatar{ width:28px; height:28px; }
     .discussion-chat-message-copy{ padding-left:9px; }
+    .discussion-chat-caret-line{ margin-left:37px; }
   }
 
   /* ================= EARLY GAME / ADMIN EMPTY SHIFT =================
@@ -8005,13 +8018,7 @@
     const wasNearBottom = discussionChatMessages.scrollHeight - discussionChatMessages.scrollTop - discussionChatMessages.clientHeight < 80;
     discussionChatRenderedSignature = signature;
     discussionChatMessages.replaceChildren();
-    if (!messages.length) {
-      const empty = document.createElement('div');
-      empty.className = 'discussion-chat-empty';
-      empty.textContent = '> █';
-      discussionChatMessages.appendChild(empty);
-    } else {
-      messages.forEach(function(message,index){
+    messages.forEach(function(message,index){
         const sender = message.sender || {};
         const row = document.createElement('article');
         const isOwn = gameStateData.player && sender.id === gameStateData.player.id;
@@ -8046,8 +8053,16 @@
         copy.append(meta,body);
         row.append(avatar,copy);
         discussionChatMessages.appendChild(row);
-      });
-    }
+    });
+    const caretLine = document.createElement('div');
+    caretLine.className = 'discussion-chat-caret-line';
+    const caretPrompt = document.createElement('span');
+    caretPrompt.textContent = '>';
+    const caretBlock = document.createElement('span');
+    caretBlock.className = 'discussion-chat-caret-block';
+    caretBlock.setAttribute('aria-hidden','true');
+    caretLine.append(caretPrompt,caretBlock);
+    discussionChatMessages.appendChild(caretLine);
     if (force || wasNearBottom) discussionChatMessages.scrollTop = discussionChatMessages.scrollHeight;
   }
 
