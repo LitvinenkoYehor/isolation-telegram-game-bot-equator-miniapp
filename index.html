@@ -5265,7 +5265,7 @@
     <header class="discussion-chat-header">
       <div class="discussion-chat-heading">
         <div class="discussion-chat-title">ВНУТРЕННЯЯ СВЯЗЬ&nbsp;&nbsp;·&nbsp;&nbsp;СТАНЦИЯ «<span id="discussionChatStation">АСТРАЛ-1</span>»</div>
-        <div class="discussion-chat-timer" id="discussionChatTimer" role="timer" aria-live="off" hidden><span class="discussion-chat-timer-label">ДИСКУССИЯ&nbsp;//&nbsp;</span><span id="discussionChatTimerValue">00:45</span></div>
+        <div class="discussion-chat-timer" id="discussionChatTimer" role="timer" aria-live="off" hidden><span class="discussion-chat-timer-label">ДИСКУССИЯ&nbsp;//&nbsp;</span><span id="discussionChatTimerValue">02:00</span></div>
       </div>
       <div class="discussion-chat-status">
         <span id="discussionChatChannel">КАНАЛ ОБСУЖДЕНИЯ ОТКРЫТ</span>
@@ -6726,7 +6726,7 @@
       static_crew:staticCrew,
       nearby_crew:staticCrew.slice(),
       corpses:[], journal_events:[], witness_events:[], web_events:[],
-      discussion:{active:false,phase:'none',started_at:0,participant_count:0,alive_count:12,total_count:12,reason:null,day:1,notice_ready_count:0,notice_all_ready:false,notice_all_ready_at:0,chat_ready_count:0,chat_all_ready:false,chat_all_ready_at:0,timer_seconds:45,messages:[]},
+      discussion:{active:false,phase:'none',started_at:0,participant_count:0,alive_count:12,total_count:12,reason:null,day:1,notice_ready_count:0,notice_all_ready:false,notice_all_ready_at:0,chat_ready_count:0,chat_all_ready:false,chat_all_ready_at:0,timer_seconds:120,messages:[]},
       task_progress:{current:0,target:1000}, active_task:null,
       room_ui:{tasks_available:true,tasks_blocked:false,action:'emergency'},
       sabotage:{
@@ -6882,7 +6882,7 @@
           participant_count:payload && payload.discussion_mode ? 1 : 0,
           alive_count:12,total_count:12,reason:null,
           day:1,notice_ready_count:0,notice_all_ready:false,notice_all_ready_at:0,
-          chat_ready_count:0,chat_all_ready:false,chat_all_ready_at:0,timer_seconds:45,
+          chat_ready_count:0,chat_all_ready:false,chat_all_ready_at:0,timer_seconds:120,
           messages:[]
         };
         demo._discussionNextMessageId = 1;
@@ -6968,7 +6968,7 @@
           total_count:1 + demo.static_crew.length,messages:[],
           day:(demo._discussionDay || 0) + 1,
           notice_ready_count:0,notice_all_ready:false,notice_all_ready_at:0,
-          chat_ready_count:0,chat_all_ready:false,chat_all_ready_at:0,timer_seconds:45,
+          chat_ready_count:0,chat_all_ready:false,chat_all_ready_at:0,timer_seconds:120,
           reason:{
             kind:reportingBody ? 'corpse' : 'emergency',
             reporter:Object.assign({},demo.player),
