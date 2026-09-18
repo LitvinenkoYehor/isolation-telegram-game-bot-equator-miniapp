@@ -2303,10 +2303,14 @@
     color:#f4f4f4; pointer-events:auto;
   }
   .discussion-intro[hidden]{ display:none; }
+  .discussion-intro.live-transition{ background:transparent; }
   .discussion-intro-paper{
     position:absolute; inset:0;
     background:#000;
     opacity:0;
+  }
+  .discussion-intro.live-transition .discussion-intro-paper{
+    transition:opacity 1.2s linear;
   }
   .discussion-intro-paper.shown{ opacity:1; }
   .discussion-intro-protocol{ position:absolute; inset:0; }
@@ -2413,6 +2417,7 @@
   }
   .discussion-chat[hidden]{ display:none; }
   .discussion-chat-shell{
+    position:relative;
     width:min(100%,1000px); height:100dvh;
     margin:0 auto; box-sizing:border-box;
     display:grid; grid-template-rows:auto minmax(0,1fr) auto;
@@ -2422,6 +2427,16 @@
       repeating-linear-gradient(to bottom,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 4px),
       #020504;
   }
+  .discussion-chat-boot{
+    position:absolute; inset:0; z-index:5;
+    overflow:hidden; padding:4vh 4vw;
+    box-sizing:border-box; background:#000;
+    color:#75f5ad; pointer-events:auto;
+    font-size:clamp(11px,1.15vw,17px);
+    line-height:1.3; letter-spacing:.045em;
+  }
+  .discussion-chat-boot[hidden]{ display:none; }
+  .discussion-chat-boot-line{ white-space:nowrap; }
   .discussion-chat-header{
     padding:22px 30px 16px;
     border-bottom:1px solid rgba(122,169,153,.18);
@@ -2893,6 +2908,39 @@
     -webkit-backdrop-filter:blur(1.5px) grayscale(1) brightness(.28) contrast(.96);
   }
   .game-transit[hidden]{ display:none; }
+  .game-discussion-signal{
+    position:absolute; inset:0; z-index:70;
+    overflow:hidden; pointer-events:auto;
+    background:#090b0c;
+  }
+  .game-discussion-signal[hidden]{ display:none; }
+  .game-discussion-signal::before{
+    content:''; position:absolute; inset:-45px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='96' height='96'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.35' numOctaves='5' seed='19' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncR type='linear' slope='2.4' intercept='-.55'/><feFuncG type='linear' slope='2.4' intercept='-.55'/><feFuncB type='linear' slope='2.4' intercept='-.55'/></feComponentTransfer></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    background-size:96px 96px;
+    animation:discussionSignalNoise .065s steps(2,end) infinite;
+    opacity:.96; image-rendering:pixelated;
+  }
+  .game-discussion-signal::after{
+    content:''; position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(to bottom,transparent 0,transparent 5px,rgba(255,255,255,.34) 6px,rgba(0,0,0,.82) 8px),
+      linear-gradient(90deg,transparent 0 12%,rgba(255,255,255,.72) 12% 13%,transparent 13% 58%,rgba(0,0,0,.95) 58% 67%,transparent 67%);
+    mix-blend-mode:screen;
+    animation:discussionSignalTear .12s steps(2,end) infinite;
+  }
+  @keyframes discussionSignalNoise{
+    0%{ transform:translate(0,0) scale(1.04); }
+    25%{ transform:translate(31px,-17px) scale(1.08); }
+    50%{ transform:translate(-26px,29px) scale(1.05); }
+    75%{ transform:translate(19px,37px) scale(1.09); }
+    100%{ transform:translate(-35px,-23px) scale(1.04); }
+  }
+  @keyframes discussionSignalTear{
+    0%{ transform:translateY(-18%); filter:contrast(1.8); }
+    50%{ transform:translateY(11%); filter:contrast(3); }
+    100%{ transform:translateY(-5%); filter:contrast(2.2); }
+  }
   /* Тёмно-серый телевизионный шум: меняется только рисунок зерна, а не
      яркость всего экрана, поэтому переход не даёт резких вспышек. */
   .game-transit::before{
@@ -4917,6 +4965,7 @@
             <div class="game-transit" id="gameTransit" hidden>
               <div class="game-transit-box"><span id="gameTransitText">ПЕРЕХОД...</span><div class="game-transit-line"></div></div>
             </div>
+            <div class="game-discussion-signal" id="gameDiscussionSignal" aria-hidden="true" hidden></div>
             <div class="game-witness-overlay" id="gameWitnessOverlay" role="status" aria-live="assertive" hidden>
               <div class="game-witness-title">
                 <span class="game-crew-color game-witness-color" id="gameWitnessObserverColor"></span><span class="game-color-text" id="gameWitnessObserverColorText"></span><span id="gameWitnessObserverName">ПЕРСОНАЛ</span> СВИДЕТЕЛЬ:
@@ -5202,6 +5251,7 @@
 <!-- ================= DISCUSSION CHAT — общий канал живых участников ================= -->
 <section class="discussion-chat" id="discussionChat" aria-label="Дискуссия экипажа" hidden>
   <div class="discussion-chat-shell">
+    <div class="discussion-chat-boot" id="discussionChatBoot" aria-hidden="true" hidden></div>
     <header class="discussion-chat-header">
       <div class="discussion-chat-title">ВНУТРЕННЯЯ СВЯЗЬ&nbsp;&nbsp;·&nbsp;&nbsp;СТАНЦИЯ «<span id="discussionChatStation">АСТРАЛ-1</span>»</div>
       <div class="discussion-chat-status">
@@ -6394,6 +6444,7 @@
   const gameMoveConfirm = document.getElementById('gameMoveConfirm');
   const gameTransit = document.getElementById('gameTransit');
   const gameTransitText = document.getElementById('gameTransitText');
+  const gameDiscussionSignal = document.getElementById('gameDiscussionSignal');
   const gameLogLines = document.getElementById('gameLogLines');
   const gameToggleLog = document.getElementById('gameToggleLog');
   const gameTaskScore = document.getElementById('gameTaskScore');
@@ -6469,6 +6520,7 @@
   const discussionIntroReason = document.getElementById('discussionIntroReason');
   const discussionIntroReasonText = document.getElementById('discussionIntroReasonText');
   const discussionChat = document.getElementById('discussionChat');
+  const discussionChatBoot = document.getElementById('discussionChatBoot');
   const discussionChatStation = document.getElementById('discussionChatStation');
   const discussionChatChannel = document.getElementById('discussionChatChannel');
   const discussionChatMessages = document.getElementById('discussionChatMessages');
@@ -6505,6 +6557,10 @@
   let discussionIntroRunToken = 0;
   let discussionIntroDay = 0;
   let discussionIntroActive = false;
+  let discussionTransitionPending = false;
+  let discussionChatBooting = false;
+  let discussionHandledStartedAt = 0;
+  let discussionSequenceToken = 0;
   let discussionChatSending = false;
   let discussionChatRenderedSignature = '';
   const gameAcknowledgedTaskIds = new Set();
@@ -6643,7 +6699,7 @@
       static_crew:staticCrew,
       nearby_crew:staticCrew.slice(),
       corpses:[], journal_events:[], witness_events:[], web_events:[],
-      discussion:{active:false,phase:'none',started_at:0,participant_count:0,messages:[]},
+      discussion:{active:false,phase:'none',started_at:0,participant_count:0,alive_count:12,total_count:12,reason:null,messages:[]},
       task_progress:{current:0,target:1000}, active_task:null,
       room_ui:{tasks_available:true,tasks_blocked:false,action:'emergency'},
       sabotage:{
@@ -6744,8 +6800,10 @@
     demo.room_ui.tasks_blocked = sabotage.active_id === 'tasks';
     demo.room_ui.tasks_available = !cameraMode && !demo.room_ui.tasks_blocked && !demo.active_task
       && demo.player.tasks.some(function(task){ return task.location_id === demo.player.room_id; });
-    demo.room_ui.action = cameraMode ? 'camera_exit' : (demo.player.room_id === 'central_hub' ? 'emergency'
-      : (demo.player.room_id === 'security_control' ? 'cameras' : null));
+    demo.room_ui.action = cameraMode ? 'camera_exit'
+      : (demo.corpses.length ? 'report_body'
+        : (demo.player.room_id === 'central_hub' ? 'emergency'
+          : (demo.player.room_id === 'security_control' ? 'cameras' : null)));
     if (!cameraMode && demo.player.room_id === 'maintenance' && sabotage.active_id === 'tasks') demo.room_ui.action = 'repair_tasks';
     if (!cameraMode && demo.player.room_id === 'central_hub' && sabotage.active_id === 'undock' && !demo._undockRepairApplied) demo.room_ui.action = 'accelerate_docking';
     if (demo._killCooldownEnd) {
@@ -6791,6 +6849,7 @@
           phase:payload && payload.discussion_mode ? 'discussion' : 'none',
           started_at:payload && payload.discussion_mode ? Date.now() / 1000 : 0,
           participant_count:payload && payload.discussion_mode ? 1 : 0,
+          alive_count:12,total_count:12,reason:null,
           messages:[]
         };
         demo._discussionNextMessageId = 1;
@@ -6822,6 +6881,16 @@
           }];
         }
         demo.nearby_crew = demo.static_crew.filter(function(bot){ return bot.alive; });
+        if (demo.discussion.active) {
+          const demoCorpse = demo.corpses[0] || null;
+          demo.discussion.alive_count = 1 + demo.static_crew.filter(function(bot){ return bot.alive; }).length;
+          demo.discussion.reason = {
+            kind:payload.discussion_mode === 'discussion1' ? 'corpse' : 'emergency',
+            reporter:Object.assign({},demo.player),
+            corpse:demoCorpse ? Object.assign({},demoCorpse) : null,
+            event_time:Date.now() / 1000
+          };
+        }
         demo.room_ui = {tasks_available:true,tasks_blocked:false,action:'emergency'};
       }
       if (path === '/api/game/discussion/send') {
@@ -6833,6 +6902,36 @@
           id:demo._discussionNextMessageId++,text:messageText,sent_at:Date.now() / 1000,
           sender:{id:demo.player.id,name:demo.player.name,color:demo.player.color,color_emoji:demo.player.color_emoji}
         });
+      }
+      if (path === '/api/game/meeting/emergency' || path === '/api/game/meeting/report-body') {
+        if (demo.discussion && demo.discussion.active) return {ok:false,status:409,data:{error:'meeting_active'}};
+        const reportingBody = path === '/api/game/meeting/report-body';
+        const corpseId = Number(payload && payload.corpse_id);
+        const corpse = reportingBody
+          ? demo.corpses.find(function(member){ return member.id === corpseId; })
+          : null;
+        if (reportingBody && !corpse) return {ok:false,status:409,data:{error:'corpse_unavailable'}};
+        if (!reportingBody && demo.player.room_id !== 'central_hub') return {ok:false,status:409,data:{error:'wrong_emergency_room'}};
+        const meetingTime = Date.now() / 1000;
+        demo.discussion = {
+          active:true,phase:'discussion',started_at:meetingTime,participant_count:1,
+          alive_count:1 + demo.static_crew.filter(function(bot){ return bot.alive; }).length,
+          total_count:1 + demo.static_crew.length,messages:[],
+          reason:{
+            kind:reportingBody ? 'corpse' : 'emergency',
+            reporter:Object.assign({},demo.player),
+            corpse:corpse ? Object.assign({},corpse) : null,
+            event_time:meetingTime
+          }
+        };
+        demo._discussionNextMessageId = 1;
+        demo.player.room_id = 'central_hub';
+        demo.player.view_state = 'main';
+        demo.player.camera_target = null;
+        demo.static_crew.forEach(function(bot){ if (bot.alive) bot.room_id = 'central_hub'; });
+        demo.nearby_crew = demo.static_crew.filter(function(bot){ return bot.alive; });
+        demo.corpses = [];
+        demo.room_ui = {tasks_available:false,tasks_blocked:false,action:null};
       }
       if (path === '/api/game/camera/open') {
         if (demo.player.room_id !== 'security_control') return {ok:false,status:409,data:{error:'camera_unavailable'}};
@@ -7698,6 +7797,7 @@
     gameContextAction.hidden = !roomUi.action;
     const labels = {
       emergency:'ТРЕВОЖНАЯ КНОПКА',
+      report_body:'ОБЪЯВИТЬ О ТРУПЕ',
       repair_tasks:'УСТРАНИТЬ НЕПОЛАДКУ',
       accelerate_docking:'УСКОРИТЬ ПРИСТЫКОВКУ',
       cameras:'КАМЕРА ВИДЕОНАБЛЮДЕНИЯ',
@@ -7997,6 +8097,12 @@
     if (code === 'task_already_running') return 'ВЫ УЖЕ ВЫПОЛНЯЕТЕ ЗАДАНИЕ.';
     if (code === 'task_unavailable') return 'ЭТО ЗАДАНИЕ ЗДЕСЬ НЕДОСТУПНО.';
     if (code === 'no_active_task') return 'АКТИВНОГО ЗАДАНИЯ НЕТ.';
+    if (code === 'meeting_active') return 'СОБРАНИЕ УЖЕ НАЧАЛОСЬ.';
+    if (code === 'wrong_emergency_room') return 'ТРЕВОЖНАЯ КНОПКА НАХОДИТСЯ В ЦЕНТРАЛЬНОМ УЗЛЕ.';
+    if (code === 'sabotage_active') return 'ВО ВРЕМЯ САБОТАЖА СОБРАНИЕ НЕДОСТУПНО.';
+    if (code === 'meeting_cooldown') return 'ПРОТОКОЛ СОБРАНИЯ ЕЩЁ НЕ ГОТОВ К ПОВТОРНОМУ ЗАПУСКУ.';
+    if (code === 'corpse_unavailable') return 'ТЕЛО БОЛЬШЕ НЕДОСТУПНО ДЛЯ ОБЪЯВЛЕНИЯ.';
+    if (code === 'sector_isolated') return 'СВЯЗЬ С СОБРАНИЕМ ЗАБЛОКИРОВАНА ИЗОЛЯЦИЕЙ ОТСЕКА.';
     if (result && result.status === 401) return 'СЕАНС TELEGRAM УСТАРЕЛ. ПЕРЕОТКРОЙТЕ MINI APP.';
     return 'НЕТ СВЯЗИ С ДИСПЕТЧЕРСКОЙ. ПОПРОБУЙТЕ ЕЩЁ РАЗ.';
   }
@@ -8076,9 +8182,15 @@
   }
 
   function closeDiscussionChat(){
+    discussionSequenceToken += 1;
+    gameDiscussionSignal.hidden = true;
     discussionChat.hidden = true;
+    discussionChatBoot.hidden = true;
+    discussionChatBoot.replaceChildren();
     discussionChatRenderedSignature = '';
     discussionChatSending = false;
+    discussionChatBooting = false;
+    discussionTransitionPending = false;
     discussionChatInput.disabled = false;
     discussionChatSend.disabled = false;
   }
@@ -8090,8 +8202,37 @@
       closeDiscussionChat();
       return;
     }
-    if (!discussionIntroActive) openDiscussionChat();
+    if (!discussionIntroActive && !discussionTransitionPending && !discussionChatBooting) openDiscussionChat();
     else renderDiscussionChat();
+  }
+
+  async function revealDiscussionChatAfterIntro(variant,sequenceToken){
+    if (variant !== 'discussion1') {
+      closeDiscussionIntro();
+      openDiscussionChat();
+      return;
+    }
+    const token = sequenceToken || ++discussionSequenceToken;
+    discussionChatBooting = true;
+    discussionChat.hidden = false;
+    discussionChatBoot.replaceChildren();
+    discussionChatBoot.hidden = false;
+    closeDiscussionIntro();
+
+    const finishAt = performance.now() + 1500;
+    while (performance.now() < finishAt && token === discussionSequenceToken) {
+      const line = document.createElement('div');
+      line.className = 'discussion-chat-boot-line';
+      line.textContent = randomFillerLine();
+      discussionChatBoot.appendChild(line);
+      while (discussionChatBoot.children.length > 42) discussionChatBoot.firstChild.remove();
+      await new Promise(function(resolve){ setTimeout(resolve,20 + Math.random() * 24); });
+    }
+    if (token !== discussionSequenceToken) return;
+    discussionChatBooting = false;
+    discussionChatBoot.hidden = true;
+    discussionChatBoot.replaceChildren();
+    openDiscussionChat();
   }
 
   discussionChatForm.addEventListener('submit',async function(event){
@@ -8120,6 +8261,7 @@
   });
 
   function resetDiscussionIntroView(){
+    discussionIntro.classList.remove('live-transition');
     discussionIntroPaper.classList.remove('shown');
     discussionIntroProtocol.classList.remove('compact');
     discussionIntroProtocol.hidden = false;
@@ -8273,6 +8415,13 @@
   }
 
   function discussionCrewCount(data){
+    if (data && data.discussion && Number.isFinite(Number(data.discussion.alive_count))
+        && Number.isFinite(Number(data.discussion.total_count))) {
+      return {
+        alive:Number(data.discussion.alive_count),
+        total:Number(data.discussion.total_count)
+      };
+    }
     const crew = new Map();
     function remember(member,aliveFallback){
       if (!member) return;
@@ -8292,16 +8441,19 @@
     };
   }
 
-  async function playDiscussionIntro(variant,reasonKind,eventTime){
+  async function playDiscussionIntro(variant,reasonKind,eventTime,options){
     const token = ++discussionIntroRunToken;
     discussionIntroActive = true;
     const data = gameStateData || {};
-    const reporter = data.player || {name:'Неизвестный',color:'Неизвестный'};
-    const corpse = discussionDetectedCorpse(data) || {name:'Неизвестный',color:'Неизвестный'};
+    const liveReason = data.discussion && data.discussion.reason || {};
+    const reporter = liveReason.reporter || data.player || {name:'Неизвестный',color:'Неизвестный'};
+    const corpse = liveReason.corpse || discussionDetectedCorpse(data) || {name:'Неизвестный',color:'Неизвестный'};
     const stationName = String(data.station || 'АСТРАЛ-1').toUpperCase();
     const crewCount = discussionCrewCount(data);
     const now = new Date();
-    const stationTime = eventTime || String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    const stationTime = eventTime
+      || (liveReason.event_time ? discussionMessageTime(liveReason.event_time) : '')
+      || String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
     const day = ++discussionIntroDay;
     const titleText = 'ПРОТОКОЛ ЭКСТРЕННОГО СОБРАНИЯ ЭКИПАЖА';
     const dateLabel = 'Дата:';
@@ -8315,11 +8467,17 @@
     const isFull = variant === 'discussion1';
 
     resetDiscussionIntroView();
+    if (options && options.liveTransition) discussionIntro.classList.add('live-transition');
     if (!isFull) discussionIntroProtocol.classList.add('compact');
     discussionIntro.hidden = false;
 
-    if (!await discussionIntroPause(isFull ? 1000 : 500,token)) return;
-    discussionIntroPaper.classList.add('shown');
+    if (options && options.liveTransition) {
+      requestAnimationFrame(function(){ discussionIntroPaper.classList.add('shown'); });
+      if (!await discussionIntroPause(180,token)) return;
+    } else {
+      if (!await discussionIntroPause(isFull ? 1000 : 500,token)) return;
+      discussionIntroPaper.classList.add('shown');
+    }
 
     if (isFull) {
       if (!await typeDiscussionText(discussionIntroTitle,titleText,2000,token)) return;
@@ -8425,9 +8583,80 @@
       if (!await discussionIntroPause(3000,token)) return;
     }
     if (token === discussionIntroRunToken) {
-      closeDiscussionIntro();
-      openDiscussionChat();
+      await revealDiscussionChatAfterIntro(variant,options && options.sequenceToken);
     }
+  }
+
+  async function runLiveDiscussionSequence(signalStartedAt,sequenceToken){
+    discussionTransitionPending = true;
+    discussionIntroActive = true;
+    gameDiscussionSignal.hidden = false;
+    const elapsed = performance.now() - signalStartedAt;
+    await delay(Math.max(0,1000 - elapsed));
+    if (sequenceToken !== discussionSequenceToken) return;
+    gameDiscussionSignal.hidden = true;
+    const reason = gameStateData && gameStateData.discussion && gameStateData.discussion.reason || {};
+    const eventTime = reason.event_time ? discussionMessageTime(reason.event_time) : document.getElementById('clockGame').textContent;
+    await playDiscussionIntro('discussion1',reason.kind === 'corpse' ? 'corpse' : 'emergency',eventTime,{
+      liveTransition:true,
+      sequenceToken:sequenceToken
+    });
+    if (sequenceToken === discussionSequenceToken) discussionTransitionPending = false;
+  }
+
+  function beginLiveDiscussionSequence(signalStartedAt){
+    if (discussionTransitionPending || discussionIntroActive || discussionChatBooting) return;
+    const sequenceToken = ++discussionSequenceToken;
+    discussionTransitionPending = true;
+    discussionIntroActive = true;
+    gameDiscussionSignal.hidden = false;
+    runLiveDiscussionSequence(signalStartedAt || performance.now(),sequenceToken);
+  }
+
+  function handleDiscussionStateChange(){
+    const discussion = gameStateData && gameStateData.discussion;
+    if (!discussion || !discussion.active) {
+      discussionHandledStartedAt = 0;
+      gameDiscussionSignal.hidden = true;
+      syncDiscussionChatState();
+      return;
+    }
+    const startedAt = Number(discussion.started_at) || 0;
+    if (startedAt && startedAt !== discussionHandledStartedAt) {
+      discussionHandledStartedAt = startedAt;
+      beginLiveDiscussionSequence(performance.now());
+      return;
+    }
+    syncDiscussionChatState();
+  }
+
+  async function triggerGameDiscussion(path,payload){
+    if (discussionTransitionPending || discussionIntroActive || discussionChatBooting) return;
+    const sequenceToken = ++discussionSequenceToken;
+    const signalStartedAt = performance.now();
+    discussionTransitionPending = true;
+    discussionIntroActive = true;
+    gameDiscussionSignal.hidden = false;
+    gameContextAction.disabled = true;
+    gameEmergencyPress.disabled = true;
+    const result = await gameApiRequest(path,'POST',payload || {});
+    gameContextAction.disabled = false;
+    gameEmergencyPress.disabled = false;
+    if (!result.ok) {
+      if (sequenceToken === discussionSequenceToken) {
+        discussionTransitionPending = false;
+        discussionIntroActive = false;
+        gameDiscussionSignal.hidden = true;
+      }
+      gameEmergencyConfirm.hidden = true;
+      gameContextAction.hidden = false;
+      addGameLog(gameErrorText(result));
+      return;
+    }
+    gameStateData = result.data;
+    discussionHandledStartedAt = Number(result.data.discussion && result.data.discussion.started_at) || Date.now() / 1000;
+    gameEmergencyConfirm.hidden = true;
+    runLiveDiscussionSequence(signalStartedAt,sequenceToken);
   }
 
   async function startAdminSandbox(role){
@@ -8454,6 +8683,7 @@
     adminRoleChoice.hidden = true;
     discussionIntroDay = 0;
     showGame(result.data);
+    discussionHandledStartedAt = Number(result.data.discussion && result.data.discussion.started_at) || 0;
     if (discussionVariant) {
       requestAnimationFrame(function(){
         playDiscussionIntro(discussionVariant,discussionVariant === 'discussion1' ? 'corpse' : 'emergency',discussionEventTime);
@@ -8572,6 +8802,15 @@
       gameEmergencyConfirm.hidden = false;
       return;
     }
+    if (action === 'report_body') {
+      const corpse = Array.isArray(gameStateData.corpses) ? gameStateData.corpses[0] : null;
+      if (!corpse) {
+        addGameLog('ТЕЛО БОЛЬШЕ НЕДОСТУПНО ДЛЯ ОБЪЯВЛЕНИЯ.');
+        return;
+      }
+      await triggerGameDiscussion('/api/game/meeting/report-body',{corpse_id:corpse.id});
+      return;
+    }
     if (!['repair_tasks','accelerate_docking'].includes(action) || gameContextAction.disabled) return;
     gameContextAction.disabled = true;
     const path = action === 'repair_tasks'
@@ -8595,8 +8834,7 @@
     gameContextAction.hidden = false;
   });
   gameEmergencyPress.addEventListener('click',function(){
-    // Механика заседания будет подключена отдельным API; подтверждение
-    // намеренно остаётся на экране, чтобы случайный клик не скрыл выбор.
+    triggerGameDiscussion('/api/game/meeting/emergency',{});
   });
   gameTasksAction.addEventListener('click',function(){
     if (gameTasksAction.disabled) return;
@@ -8678,7 +8916,7 @@
     const previousNeighbors = (gameStateData.neighbors || []).slice().sort().join('|');
     const previousIsolation = gameStateData.player && gameStateData.player.isolated === true;
     gameStateData = result.data;
-    syncDiscussionChatState();
+    handleDiscussionStateChange();
     const currentNeighbors = (gameStateData.neighbors || []).slice().sort().join('|');
     const isolationChanged = (gameStateData.player.isolated === true) !== previousIsolation;
     const cameraChanged = gameStateData.player.view_state !== previousViewState
