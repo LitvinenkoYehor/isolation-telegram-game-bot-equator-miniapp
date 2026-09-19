@@ -2449,8 +2449,12 @@
   .crew-vote-result-copy{ position:relative; z-index:1; max-width:850px; text-align:center; font-size:clamp(18px,2.7vw,29px); line-height:1.5; letter-spacing:.05em; opacity:0; transform:translateY(10px); transition:opacity .85s ease,transform .85s ease; }
   .crew-vote-result.revealed .crew-vote-result-copy{ opacity:1; transform:translateY(0); }
   .crew-vote-result-copy p{ margin:0 0 24px; }
-  .crew-vote-result-member{ font-weight:bold; }
-  .crew-vote-result-role{ font-size:clamp(34px,6vw,70px); font-weight:bold; }
+  .crew-vote-result-member{ color:var(--exiled-text); font-weight:bold; white-space:normal; }
+  .crew-vote-result-swatch{ display:inline-block; width:.72em; height:.72em; margin-right:.3em; border:1px solid var(--exiled-color); outline:1px solid rgba(230,240,233,.55); outline-offset:1px; background:var(--exiled-color); box-shadow:0 0 7px var(--exiled-color); vertical-align:baseline; }
+  .crew-vote-role-stage{ position:absolute; inset:0; z-index:1; pointer-events:none; text-align:center; }
+  .crew-vote-role-stage[hidden], .crew-vote-result-role[hidden]{ display:none; }
+  .crew-vote-role-label{ position:absolute; top:42%; left:50%; width:min(90vw,850px); margin:0; transform:translate(-50%,-50%); font-size:clamp(18px,2.7vw,29px); line-height:1.5; }
+  .crew-vote-result-role{ position:absolute; top:54%; left:50%; width:min(90vw,850px); margin:0; transform:translate(-50%,-50%); font-size:clamp(34px,6vw,70px); font-weight:bold; }
   .crew-vote-result-role.staff{ color:#8ad9ff; }.crew-vote-result-role.liquidator{ color:#ff747e; }
   .crew-vote-result-emblem{ position:absolute; top:50%; left:50%; width:min(80vw,680px); height:min(80vh,680px); transform:translate(-50%,-50%); opacity:0; color:#8ad9ff; pointer-events:none; transition:opacity .85s ease; }
   .crew-vote-result.revealed .crew-vote-result-emblem{ opacity:.24; }
@@ -5350,6 +5354,10 @@
 <section class="crew-vote-result" id="crewVoteResult" aria-label="Итоги голосования" hidden>
   <div class="crew-vote-result-emblem" id="crewVoteResultEmblem" aria-hidden="true"></div>
   <div class="crew-vote-result-copy" id="crewVoteResultCopy"></div>
+  <div class="crew-vote-role-stage" id="crewVoteRoleStage" hidden>
+    <p class="crew-vote-role-label">Роль умершего члена персонала:</p>
+    <p class="crew-vote-result-role" id="crewVoteRoleText" hidden></p>
+  </div>
 </section>
 
 <script>
@@ -6621,6 +6629,8 @@
   const crewVoteResult = document.getElementById('crewVoteResult');
   const crewVoteResultCopy = document.getElementById('crewVoteResultCopy');
   const crewVoteResultEmblem = document.getElementById('crewVoteResultEmblem');
+  const crewVoteRoleStage = document.getElementById('crewVoteRoleStage');
+  const crewVoteRoleText = document.getElementById('crewVoteRoleText');
 
   if (IS_DESKTOP) {
     gameScreen.classList.add('game-desktop');
@@ -9033,6 +9043,8 @@
     crewVoteNotice.classList.remove('shown');
     crewVoteResult.hidden = true;
     crewVoteResult.classList.remove('revealed','leaving');
+    crewVoteRoleStage.hidden = true;
+    crewVoteRoleText.hidden = true;
   }
 
   function renderCrewVote(){
@@ -9140,13 +9152,23 @@
     crewVoteResultCopy.replaceChildren();
     crewVoteResultEmblem.replaceChildren();
     crewVoteResultEmblem.className = 'crew-vote-result-emblem';
+    crewVoteRoleStage.hidden = true;
+    crewVoteRoleText.hidden = true;
+    crewVoteRoleText.className = 'crew-vote-result-role';
+    crewVoteRoleText.textContent = '';
     const paragraph = document.createElement('p');
     if (result.kind === 'exiled' && result.exiled) {
       paragraph.append('По результатам голосования экипажа активирован дисциплинарный контур скафандра. В отношении ');
       const member = document.createElement('span');
       member.className = 'crew-vote-result-member';
-      member.style.color = gameColorHex(result.exiled.color);
-      member.textContent = String(result.exiled.color || '') + ' · ' + String(result.exiled.name || '');
+      member.style.setProperty('--exiled-color',gameColorHex(result.exiled.color));
+      member.style.setProperty('--exiled-text',result.exiled.color === 'Чёрный' ? '#b3bcc5' : gameColorHex(result.exiled.color));
+      const swatch = document.createElement('span');
+      swatch.className = 'crew-vote-result-swatch';
+      swatch.setAttribute('aria-hidden','true');
+      member.appendChild(swatch);
+      if (appSettings.showColorText !== false) member.append(String(result.exiled.color || '') + ' ');
+      member.append(String(result.exiled.name || ''));
       paragraph.append(member,' произведён контролируемый разряд. Жизненные показатели прекращены.');
     } else {
       paragraph.textContent = result.kind === 'abstained'
@@ -9162,16 +9184,16 @@
     if (result.kind === 'exiled' && result.exiled) {
       await delay(2000);
       if (token !== crewVoteToken) return;
-      const label = document.createElement('p');
-      label.textContent = 'Роль умершего члена персонала:';
-      crewVoteResultCopy.appendChild(label);
+      crewVoteResultCopy.replaceChildren();
+      await delay(120);
+      if (token !== crewVoteToken) return;
+      crewVoteRoleStage.hidden = false;
       await delay(3000);
       if (token !== crewVoteToken) return;
       const role = result.exiled.role === 'liquidator' ? 'liquidator' : 'staff';
-      const roleText = document.createElement('p');
-      roleText.className = 'crew-vote-result-role ' + role;
-      roleText.textContent = role === 'liquidator' ? 'ЛИКВИДАТОР' : 'ПЕРСОНАЛ';
-      crewVoteResultCopy.appendChild(roleText);
+      crewVoteRoleText.classList.add(role);
+      crewVoteRoleText.textContent = role === 'liquidator' ? 'ЛИКВИДАТОР' : 'ПЕРСОНАЛ';
+      crewVoteRoleText.hidden = false;
       crewVoteResultEmblem.append(...Array.from(document.querySelectorAll('#roleRevealEmblem svg')).map(function(svg){ return svg.cloneNode(true); }));
       crewVoteResultEmblem.classList.add(role);
       await delay(4000);
