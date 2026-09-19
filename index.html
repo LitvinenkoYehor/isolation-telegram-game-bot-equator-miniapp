@@ -2407,6 +2407,54 @@
     .discussion-intro-protocol.compact .discussion-intro-attendance{ top:56%; }
   }
 
+  /* ================= CREW VOTING ================= */
+  .crew-vote, .crew-vote-result{
+    position:fixed; inset:0; z-index:1200; background:#080b09; color:#c7d0cb;
+    font-family:'IBM VGA 8x16','Courier New',monospace; letter-spacing:.12em;
+  }
+  .crew-vote[hidden], .crew-vote-result[hidden], .crew-vote-notice[hidden]{ display:none; }
+  .crew-vote-shell{
+    width:min(100%,760px); height:100dvh; margin:auto; display:grid;
+    grid-template-rows:auto minmax(0,1fr) auto; box-sizing:border-box;
+    padding:22px 30px 16px; background:repeating-linear-gradient(to bottom,rgba(255,255,255,.018) 0 1px,transparent 1px 4px),#0b0e0c;
+  }
+  .crew-vote-header{ display:flex; justify-content:space-between; gap:16px; padding-bottom:14px; border-bottom:1px solid #28332c; }
+  .crew-vote-heading{ font-size:14px; letter-spacing:.25em; }
+  .crew-vote-status{ margin-top:8px; color:#c56d72; font-size:11px; }
+  .crew-vote-status span{ color:#59655e; margin-left:12px; }
+  .crew-vote-clock{ color:#70e4a2; text-align:right; font-size:21px; white-space:nowrap; }
+  .crew-vote-clock small{ display:block; color:#526057; font-size:10px; }
+  .crew-vote-list{ overflow-y:auto; min-height:0; padding:22px 0; }
+  .crew-vote-row{
+    width:100%; min-height:58px; margin:0 0 10px; padding:10px 14px; box-sizing:border-box;
+    display:flex; align-items:center; gap:14px; border:1px solid #27312b;
+    background:transparent; color:#ccd4ce; text-align:left; cursor:pointer;
+    font:14px/1.3 'IBM VGA 8x16','Courier New',monospace; letter-spacing:.1em;
+  }
+  .crew-vote-row:hover:not(:disabled), .crew-vote-row.selected{ border-color:#6be9a2; background:rgba(76,170,112,.07); }
+  .crew-vote-row:disabled{ cursor:default; }
+  .crew-vote-initial{ width:32px; height:32px; flex:0 0 32px; display:grid; place-items:center; border:1px solid var(--vote-color); color:var(--vote-color); }
+  .crew-vote-name{ flex:1; min-width:0; overflow-wrap:anywhere; }
+  .crew-vote-ballots{ display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end; }
+  .crew-vote-ballot{ width:19px; height:19px; display:grid; place-items:center; border:1px solid var(--vote-color); color:var(--vote-color); font-size:10px; }
+  .crew-vote-count{ color:#76d49c; font-size:12px; min-width:12px; text-align:right; }
+  .crew-vote-row.skip{ border-style:dashed; color:#7c8981; min-height:44px; }
+  .crew-vote-footer{ padding-top:16px; border-top:1px solid #263029; }
+  .crew-vote-confirm{ width:100%; height:44px; border:1px solid #79eba9; background:transparent; color:#83efb1; cursor:pointer; font:13px 'IBM VGA 8x16','Courier New',monospace; letter-spacing:.22em; }
+  .crew-vote-confirm:disabled{ border-color:#34443a; color:#65796a; cursor:default; }
+  .crew-vote-notice{ position:fixed; inset:0; z-index:1201; display:grid; place-items:center; padding:24px; background:#050706; color:#dbe5dd; text-align:center; font:clamp(18px,3vw,30px)/1.4 'IBM VGA 8x16','Courier New',monospace; }
+  .crew-vote-result{ z-index:1202; background:#000; display:grid; place-items:center; padding:24px; box-sizing:border-box; }
+  .crew-vote-result-copy{ position:relative; z-index:1; max-width:850px; text-align:center; font-size:clamp(18px,2.7vw,29px); line-height:1.5; letter-spacing:.05em; }
+  .crew-vote-result-copy p{ margin:0 0 24px; }
+  .crew-vote-result-member{ font-weight:bold; }
+  .crew-vote-result-role{ font-size:clamp(34px,6vw,70px); font-weight:bold; }
+  .crew-vote-result-role.staff{ color:#8ad9ff; }.crew-vote-result-role.liquidator{ color:#ff747e; }
+  .crew-vote-result-emblem{ position:absolute; top:50%; left:50%; width:min(80vw,680px); height:min(80vh,680px); transform:translate(-50%,-50%); opacity:.24; color:#8ad9ff; pointer-events:none; }
+  .crew-vote-result-emblem.liquidator{ color:#ff747e; }
+  .crew-vote-result-emblem svg{ width:100%; height:100%; display:none; overflow:visible; }
+  .crew-vote-result-emblem.staff .role-reveal-emblem-svg--staff, .crew-vote-result-emblem.liquidator .role-reveal-emblem-svg--liquidator{ display:block; }
+  @media(max-width:700px){ .crew-vote-shell{padding:16px;} .crew-vote-heading{font-size:11px;} .crew-vote-row{min-height:54px;} }
+
   /* ================= LIVE DISCUSSION CHAT ================= */
   .discussion-chat{
     position:fixed; inset:0; z-index:1190;
@@ -5288,6 +5336,19 @@
   </div>
 </section>
 
+<section class="crew-vote" id="crewVote" aria-label="Голосование экипажа" hidden>
+  <div class="crew-vote-shell">
+    <header class="crew-vote-header"><div><div class="crew-vote-heading">ГОЛОСОВАНИЕ · СТАНЦИЯ «<span id="crewVoteStation">АСТРАЛ-1</span>»</div><div class="crew-vote-status">● ИДЁТ ГОЛОСОВАНИЕ <span>· ГОЛОСА ВИДНЫ ВСЕМ</span></div></div><div class="crew-vote-clock"><span id="crewVoteTimer">00:45</span><small>ДО ЗАВЕРШЕНИЯ</small></div></header>
+    <div class="crew-vote-list" id="crewVoteList"></div>
+    <footer class="crew-vote-footer"><button class="crew-vote-confirm" id="crewVoteConfirm" type="button" disabled>ВЫБЕРИТЕ УЧАСТНИКА</button></footer>
+  </div>
+</section>
+<div class="crew-vote-notice" id="crewVoteNotice" hidden>Дискуссия завершена. Начинается голосование.</div>
+<section class="crew-vote-result" id="crewVoteResult" aria-label="Итоги голосования" hidden>
+  <div class="crew-vote-result-emblem" id="crewVoteResultEmblem" aria-hidden="true"></div>
+  <div class="crew-vote-result-copy" id="crewVoteResultCopy"></div>
+</section>
+
 <script>
   // =========================================================
   //  DEVICE / PLATFORM DETECTION
@@ -6549,6 +6610,14 @@
   const discussionChatForm = document.getElementById('discussionChatForm');
   const discussionChatInput = document.getElementById('discussionChatInput');
   const discussionChatSend = document.getElementById('discussionChatSend');
+  const crewVote = document.getElementById('crewVote');
+  const crewVoteNotice = document.getElementById('crewVoteNotice');
+  const crewVoteList = document.getElementById('crewVoteList');
+  const crewVoteTimer = document.getElementById('crewVoteTimer');
+  const crewVoteConfirm = document.getElementById('crewVoteConfirm');
+  const crewVoteResult = document.getElementById('crewVoteResult');
+  const crewVoteResultCopy = document.getElementById('crewVoteResultCopy');
+  const crewVoteResultEmblem = document.getElementById('crewVoteResultEmblem');
 
   if (IS_DESKTOP) {
     gameScreen.classList.add('game-desktop');
@@ -6590,6 +6659,12 @@
   let discussionTimerInterval = null;
   let discussionTimerStartedAt = 0;
   let discussionTimerDeadlineMs = 0;
+  let crewVoteStartedAt = 0;
+  let crewVoteSelected = undefined;
+  let crewVoteToken = 0;
+  let crewVoteResultHandledAt = 0;
+  let crewVoteDeadlineMs = 0;
+  let crewVotePending = false;
   const gameAcknowledgedTaskIds = new Set();
   let gameHandledTaskEvents = new WeakSet();
   let gameTaskSabotageWasActive = false;
@@ -6857,11 +6932,68 @@
     demo.web_events = (demo._pendingWebEvents || []).splice(0);
   }
 
+  function advanceOfflineMeeting(demo){
+    const meeting = demo.discussion;
+    if (!meeting) return;
+    const now = Date.now() / 1000;
+    if (meeting.phase === 'discussion' && meeting.chat_all_ready_at && now >= meeting.chat_all_ready_at + meeting.timer_seconds) {
+      meeting.active = false;
+      meeting.phase = 'voting';
+      demo.voting = {
+        active:true,started_at:now,timer_seconds:45,voted:false,choice:null,
+        roster:[demo.player].concat(demo.static_crew.filter(function(bot){ return bot.alive; })).map(function(member){
+          return {id:member.id,name:member.name,color:member.color,color_emoji:member.color_emoji,votes:0};
+        }),abstained:0,ballots:[]
+      };
+      demo._offlineBotVotesAt = demo.static_crew.filter(function(bot){ return bot.alive; }).map(function(bot,index){
+        return {bot:bot,at:now + 6 + index * 2};
+      });
+    }
+    const voting = demo.voting;
+    if (!voting || !voting.active) return;
+    (demo._offlineBotVotesAt || []).forEach(function(entry){
+      if (entry.at > now || voting.ballots.some(function(ballot){ return ballot.voter_id === entry.bot.id; })) return;
+      voting.ballots.push({voter_id:entry.bot.id,target_id:null,color:entry.bot.color});
+      voting.abstained++;
+    });
+    if (now < voting.started_at + voting.timer_seconds) return;
+    const counts = voting.roster.map(function(member){ return {id:member.id,count:member.votes}; });
+    counts.push({id:null,count:voting.abstained});
+    counts.sort(function(a,b){ return b.count - a.count; });
+    const winner = counts[0];
+    const exiled = winner.count > 0 && winner.id !== null && winner.count > counts[1].count
+      ? [demo.player].concat(demo.static_crew).find(function(member){ return member.id === winner.id; }) : null;
+    if (exiled) exiled.alive = false;
+    demo.vote_result = {
+      meeting_started_at:meeting.started_at,finished_at:now,
+      kind:exiled ? 'exiled' : winner.id === null && winner.count > counts[1].count ? 'abstained' : 'divided',
+      exiled:exiled ? {id:exiled.id,name:exiled.name,color:exiled.color,role:exiled.role} : null
+    };
+    voting.active = false;
+    meeting.phase = 'none';
+    demo.player.room_id = 'central_hub';
+    demo.static_crew.filter(function(bot){ return bot.alive; }).forEach(function(bot){ bot.room_id = 'central_hub'; });
+    demo.neighbors = offlineAvailableNeighbors(demo,'central_hub');
+  }
+
   async function gameApiRequest(path, method, payload){
     const initData = tg && tg.initData ? tg.initData : '';
     if (!initData) {
       const demo = offlineGameState();
+      advanceOfflineMeeting(demo);
       updateOfflineSabotage(demo);
+      if (path === '/api/game/vote') {
+        if (!demo.voting || !demo.voting.active || demo.voting.voted) return {ok:false,status:409,data:{error:'voting_unavailable'}};
+        const target = payload && payload.target_id;
+        if (target !== null && !demo.voting.roster.some(function(member){ return member.id === target && member.id !== demo.player.id; })) {
+          return {ok:false,status:400,data:{error:'bad_vote_target'}};
+        }
+        demo.voting.voted = true;
+        demo.voting.choice = target;
+        demo.voting.ballots.push({voter_id:demo.player.id,target_id:target,color:demo.player.color});
+        if (target === null) demo.voting.abstained++;
+        else demo.voting.roster.find(function(member){ return member.id === target; }).votes++;
+      }
       if (path === '/api/game/admin-solo/start') {
         const selectedRole = payload && payload.role;
         demo.player.role = selectedRole === 'liquidator' ? 'liquidator' : 'staff';
@@ -6885,6 +7017,8 @@
           chat_ready_count:0,chat_all_ready:false,chat_all_ready_at:0,timer_seconds:120,
           messages:[]
         };
+        demo.voting = null;
+        demo.vote_result = null;
         demo._discussionNextMessageId = 1;
         demo._pendingWebEvents = [];
         demo._costumeNumbers = {};
@@ -6976,6 +7110,8 @@
             event_time:meetingTime
           }
         };
+        demo.voting = null;
+        demo.vote_result = null;
         demo._discussionDay = demo.discussion.day;
         demo._discussionNextMessageId = 1;
         demo.player.room_id = 'central_hub';
@@ -8079,6 +8215,7 @@
     // готовности от игры, которую пользователь завершил через /exit.
     closeDiscussionIntro();
     closeDiscussionChat();
+    closeCrewVote();
     discussionHandledStartedAt = 0;
     gameDiscussionNotice.hidden = true;
     gameScreen.classList.remove('discussion-locked');
@@ -8870,7 +9007,168 @@
     runLiveDiscussionSequence(sequenceToken);
   }
 
+  function updateCrewVoteClock(){
+    crewVoteTimer.textContent = discussionCountdownText((crewVoteDeadlineMs - Date.now()) / 1000);
+  }
+
+  function closeCrewVote(){
+    ++crewVoteToken;
+    crewVoteStartedAt = 0;
+    crewVoteSelected = undefined;
+    crewVotePending = false;
+    crewVote.hidden = true;
+    crewVoteNotice.hidden = true;
+    crewVoteResult.hidden = true;
+  }
+
+  function renderCrewVote(){
+    const voting = gameStateData && gameStateData.voting;
+    if (!voting || !voting.active) return;
+    document.getElementById('crewVoteStation').textContent = String(gameStateData.station || 'АСТРАЛ-1').toUpperCase();
+    crewVoteList.replaceChildren();
+    const ballots = Array.isArray(voting.ballots) ? voting.ballots : [];
+    const rows = (voting.roster || []).map(function(member){ return {member:member,id:member.id}; });
+    rows.push({member:null,id:null});
+    rows.forEach(function(entry){
+      const member = entry.member;
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'crew-vote-row' + (member ? '' : ' skip') + (crewVoteSelected === entry.id ? ' selected' : '');
+      row.disabled = !!voting.voted || crewVotePending || (member && member.id === gameStateData.player.id);
+      const initial = document.createElement('span');
+      initial.className = 'crew-vote-initial';
+      initial.style.setProperty('--vote-color',member ? gameColorHex(member.color) : '#77877e');
+      initial.textContent = member ? String(member.color || '?').charAt(0).toUpperCase() : '—';
+      const name = document.createElement('span');
+      name.className = 'crew-vote-name';
+      name.textContent = member ? String(member.name || '?').toUpperCase() : 'ПРОПУСТИТЬ ГОЛОСОВАНИЕ';
+      const badges = document.createElement('span');
+      badges.className = 'crew-vote-ballots';
+      ballots.filter(function(ballot){ return ballot.target_id === entry.id; }).forEach(function(ballot){
+        const badge = document.createElement('span');
+        badge.className = 'crew-vote-ballot';
+        badge.style.setProperty('--vote-color',gameColorHex(ballot.color));
+        badge.textContent = String(ballot.color || '?').charAt(0).toUpperCase();
+        badge.title = String(ballot.color || '');
+        badges.appendChild(badge);
+      });
+      const count = document.createElement('span');
+      count.className = 'crew-vote-count';
+      count.textContent = String(member ? member.votes || 0 : voting.abstained || 0);
+      row.append(initial,name,badges,count);
+      row.addEventListener('click',function(){ crewVoteSelected = entry.id; renderCrewVote(); });
+      crewVoteList.appendChild(row);
+    });
+    crewVoteConfirm.disabled = voting.voted || crewVotePending || crewVoteSelected === undefined;
+    crewVoteConfirm.textContent = voting.voted ? 'ВАШ ГОЛОС УЧТЁН' : crewVotePending ? 'ПЕРЕДАЧА ГОЛОСА…'
+      : crewVoteSelected === undefined ? 'ВЫБЕРИТЕ УЧАСТНИКА'
+      : 'ПОДТВЕРДИТЬ ВЫБОР: ' + (crewVoteSelected === null ? 'ПРОПУСТИТЬ' : String((voting.roster || []).find(function(member){ return member.id === crewVoteSelected; })?.name || '').toUpperCase());
+    const serverNow = Number(gameStateData.server_time) || Date.now() / 1000;
+    crewVoteDeadlineMs = Date.now() + Math.max(0,(Number(voting.started_at) + Number(voting.timer_seconds) - serverNow) * 1000);
+    updateCrewVoteClock();
+  }
+
+  crewVoteConfirm.addEventListener('click',async function(){
+    if (crewVoteSelected === undefined || crewVotePending) return;
+    crewVotePending = true;
+    renderCrewVote();
+    const result = await gameApiRequest('/api/game/vote','POST',{target_id:crewVoteSelected});
+    crewVotePending = false;
+    if (result.ok && result.data) {
+      gameStateData = result.data;
+      handleDiscussionStateChange();
+    } else {
+      addGameLog('ГОЛОС НЕ ПРИНЯТ: ' + gameErrorText(result));
+      renderCrewVote();
+    }
+  });
+  setInterval(function(){ if (!crewVote.hidden) updateCrewVoteClock(); },250);
+
+  async function openCrewVote(){
+    const voting = gameStateData && gameStateData.voting;
+    if (!voting || !voting.active) return;
+    const startedAt = Number(voting.started_at) || 0;
+    if (crewVoteStartedAt !== startedAt) {
+      crewVoteStartedAt = startedAt;
+      crewVoteSelected = undefined;
+      const token = ++crewVoteToken;
+      closeDiscussionChat();
+      closeDiscussionIntro();
+      gameScreen.inert = true;
+      crewVoteNotice.hidden = false;
+      await delay(2000);
+      if (token !== crewVoteToken || !gameStateData || !gameStateData.voting.active) return;
+      crewVoteNotice.hidden = true;
+      crewVote.hidden = false;
+    }
+    renderCrewVote();
+  }
+
+  async function showCrewVoteResult(result){
+    if (!result || crewVoteResultHandledAt === result.meeting_started_at) return;
+    crewVoteResultHandledAt = result.meeting_started_at;
+    const token = ++crewVoteToken;
+    crewVote.hidden = true;
+    crewVoteNotice.hidden = true;
+    closeDiscussionChat();
+    closeDiscussionIntro();
+    gameScreen.inert = true;
+    crewVoteResult.hidden = false;
+    crewVoteResultCopy.replaceChildren();
+    crewVoteResultEmblem.replaceChildren();
+    crewVoteResultEmblem.className = 'crew-vote-result-emblem';
+    const paragraph = document.createElement('p');
+    if (result.kind === 'exiled' && result.exiled) {
+      paragraph.append('По результатам голосования экипажа активирован дисциплинарный контур скафандра. В отношении ');
+      const member = document.createElement('span');
+      member.className = 'crew-vote-result-member';
+      member.style.color = gameColorHex(result.exiled.color);
+      member.textContent = String(result.exiled.color || '') + ' · ' + String(result.exiled.name || '');
+      paragraph.append(member,' произведён контролируемый разряд. Жизненные показатели прекращены.');
+    } else {
+      paragraph.textContent = result.kind === 'abstained'
+        ? 'Голосование экипажа завершено: большинство членов экипажа воздержалось от голосования. Дисциплинарный контур не активирован.'
+        : 'Голосование экипажа завершено без определённого результата. Дисциплинарный контур не активирован.';
+    }
+    crewVoteResultCopy.appendChild(paragraph);
+    if (result.kind === 'exiled' && result.exiled) {
+      await delay(2000);
+      if (token !== crewVoteToken) return;
+      const label = document.createElement('p');
+      label.textContent = 'Роль умершего члена персонала:';
+      crewVoteResultCopy.appendChild(label);
+      await delay(3000);
+      if (token !== crewVoteToken) return;
+      const role = result.exiled.role === 'liquidator' ? 'liquidator' : 'staff';
+      const roleText = document.createElement('p');
+      roleText.className = 'crew-vote-result-role ' + role;
+      roleText.textContent = role === 'liquidator' ? 'ЛИКВИДАТОР' : 'ПЕРСОНАЛ';
+      crewVoteResultCopy.appendChild(roleText);
+      crewVoteResultEmblem.append(...Array.from(document.querySelectorAll('#roleRevealEmblem svg')).map(function(svg){ return svg.cloneNode(true); }));
+      crewVoteResultEmblem.classList.add(role);
+      await delay(4000);
+    } else {
+      await delay(4000);
+    }
+    if (token !== crewVoteToken) return;
+    crewVoteResult.hidden = true;
+    gameScreen.inert = false;
+    if (gameStateData && gameStateData.player) {
+      renderGameMap();
+      renderGamePlayerTasks();
+      renderGameProgress();
+      requestAnimationFrame(function(){ focusGameRoom(gameStateData.player.room_id); });
+    }
+  }
+
   function handleDiscussionStateChange(){
+    const voting = gameStateData && gameStateData.voting;
+    if (voting && voting.active) { openCrewVote(); return; }
+    if (gameStateData && gameStateData.vote_result && gameStateData.vote_result.meeting_started_at !== crewVoteResultHandledAt) {
+      showCrewVoteResult(gameStateData.vote_result);
+      return;
+    }
+    if (!crewVoteResult.hidden || !crewVoteNotice.hidden) return;
     const discussion = gameStateData && gameStateData.discussion;
     if (!discussion || !discussion.active) {
       discussionHandledStartedAt = 0;
@@ -8975,6 +9273,7 @@
     stopGameAudio();
     closeDiscussionIntro();
     closeDiscussionChat();
+    closeCrewVote();
     gameKillTargeting = false;
     gameKillPending = false;
     if (gameWitnessTimeout) clearTimeout(gameWitnessTimeout);
