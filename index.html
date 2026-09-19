@@ -2613,25 +2613,7 @@
   }
   .discussion-chat-send:disabled,
   .discussion-chat-input:disabled{ opacity:.45; cursor:wait; }
-  .discussion-chat.international .discussion-chat-shell{ width:min(100%,760px); background:repeating-linear-gradient(to bottom,rgba(255,255,255,.018) 0 1px,transparent 1px 4px),#0d100d; }
   .discussion-chat.international .discussion-chat-composer{ display:none; }
-  .discussion-chat.international .discussion-chat-header{ padding:20px 30px 14px; }
-  .discussion-chat.international .discussion-chat-heading{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:5px 14px; }
-  .discussion-chat.international .discussion-chat-title{ grid-column:1; grid-row:1; }
-  .international-mode-badge{ grid-column:2; grid-row:1; align-self:start; padding:5px 8px; border:1px solid #3a463f; color:#8e9b92; white-space:nowrap; font-size:10px; letter-spacing:.13em; }
-  .international-mode-badge[hidden]{ display:none; }
-  .discussion-chat.international .discussion-chat-timer{ grid-column:2; grid-row:2; text-align:right; }
-  .discussion-chat.international .discussion-chat-messages{ padding:16px 30px; }
-  .discussion-chat.international .discussion-chat-system-entry{ font-size:13px; }
-  .discussion-chat.international .discussion-chat-message{ grid-template-columns:30px minmax(0,1fr); margin-bottom:16px; }
-  .discussion-chat.international .discussion-chat-avatar{ width:30px; height:30px; font-size:11px; }
-  .discussion-chat.international .discussion-chat-message-copy{ padding-left:12px; }
-  .discussion-chat.international .discussion-chat-message-meta{ font-size:12px; margin-bottom:4px; }
-  .discussion-chat.international .discussion-chat-message-text{ font-size:14px; line-height:1.5; }
-  .discussion-chat.international .discussion-chat-color{ display:none; }
-  .discussion-chat.international .discussion-chat-caret-line{ display:none; }
-  .discussion-chat.international .discussion-chat-timer{ font-size:13px; }
-  .discussion-chat.international .discussion-chat-timer-label{ display:none; }
   .international-controls{ --signal-accent:#79d4ff; min-height:0; display:grid; grid-template-rows:auto minmax(0,1fr) auto; border-top:1px solid #28312b; background:#101310; }
   .international-controls[hidden]{ display:none; }
   .international-controls.step-action{ height:182px; }
@@ -2657,10 +2639,6 @@
   .international-preview{ min-height:58px; padding:17px 18px; box-sizing:border-box; border:1px solid var(--signal-accent); background:color-mix(in srgb,var(--signal-accent) 6%,#101310); color:#e3e6e2; font-size:17px; line-height:1.4; }
   .international-error{ color:#ed8695; margin:12px 0; font-size:12px; }
   @media(max-width:700px){
-    .discussion-chat.international .discussion-chat-header{ padding:14px 16px; }
-    .discussion-chat.international .discussion-chat-messages{ padding:14px 16px; }
-    .discussion-chat.international .discussion-chat-heading{ grid-template-columns:1fr auto; }
-    .international-mode-badge{ font-size:8px; white-space:normal; text-align:center; max-width:115px; }
     .international-control-head,.international-control-body,.international-control-footer{ padding-left:16px; padding-right:16px; }
     .international-controls:not(.step-action){ height:min(76dvh,620px); }
   }
@@ -5370,7 +5348,6 @@
     <header class="discussion-chat-header">
       <div class="discussion-chat-heading">
         <div class="discussion-chat-title"><span id="discussionChatTitlePrefix">ВНУТРЕННЯЯ СВЯЗЬ</span>&nbsp;&nbsp;·&nbsp;&nbsp;СТАНЦИЯ «<span id="discussionChatStation">АСТРАЛ-1</span>»</div>
-        <div class="international-mode-badge" id="internationalModeBadge" hidden>РЕЖИМ: МЕЖДУНАРОДНЫЙ</div>
         <div class="discussion-chat-timer" id="discussionChatTimer" role="timer" aria-live="off" hidden><span class="discussion-chat-timer-label">ДИСКУССИЯ&nbsp;//&nbsp;</span><span id="discussionChatTimerValue">02:00</span></div>
       </div>
       <div class="discussion-chat-status">
@@ -6668,7 +6645,6 @@
   const discussionChat = document.getElementById('discussionChat');
   const discussionChatBoot = document.getElementById('discussionChatBoot');
   const discussionChatTitlePrefix = document.getElementById('discussionChatTitlePrefix');
-  const internationalModeBadge = document.getElementById('internationalModeBadge');
   const discussionChatStation = document.getElementById('discussionChatStation');
   const discussionChatChannel = document.getElementById('discussionChatChannel');
   const discussionChatTimer = document.getElementById('discussionChatTimer');
@@ -6730,6 +6706,7 @@
   let discussionSystemIntroRunning = false;
   let discussionSystemIntroComplete = false;
   let discussionHandledStartedAt = 0;
+  let discussionRetryAfter = 0;
   let discussionSequenceToken = 0;
   let discussionChatSending = false;
   let discussionChatRenderedSignature = '';
@@ -6906,9 +6883,8 @@
         return {id:member.id,name:member.name,color:member.color,color_emoji:member.color_emoji,alive:member.alive,corpse:!member.alive};
       }),
       rooms:demo.rooms.map(function(room){
-        const lastId = demo._roomLastSeen && demo._roomLastSeen[room.id];
-        const member = [demo.player].concat(demo.static_crew).find(function(entry){ return entry.id === lastId; });
-        return {id:room.id,name:room.name,sector:offlineSectorForRoom(room.id),last_seen:member ? {id:member.id,name:member.name,color:member.color} : null};
+        const speaker = demo._meetingRoomAtStart === room.id ? demo.player : null;
+        return {id:room.id,name:room.name,sector:offlineSectorForRoom(room.id),speaker_at_start:speaker ? {id:speaker.id,name:speaker.name,color:speaker.color} : null};
       })
     };
   }
@@ -7090,7 +7066,7 @@
     demo.neighbors = offlineAvailableNeighbors(demo,'central_hub');
   }
 
-  async function gameApiRequest(path, method, payload){
+  async function gameApiRequest(path, method, payload, timeoutMs){
     const initData = tg && tg.initData ? tg.initData : '';
     if (!initData) {
       const demo = offlineGameState();
@@ -7135,7 +7111,7 @@
         demo.voting = null;
         demo.vote_result = null;
         demo._discussionNextMessageId = 1;
-        demo._roomLastSeen = {central_hub:demo.player.id};
+        demo._meetingRoomAtStart = demo.discussion.active ? demo.player.room_id : null;
         demo._pendingWebEvents = [];
         demo._costumeNumbers = {};
         demo._tasksReminderSent = false;
@@ -7234,6 +7210,7 @@
         if (reportingBody && !corpse) return {ok:false,status:409,data:{error:'corpse_unavailable'}};
         if (!reportingBody && demo.player.room_id !== 'central_hub') return {ok:false,status:409,data:{error:'wrong_emergency_room'}};
         const meetingTime = Date.now() / 1000;
+        demo._meetingRoomAtStart = demo.player.room_id;
         demo.discussion = {
           active:true,phase:'discussion',started_at:meetingTime,participant_count:1,
           alive_count:1 + demo.static_crew.filter(function(bot){ return bot.alive; }).length,
@@ -7303,7 +7280,6 @@
         await delay(900);
         const from = demo.player.room_id;
         demo.player.room_id = target;
-        if (demo.mode === 'international') demo._roomLastSeen[target] = demo.player.id;
         demo.player.view_state = 'main';
         demo.player.pending_target = null;
         demo.player.isolated = offlineRoomIsolated(demo,target);
@@ -7412,8 +7388,14 @@
       demo.server_time = Date.now() / 1000;
       return {ok:true,status:200,data:demo};
     }
+    const controller = timeoutMs ? new AbortController() : null;
+    let requestTimeout = null;
     try {
       const options = {method:method || 'GET',headers:{'Content-Type':'application/json'}};
+      if (controller) {
+        options.signal = controller.signal;
+        requestTimeout = setTimeout(function(){ controller.abort(); },timeoutMs);
+      }
       let url = apiUrl(path);
       if (options.method === 'GET') {
         url += '?initData=' + encodeURIComponent(initData);
@@ -7426,6 +7408,8 @@
     } catch (error) {
       console.error('Game API request failed:',error);
       return {ok:false,status:0,data:{error:'network'}};
+    } finally {
+      if (requestTimeout !== null) clearTimeout(requestTimeout);
     }
   }
 
@@ -8660,10 +8644,10 @@
         const name = document.createElement('span');
         name.textContent = room.name;
         button.appendChild(name);
-        if (room.last_seen && room.last_seen.name) {
+        if (room.speaker_at_start && room.speaker_at_start.name) {
           const last = document.createElement('span');
           last.className = 'international-room-last';
-          last.textContent = '(' + room.last_seen.name + ' был здесь в последний раз)';
+          last.textContent = '(' + room.speaker_at_start.name + ' был здесь)';
           button.appendChild(last);
         }
         internationalControlBody.appendChild(button);
@@ -8699,11 +8683,8 @@
     const messages = Array.isArray(discussion.messages) ? discussion.messages : [];
     const signature = messages.map(function(message){ return message.id + ':' + message.text; }).join('|');
     discussionChatStation.textContent = String(gameStateData.station || 'АСТРАЛ-1').toUpperCase();
-    discussionChatTitlePrefix.textContent = international ? 'ТРАНСКРИБАЦИЯ СОБРАНИЯ' : 'ВНУТРЕННЯЯ СВЯЗЬ';
-    internationalModeBadge.hidden = !international;
-    discussionChatChannel.textContent = international
-      ? 'КАНАЛ МГД' + String(discussion.day || 1).padStart(4,'0') + ' ОТКРЫТ'
-      : 'КАНАЛ ОБСУЖДЕНИЯ · ' + Number(discussion.participant_count || 0) + ' УЧАСТН.';
+    discussionChatTitlePrefix.textContent = 'ВНУТРЕННЯЯ СВЯЗЬ';
+    discussionChatChannel.textContent = 'КАНАЛ ОБСУЖДЕНИЯ · ' + Number(discussion.participant_count || 0) + ' УЧАСТН.';
     discussionChat.classList.toggle('international',international);
     if (!force && signature === discussionChatRenderedSignature) return;
 
@@ -8737,8 +8718,7 @@
         const time = document.createElement('time');
         time.className = 'discussion-chat-time';
         time.textContent = discussionMessageTime(message.sent_at);
-        if (international) meta.append(name,sequence,time);
-        else meta.append(name,color,sequence,time);
+        meta.append(name,color,sequence,time);
 
         const body = document.createElement('div');
         body.className = 'discussion-chat-message-text';
@@ -8805,16 +8785,34 @@
   }
 
   async function waitForDiscussionReady(stage,sequenceToken){
+    let failures = 0;
     while (sequenceToken === discussionSequenceToken) {
-      const result = await gameApiRequest('/api/game/discussion/ready','POST',{stage:stage});
-      if (result.ok && result.data) gameStateData = result.data;
+      let result = await gameApiRequest('/api/game/discussion/ready','POST',{stage:stage},8000);
+      if (!result.ok) result = await gameApiRequest('/api/game/state','GET',null,8000);
+      if (sequenceToken !== discussionSequenceToken) return null;
+      if (result.ok && result.data) {
+        gameStateData = result.data;
+        failures = 0;
+      } else if (++failures >= 3) return null;
       const discussion = gameStateData && gameStateData.discussion;
-      if (!discussion || !discussion.active) return null;
+      if (result.ok && (!discussion || !discussion.active)) return null;
+      if (!discussion) { await delay(450); continue; }
       const allReady = stage === 'notice' ? discussion.notice_all_ready : discussion.chat_all_ready;
-      if (allReady) return result.data || gameStateData;
+      if (result.ok && allReady) return gameStateData;
       await delay(450);
     }
     return null;
+  }
+
+  function recoverDiscussionTransition(sequenceToken){
+    if (sequenceToken !== discussionSequenceToken) return;
+    closeDiscussionIntro();
+    closeDiscussionChat();
+    discussionHandledStartedAt = 0;
+    discussionRetryAfter = Date.now() + 4000;
+    if (gameStateData && gameStateData.discussion && gameStateData.discussion.active) {
+      addGameLog('СВЯЗЬ С СОБРАНИЕМ ПРЕРВАНА. ПОВТОРНОЕ ПОДКЛЮЧЕНИЕ...');
+    }
   }
 
   function discussionSystemMember(member){
@@ -8916,11 +8914,11 @@
       {text:'Загрузка костюмов всех членов Персонала...'}
     ],'loading',sequenceToken);
     const readyState = await waitForDiscussionReady('chat',sequenceToken);
-    if (!readyState || sequenceToken !== discussionSequenceToken) return;
+    if (!readyState) { recoverDiscussionTransition(sequenceToken); return; }
+    if (sequenceToken !== discussionSequenceToken) return;
     loadingLine.remove();
     discussionSystemIntroRunning = false;
     discussionSystemIntroComplete = true;
-    if (gameStateData && gameStateData.mode === 'international') discussionChatSystem.replaceChildren();
     discussionChatCaret.hidden = false;
     discussionChatInput.disabled = gameStateData && gameStateData.mode === 'international';
     discussionChatSend.disabled = gameStateData && gameStateData.mode === 'international';
@@ -9316,11 +9314,13 @@
   }
 
   async function runLiveDiscussionSequence(sequenceToken){
+    if (sequenceToken !== discussionSequenceToken) return;
     discussionTransitionPending = true;
     discussionIntroActive = true;
     lockGameForDiscussion();
     const readyState = await waitForDiscussionReady('notice',sequenceToken);
-    if (!readyState || sequenceToken !== discussionSequenceToken) return;
+    if (!readyState) { recoverDiscussionTransition(sequenceToken); return; }
+    if (sequenceToken !== discussionSequenceToken) return;
     const discussion = readyState.discussion || {};
     const serverTime = Number(readyState.server_time) || Date.now() / 1000;
     const allReadyAt = Number(discussion.notice_all_ready_at) || serverTime;
@@ -9343,7 +9343,7 @@
   }
 
   function beginLiveDiscussionSequence(){
-    if (discussionTransitionPending || discussionIntroActive || discussionChatBooting) return;
+    if (discussionTransitionPending || discussionIntroActive || discussionChatBooting || Date.now() < discussionRetryAfter) return;
     const sequenceToken = ++discussionSequenceToken;
     discussionTransitionPending = true;
     discussionIntroActive = true;
@@ -9569,9 +9569,17 @@
     lockGameForDiscussion();
     gameContextAction.disabled = true;
     gameEmergencyPress.disabled = true;
-    const result = await gameApiRequest(path,'POST',payload || {});
+    const result = await gameApiRequest(path,'POST',payload || {},10000);
     gameContextAction.disabled = false;
     gameEmergencyPress.disabled = false;
+    if (sequenceToken !== discussionSequenceToken) {
+      if (result.ok && result.data && result.data.discussion && result.data.discussion.active) {
+        gameStateData = result.data;
+        discussionHandledStartedAt = Number(result.data.discussion.started_at) || 0;
+        beginLiveDiscussionSequence();
+      }
+      return;
+    }
     if (!result.ok) {
       if (sequenceToken === discussionSequenceToken) {
         discussionTransitionPending = false;
@@ -9840,6 +9848,11 @@
       // Например, пользователь выполнил /exit в Telegram, пока Mini App
       // оставался открытым. Не оставляем на экране кнопки удалённой игры.
       exitGameToMenu();
+      return;
+    }
+    if (discussionTransitionPending && !(result.data.discussion && result.data.discussion.active)
+        && !(result.data.voting && result.data.voting.active) && !result.data.vote_result) {
+      // Ответ GET мог быть сформирован до POST тревожной кнопки.
       return;
     }
     const previousRoomId = gameStateData.player && gameStateData.player.room_id;
