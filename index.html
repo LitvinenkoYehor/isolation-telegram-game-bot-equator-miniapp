@@ -2613,6 +2613,57 @@
   }
   .discussion-chat-send:disabled,
   .discussion-chat-input:disabled{ opacity:.45; cursor:wait; }
+  .discussion-chat.international .discussion-chat-shell{ width:min(100%,760px); background:repeating-linear-gradient(to bottom,rgba(255,255,255,.018) 0 1px,transparent 1px 4px),#0d100d; }
+  .discussion-chat.international .discussion-chat-composer{ display:none; }
+  .discussion-chat.international .discussion-chat-header{ padding:20px 30px 14px; }
+  .discussion-chat.international .discussion-chat-heading{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:5px 14px; }
+  .discussion-chat.international .discussion-chat-title{ grid-column:1; grid-row:1; }
+  .international-mode-badge{ grid-column:2; grid-row:1; align-self:start; padding:5px 8px; border:1px solid #3a463f; color:#8e9b92; white-space:nowrap; font-size:10px; letter-spacing:.13em; }
+  .international-mode-badge[hidden]{ display:none; }
+  .discussion-chat.international .discussion-chat-timer{ grid-column:2; grid-row:2; text-align:right; }
+  .discussion-chat.international .discussion-chat-messages{ padding:16px 30px; }
+  .discussion-chat.international .discussion-chat-system-entry{ font-size:13px; }
+  .discussion-chat.international .discussion-chat-message{ grid-template-columns:30px minmax(0,1fr); margin-bottom:16px; }
+  .discussion-chat.international .discussion-chat-avatar{ width:30px; height:30px; font-size:11px; }
+  .discussion-chat.international .discussion-chat-message-copy{ padding-left:12px; }
+  .discussion-chat.international .discussion-chat-message-meta{ font-size:12px; margin-bottom:4px; }
+  .discussion-chat.international .discussion-chat-message-text{ font-size:14px; line-height:1.5; }
+  .discussion-chat.international .discussion-chat-color{ display:none; }
+  .discussion-chat.international .discussion-chat-caret-line{ display:none; }
+  .discussion-chat.international .discussion-chat-timer{ font-size:13px; }
+  .discussion-chat.international .discussion-chat-timer-label{ display:none; }
+  .international-controls{ --signal-accent:#79d4ff; min-height:0; display:grid; grid-template-rows:auto minmax(0,1fr) auto; border-top:1px solid #28312b; background:#101310; }
+  .international-controls[hidden]{ display:none; }
+  .international-controls.step-action{ height:182px; }
+  .international-controls:not(.step-action){ height:min(72dvh,620px); }
+  .international-control-head{ display:flex; justify-content:space-between; gap:14px; padding:17px 30px; border-bottom:1px solid #252d28; color:var(--signal-accent); font-size:12px; letter-spacing:.19em; }
+  .international-control-head span:last-child{ color:#69726b; font-size:10px; letter-spacing:.12em; }
+  .international-control-body{ overflow-y:auto; padding:13px 30px; scrollbar-color:#506058 #151916; }
+  .international-control-footer{ display:grid; gap:10px; padding:12px 30px 18px; border-top:1px dashed #263029; }
+  .international-control-footer:empty{ display:none; }
+  .international-action-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .international-option{ width:100%; min-height:42px; display:flex; align-items:center; gap:10px; margin-bottom:8px; padding:10px 14px; border:1px solid #303832; background:#111411; color:#d5d7d4; font:14px/1.35 'IBM VGA 8x16','Courier New',monospace; letter-spacing:.03em; text-align:left; cursor:pointer; }
+  .international-option:hover,.international-option:focus-visible{ border-color:var(--signal-accent); color:var(--signal-accent); outline:none; }
+  .international-action-grid .international-option{ min-height:49px; margin:0; color:var(--signal-accent); border-color:var(--signal-accent); }
+  .international-option-number{ color:#655a5e; font-size:10px; }
+  .international-option-avatar{ width:26px; height:26px; flex:0 0 26px; display:grid; place-items:center; border:1px solid var(--member-color,#7a8a83); color:var(--member-color,#7a8a83); font-size:10px; }
+  .international-option.room{ border-color:var(--room-color,#536059); color:var(--room-color,#b0b9b1); }
+  .international-option.room:hover{ background:color-mix(in srgb,var(--room-color) 9%,#111411); }
+  .international-room-last{ margin-left:auto; color:#8c9790; font-size:12px; }
+  .international-skip,.international-back{ width:100%; min-height:40px; border:1px dashed #47524b; background:transparent; color:#8c9990; font:12px 'IBM VGA 8x16','Courier New',monospace; letter-spacing:.18em; cursor:pointer; }
+  .international-send{ width:100%; min-height:46px; border:1px solid #77eeaa; background:transparent; color:#88f8b5; font:13px 'IBM VGA 8x16','Courier New',monospace; letter-spacing:.22em; cursor:pointer; }
+  .international-send:disabled{ opacity:.45; cursor:wait; }
+  .international-preview-label{ margin:8px 0 10px; color:#6c766d; font-size:11px; letter-spacing:.17em; }
+  .international-preview{ min-height:58px; padding:17px 18px; box-sizing:border-box; border:1px solid var(--signal-accent); background:color-mix(in srgb,var(--signal-accent) 6%,#101310); color:#e3e6e2; font-size:17px; line-height:1.4; }
+  .international-error{ color:#ed8695; margin:12px 0; font-size:12px; }
+  @media(max-width:700px){
+    .discussion-chat.international .discussion-chat-header{ padding:14px 16px; }
+    .discussion-chat.international .discussion-chat-messages{ padding:14px 16px; }
+    .discussion-chat.international .discussion-chat-heading{ grid-template-columns:1fr auto; }
+    .international-mode-badge{ font-size:8px; white-space:normal; text-align:center; max-width:115px; }
+    .international-control-head,.international-control-body,.international-control-footer{ padding-left:16px; padding-right:16px; }
+    .international-controls:not(.step-action){ height:min(76dvh,620px); }
+  }
   @media(max-width:700px){
     .discussion-chat-header{ padding:16px 16px 12px; }
     .discussion-chat-heading{ gap:10px; }
@@ -3902,14 +3953,13 @@
             <div class="profile-section-label">АДМИНИСТРАТОР</div>
             <div class="admin-sandbox-card">
               <div class="admin-sandbox-kicker">ТЕСТОВАЯ СМЕНА // DEV</div>
-              <p class="admin-sandbox-copy">Открыть «Астрал-1» с 11 неподвижными ботами в Центральном узле. Перед запуском можно выбрать роль или сцену изгнания.</p>
+              <p class="admin-sandbox-copy">Открыть «Астрал-1» с 11 неподвижными ботами в Центральном узле. Выберите режим тестовой смены.</p>
               <button class="admin-sandbox-btn" id="adminSandboxStart" type="button">▸ НАЧАТЬ В ПОЛНОМ ОДИНОЧЕСТВЕ</button>
               <div class="admin-role-choice" id="adminRoleChoice" hidden>
                 <div class="admin-role-choice-title">ВЫБЕРИТЕ ТЕСТОВЫЙ СЦЕНАРИЙ</div>
                 <div class="admin-role-choice-buttons">
-                  <button class="admin-role-btn" type="button" data-role="staff">ПЕРСОНАЛ</button>
-                  <button class="admin-role-btn danger" type="button" data-role="liquidator">ЛИКВИДАТОР</button>
-                  <button class="admin-role-btn exile" type="button" data-role="exile">ИЗГНАНИЕ</button>
+                  <button class="admin-role-btn" type="button" data-role="classic">КЛАССИКА</button>
+                  <button class="admin-role-btn" type="button" data-role="international">МЕЖДУНАРОДНЫЙ</button>
                 </div>
               </div>
               <div class="admin-sandbox-status" id="adminSandboxStatus" aria-live="polite"></div>
@@ -5319,7 +5369,8 @@
     <div class="discussion-chat-boot" id="discussionChatBoot" aria-hidden="true" hidden></div>
     <header class="discussion-chat-header">
       <div class="discussion-chat-heading">
-        <div class="discussion-chat-title">ВНУТРЕННЯЯ СВЯЗЬ&nbsp;&nbsp;·&nbsp;&nbsp;СТАНЦИЯ «<span id="discussionChatStation">АСТРАЛ-1</span>»</div>
+        <div class="discussion-chat-title"><span id="discussionChatTitlePrefix">ВНУТРЕННЯЯ СВЯЗЬ</span>&nbsp;&nbsp;·&nbsp;&nbsp;СТАНЦИЯ «<span id="discussionChatStation">АСТРАЛ-1</span>»</div>
+        <div class="international-mode-badge" id="internationalModeBadge" hidden>РЕЖИМ: МЕЖДУНАРОДНЫЙ</div>
         <div class="discussion-chat-timer" id="discussionChatTimer" role="timer" aria-live="off" hidden><span class="discussion-chat-timer-label">ДИСКУССИЯ&nbsp;//&nbsp;</span><span id="discussionChatTimerValue">02:00</span></div>
       </div>
       <div class="discussion-chat-status">
@@ -5340,6 +5391,11 @@
       <input class="discussion-chat-input" id="discussionChatInput" type="text" maxlength="500" autocomplete="off" placeholder="ВВОД СООБЩЕНИЯ…" aria-label="Сообщение для экипажа">
       <button class="discussion-chat-send" id="discussionChatSend" type="submit" aria-label="Отправить сообщение">➤</button>
     </form>
+    <section class="international-controls" id="internationalControls" aria-label="Сигналы собрания" hidden>
+      <div class="international-control-head"><span id="internationalControlTitle">ВЫБЕРИТЕ ДЕЙСТВИЕ</span><span id="internationalControlHint"></span></div>
+      <div class="international-control-body" id="internationalControlBody"></div>
+      <div class="international-control-footer" id="internationalControlFooter"></div>
+    </section>
   </div>
 </section>
 
@@ -5360,6 +5416,7 @@
   </div>
 </section>
 
+<script src="international_signal_catalog.js"></script>
 <script>
   // =========================================================
   //  DEVICE / PLATFORM DETECTION
@@ -6610,6 +6667,8 @@
   const discussionIntroReasonText = document.getElementById('discussionIntroReasonText');
   const discussionChat = document.getElementById('discussionChat');
   const discussionChatBoot = document.getElementById('discussionChatBoot');
+  const discussionChatTitlePrefix = document.getElementById('discussionChatTitlePrefix');
+  const internationalModeBadge = document.getElementById('internationalModeBadge');
   const discussionChatStation = document.getElementById('discussionChatStation');
   const discussionChatChannel = document.getElementById('discussionChatChannel');
   const discussionChatTimer = document.getElementById('discussionChatTimer');
@@ -6621,6 +6680,11 @@
   const discussionChatForm = document.getElementById('discussionChatForm');
   const discussionChatInput = document.getElementById('discussionChatInput');
   const discussionChatSend = document.getElementById('discussionChatSend');
+  const internationalControls = document.getElementById('internationalControls');
+  const internationalControlTitle = document.getElementById('internationalControlTitle');
+  const internationalControlHint = document.getElementById('internationalControlHint');
+  const internationalControlBody = document.getElementById('internationalControlBody');
+  const internationalControlFooter = document.getElementById('internationalControlFooter');
   const crewVote = document.getElementById('crewVote');
   const crewVoteNotice = document.getElementById('crewVoteNotice');
   const crewVoteList = document.getElementById('crewVoteList');
@@ -6669,6 +6733,9 @@
   let discussionSequenceToken = 0;
   let discussionChatSending = false;
   let discussionChatRenderedSignature = '';
+  let signalDraft = {step:'action',action:null,sub:null,player1:null,player2:null,location:null,phrase:'',variant:null,error:''};
+  let signalPreviewToken = 0;
+  let signalSending = false;
   let discussionTimerInterval = null;
   let discussionTimerStartedAt = 0;
   let discussionTimerDeadlineMs = 0;
@@ -6803,7 +6870,7 @@
       return {id:-(index + 1),name:name,color:botColors[index][0],color_emoji:botColors[index][1],is_bot:true,room_id:'central_hub',doing_task:index === 0,role:'staff',alive:true};
     });
     offlineGameSession = {
-      status:'active', server_time:Date.now() / 1000, game_id:'demo-admin', station:'АСТРАЛ-1', session_type:'admin_sandbox',
+      status:'active', server_time:Date.now() / 1000, game_id:'demo-admin', station:'АСТРАЛ-1', session_type:'admin_sandbox', mode:'classic',
       player:{
         id:0,name:(currentProfile && currentProfile.name) || 'ОПЕРАТОР',color:'Красный',color_emoji:'🟥',role:'staff',room_id:'central_hub',view_state:'main',camera_target:null,pending_target:null,alive:true,isolated:false,
         tasks:[
@@ -6829,6 +6896,40 @@
       neighbors:roomMap.central_hub.exits.slice(), camera_rooms:DEFAULT_SECURITY_CAMERA_ROOMS.slice(), rooms:Object.values(roomMap)
     };
     return offlineGameSession;
+  }
+
+  function offlineSignalCatalog(demo){
+    const source = window.OFFLINE_SIGNAL_CATALOG || {actions:[],subchoices:[]};
+    return {
+      actions:source.actions,subchoices:source.subchoices,
+      players:[demo.player].concat(demo.static_crew).map(function(member){
+        return {id:member.id,name:member.name,color:member.color,color_emoji:member.color_emoji,alive:member.alive,corpse:!member.alive};
+      }),
+      rooms:demo.rooms.map(function(room){
+        const lastId = demo._roomLastSeen && demo._roomLastSeen[room.id];
+        const member = [demo.player].concat(demo.static_crew).find(function(entry){ return entry.id === lastId; });
+        return {id:room.id,name:room.name,sector:offlineSectorForRoom(room.id),last_seen:member ? {id:member.id,name:member.name,color:member.color} : null};
+      })
+    };
+  }
+
+  function offlineSignalPhrase(demo,payload){
+    const catalog = offlineSignalCatalog(demo);
+    const sub = catalog.subchoices.find(function(entry){ return entry.id === payload.sub_id; });
+    if (!sub) return null;
+    const first = catalog.players.find(function(entry){ return entry.id === payload.player1; });
+    const second = catalog.players.find(function(entry){ return entry.id === payload.player2; });
+    const room = catalog.rooms.find(function(entry){ return entry.id === payload.location; });
+    let phrase = String(sub.label || '');
+    [first,second].forEach(function(member){ if (member) phrase = phrase.replace('👤',member.name); });
+    if (sub.id === 'f9') phrase = 'Я раньше видел ' + (first && first.name || 'игрока') + ' в ' + (room && room.name || 'комнате') + '.';
+    else if (sub.id === 'f10') phrase = 'Я изменил мнение о ' + (first && first.name || 'игроке') + '.';
+    else {
+      phrase = phrase.replaceAll('👤','игрока');
+      if (room) phrase += ' В ' + room.name + '.';
+      else if (!/[.!?]$/.test(phrase)) phrase += '.';
+    }
+    return phrase;
   }
 
   function updateOfflineSabotage(demo){
@@ -7009,6 +7110,7 @@
       }
       if (path === '/api/game/admin-solo/start') {
         const selectedRole = payload && payload.role;
+        demo.mode = selectedRole === 'international' ? 'international' : 'classic';
         demo.player.role = selectedRole === 'liquidator' ? 'liquidator' : 'staff';
         demo.player.room_id = 'central_hub';
         demo.player.view_state = 'main';
@@ -7033,6 +7135,7 @@
         demo.voting = null;
         demo.vote_result = null;
         demo._discussionNextMessageId = 1;
+        demo._roomLastSeen = {central_hub:demo.player.id};
         demo._pendingWebEvents = [];
         demo._costumeNumbers = {};
         demo._tasksReminderSent = false;
@@ -7048,7 +7151,7 @@
         demo._killCooldownEnd = selectedRole === 'liquidator' ? now + 30000 : now;
         delete demo.kill_event;
         demo.liquidator_ui.kill_cooldown_seconds = selectedRole === 'liquidator' ? 30 : 0;
-        if (selectedRole === 'staff' || selectedRole === 'witness' || selectedRole === 'exile') demo.static_crew[0].role = 'liquidator';
+        if (['staff','classic','international','witness','exile'].includes(selectedRole)) demo.static_crew[0].role = 'liquidator';
         if (selectedRole === 'witness') {
           const killer = demo.static_crew[0];
           const victim = demo.static_crew[1];
@@ -7085,12 +7188,25 @@
         demo.room_ui = {tasks_available:true,tasks_blocked:false,action:'emergency'};
       }
       if (path === '/api/game/discussion/send') {
+        if (demo.mode === 'international') return {ok:false,status:409,data:{error:'signals_only'}};
         const messageText = String(payload && payload.text || '').trim();
         if (!demo.discussion || !demo.discussion.active) return {ok:false,status:409,data:{error:'discussion_unavailable'}};
         if (!messageText) return {ok:false,status:400,data:{error:'empty_message'}};
         if (messageText.length > 500) return {ok:false,status:400,data:{error:'message_too_long'}};
         demo.discussion.messages.push({
           id:demo._discussionNextMessageId++,text:messageText,sent_at:Date.now() / 1000,
+          sender:{id:demo.player.id,name:demo.player.name,color:demo.player.color,color_emoji:demo.player.color_emoji}
+        });
+      }
+      if (path === '/api/game/signal/preview' || path === '/api/game/signal/send') {
+        if (demo.mode !== 'international' || !demo.discussion || !demo.discussion.active || !demo.discussion.chat_all_ready) {
+          return {ok:false,status:409,data:{error:'signals_unavailable'}};
+        }
+        const phrase = offlineSignalPhrase(demo,payload || {});
+        if (!phrase) return {ok:false,status:400,data:{error:'bad_signal'}};
+        if (path.endsWith('/preview')) return {ok:true,status:200,data:{phrase:phrase,variant:0}};
+        demo.discussion.messages.push({
+          id:demo._discussionNextMessageId++,text:phrase,sent_at:Date.now() / 1000,
           sender:{id:demo.player.id,name:demo.player.name,color:demo.player.color,color_emoji:demo.player.color_emoji}
         });
       }
@@ -7187,6 +7303,7 @@
         await delay(900);
         const from = demo.player.room_id;
         demo.player.room_id = target;
+        if (demo.mode === 'international') demo._roomLastSeen[target] = demo.player.id;
         demo.player.view_state = 'main';
         demo.player.pending_target = null;
         demo.player.isolated = offlineRoomIsolated(demo,target);
@@ -7290,6 +7407,7 @@
         };
       }
       updateOfflineSabotage(demo);
+      if (demo.discussion) demo.discussion.signals = demo.mode === 'international' && demo.discussion.active ? offlineSignalCatalog(demo) : null;
       deliverOfflineWebEvents(demo);
       demo.server_time = Date.now() / 1000;
       return {ok:true,status:200,data:demo};
@@ -8333,6 +8451,12 @@
     if (code === 'meeting_cooldown') return 'ПРОТОКОЛ СОБРАНИЯ ЕЩЁ НЕ ГОТОВ К ПОВТОРНОМУ ЗАПУСКУ.';
     if (code === 'corpse_unavailable') return 'ТЕЛО БОЛЬШЕ НЕДОСТУПНО ДЛЯ ОБЪЯВЛЕНИЯ.';
     if (code === 'sector_isolated') return 'СВЯЗЬ С СОБРАНИЕМ ЗАБЛОКИРОВАНА ИЗОЛЯЦИЕЙ ОТСЕКА.';
+    if (code === 'signals_only') return 'В МЕЖДУНАРОДНОМ РЕЖИМЕ ДОСТУПНЫ ТОЛЬКО СИГНАЛЫ.';
+    if (code === 'signals_unavailable') return 'СИГНАЛЫ СЕЙЧАС НЕДОСТУПНЫ.';
+    if (code === 'signal_incomplete' || code === 'missing_player') return 'ВЫБЕРИТЕ ВСЕ ОБЯЗАТЕЛЬНЫЕ ПОЛЯ СИГНАЛА.';
+    if (code === 'bad_signal') return 'НЕИЗВЕСТНЫЙ СИГНАЛ.';
+    if (code === 'bad_player') return 'ЭТОГО ИГРОКА НЕЛЬЗЯ ВЫБРАТЬ.';
+    if (code === 'bad_location') return 'ЭТА ЛОКАЦИЯ НЕДОСТУПНА.';
     if (result && result.status === 401) return 'СЕАНС TELEGRAM УСТАРЕЛ. ПЕРЕОТКРОЙТЕ MINI APP.';
     return 'НЕТ СВЯЗИ С ДИСПЕТЧЕРСКОЙ. ПОПРОБУЙТЕ ЕЩЁ РАЗ.';
   }
@@ -8388,13 +8512,199 @@
     }
   }
 
+  const SIGNAL_COLORS = {q:'#79caff',p:'#84e4a0',a:'#f17799',f:'#e5b84d'};
+  const SIGNAL_SECTOR_COLORS = {living:'#77caff',science:'#8ae2a4',security:'#ec8392',cargo:'#d4b86c'};
+  function signalCatalog(){ return gameStateData && gameStateData.discussion && gameStateData.discussion.signals || null; }
+  function signalSub(){
+    const catalog = signalCatalog();
+    return catalog && catalog.subchoices.find(function(item){ return item.id === signalDraft.sub; });
+  }
+  function signalPayload(){
+    return {sub_id:signalDraft.sub,player1:signalDraft.player1,player2:signalDraft.player2,location:signalDraft.location,variant:signalDraft.variant};
+  }
+  function signalButton(label,callback,className){
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = className || 'international-option';
+    button.textContent = label;
+    button.addEventListener('click',callback);
+    return button;
+  }
+  function signalNextAfter(slot){
+    const sub = signalSub();
+    if (!sub) return;
+    if (slot === 'sub' && sub.needs_player1) { signalDraft.step = 'player1'; renderInternationalControls(); return; }
+    if ((slot === 'sub' || slot === 'player1') && sub.needs_player2) { signalDraft.step = 'player2'; renderInternationalControls(); return; }
+    if (sub.location && sub.location !== 'none') { signalDraft.step = 'location'; renderInternationalControls(); return; }
+    signalPreview();
+  }
+  function signalBack(){
+    const sub = signalSub();
+    const step = signalDraft.step;
+    signalPreviewToken++;
+    if (step === 'sub') signalDraft.step = 'action';
+    else if (step === 'player1') signalDraft.step = 'sub';
+    else if (step === 'player2') signalDraft.step = 'player1';
+    else if (step === 'location') signalDraft.step = sub && sub.needs_player2 ? 'player2' : sub && sub.needs_player1 ? 'player1' : 'sub';
+    else if (step === 'confirm') signalDraft.step = sub && sub.location && sub.location !== 'none' ? 'location' : sub && sub.needs_player2 ? 'player2' : sub && sub.needs_player1 ? 'player1' : 'sub';
+    signalDraft.error = '';
+    renderInternationalControls();
+  }
+  async function signalPreview(){
+    const token = ++signalPreviewToken;
+    signalDraft.step = 'confirm';
+    signalDraft.phrase = '';
+    signalDraft.error = '';
+    renderInternationalControls();
+    const result = await gameApiRequest('/api/game/signal/preview','POST',signalPayload());
+    if (token !== signalPreviewToken || signalDraft.step !== 'confirm') return;
+    if (result.ok) {
+      signalDraft.phrase = String(result.data.phrase || '');
+      signalDraft.variant = result.data.variant;
+    } else signalDraft.error = gameErrorText(result);
+    renderInternationalControls();
+  }
+  async function signalSend(){
+    if (signalSending || !signalDraft.phrase) return;
+    signalSending = true;
+    renderInternationalControls();
+    const result = await gameApiRequest('/api/game/signal/send','POST',signalPayload());
+    signalSending = false;
+    if (!result.ok) {
+      signalDraft.error = gameErrorText(result);
+      renderInternationalControls();
+      return;
+    }
+    gameStateData = result.data;
+    signalDraft = {step:'action',action:null,sub:null,player1:null,player2:null,location:null,phrase:'',variant:null,error:''};
+    renderDiscussionChat(true);
+    renderInternationalControls();
+  }
+  function renderInternationalControls(){
+    const catalog = signalCatalog();
+    const available = gameStateData && gameStateData.mode === 'international' && catalog && discussionSystemIntroComplete && !discussionSystemIntroRunning;
+    internationalControls.hidden = !available;
+    if (!available) return;
+    const step = signalDraft.step;
+    const sub = signalSub();
+    internationalControls.className = 'international-controls step-' + step;
+    internationalControls.style.setProperty('--signal-accent',SIGNAL_COLORS[signalDraft.action] || '#7dedae');
+    internationalControlBody.replaceChildren();
+    internationalControlFooter.replaceChildren();
+    const titles = {action:'ВЫБЕРИТЕ ДЕЙСТВИЕ',sub:'ВЫБЕРИТЕ ФРАЗУ',player1:'ВЫБЕРИТЕ ИГРОКА',player2:'ВЫБЕРИТЕ ВТОРОГО ИГРОКА',location:'ВЫБЕРИТЕ ЛОКАЦИЮ',confirm:'ПРЕДПРОСМОТР'};
+    internationalControlTitle.textContent = (signalDraft.action ? '× ' + ({q:'ВОПРОСЫ',p:'ЗАЩИТА',a:'ОБВИНЕНИЯ',f:'ФАКТЫ'}[signalDraft.action] || '') : titles[step]);
+    internationalControlHint.textContent = step === 'action' ? '' : titles[step];
+    if (step === 'action') {
+      const grid = document.createElement('div');
+      grid.className = 'international-action-grid';
+      catalog.actions.forEach(function(action){
+        const button = signalButton(action.label,function(){
+          signalDraft = {step:'sub',action:action.id,sub:null,player1:null,player2:null,location:null,phrase:'',variant:null,error:''};
+          renderInternationalControls();
+        });
+        button.style.setProperty('--signal-accent',SIGNAL_COLORS[action.id] || '#7dedae');
+        grid.appendChild(button);
+      });
+      internationalControlBody.appendChild(grid);
+    } else if (step === 'sub') {
+      catalog.subchoices.filter(function(item){ return item.action === signalDraft.action; }).forEach(function(item,index){
+        const button = signalButton('',function(){
+          signalDraft.sub = item.id;
+          signalDraft.player1 = null; signalDraft.player2 = null; signalDraft.location = null; signalDraft.variant = null;
+          signalNextAfter('sub');
+        });
+        const number = document.createElement('span');
+        number.className = 'international-option-number';
+        number.textContent = String(index + 1).padStart(2,'0');
+        const label = document.createElement('span');
+        label.textContent = item.label;
+        button.append(number,label);
+        internationalControlBody.appendChild(button);
+      });
+    } else if (step === 'player1' || step === 'player2') {
+      const second = step === 'player2';
+      const players = catalog.players.filter(function(member){
+        if (second && member.id === signalDraft.player1) return false;
+        if (second && member.id === gameStateData.player.id) return false;
+        const corpseOnly = second ? sub.player2_corpse_only : sub.player1_corpse_only;
+        if (corpseOnly) return member.corpse;
+        if (!member.alive) return false;
+        return second || sub.player1_self_allowed || member.id !== gameStateData.player.id;
+      });
+      players.forEach(function(member){
+        const button = signalButton('',function(){
+          signalDraft[second ? 'player2' : 'player1'] = member.id;
+          signalNextAfter(step);
+        });
+        const avatar = document.createElement('span');
+        avatar.className = 'international-option-avatar';
+        avatar.style.setProperty('--member-color',gameColorHex(member.color));
+        avatar.textContent = String(member.name || '?').charAt(0).toUpperCase();
+        const label = document.createElement('span');
+        label.textContent = String(member.name || 'Неизвестный').toUpperCase();
+        button.append(avatar,label);
+        internationalControlBody.appendChild(button);
+      });
+      if (!players.length) {
+        const empty = document.createElement('div');
+        empty.className = 'international-error';
+        empty.textContent = 'ПОДХОДЯЩИХ ИГРОКОВ НЕТ.';
+        internationalControlBody.appendChild(empty);
+      }
+      if (second && sub.player2_required === false) internationalControlFooter.appendChild(signalButton('ПРОПУСТИТЬ ВТОРОГО ИГРОКА',function(){ signalDraft.player2 = null; signalNextAfter('player2'); },'international-skip'));
+    } else if (step === 'location') {
+      catalog.rooms.forEach(function(room){
+        const button = signalButton('',function(){ signalDraft.location = room.id; signalPreview(); },'international-option room');
+        const sectorColor = SIGNAL_SECTOR_COLORS[room.sector] || '#a6b6ac';
+        button.style.setProperty('--room-color',sectorColor);
+        const name = document.createElement('span');
+        name.textContent = room.name;
+        button.appendChild(name);
+        if (room.last_seen && room.last_seen.name) {
+          const last = document.createElement('span');
+          last.className = 'international-room-last';
+          last.textContent = '(' + room.last_seen.name + ' был здесь в последний раз)';
+          button.appendChild(last);
+        }
+        internationalControlBody.appendChild(button);
+      });
+      if (sub.location === 'optional' && !(sub.location_required_if_no_player2 && signalDraft.player2 == null)) {
+        internationalControlFooter.appendChild(signalButton('ПРОПУСТИТЬ ЛОКАЦИЮ',function(){ signalDraft.location = null; signalPreview(); },'international-skip'));
+      }
+    } else if (step === 'confirm') {
+      const label = document.createElement('div');
+      label.className = 'international-preview-label';
+      label.textContent = 'ВАША РЕПЛИКА';
+      const preview = document.createElement('div');
+      preview.className = 'international-preview';
+      preview.textContent = signalDraft.phrase || 'ФОРМИРОВАНИЕ СИГНАЛА...';
+      internationalControlBody.append(label,preview);
+      if (signalDraft.error) {
+        const error = document.createElement('div');
+        error.className = 'international-error';
+        error.textContent = signalDraft.error;
+        internationalControlBody.appendChild(error);
+      }
+      const send = signalButton('ОТПРАВИТЬ',signalSend,'international-send');
+      send.disabled = !signalDraft.phrase || signalSending;
+      internationalControlFooter.appendChild(send);
+    }
+    if (step !== 'action') internationalControlFooter.appendChild(signalButton('‹ НАЗАД',signalBack,'international-back'));
+  }
+
   function renderDiscussionChat(force){
     const discussion = gameStateData && gameStateData.discussion;
     if (!discussion || !discussion.active) return;
+    const international = gameStateData.mode === 'international';
     const messages = Array.isArray(discussion.messages) ? discussion.messages : [];
     const signature = messages.map(function(message){ return message.id + ':' + message.text; }).join('|');
     discussionChatStation.textContent = String(gameStateData.station || 'АСТРАЛ-1').toUpperCase();
-    discussionChatChannel.textContent = 'КАНАЛ ОБСУЖДЕНИЯ · ' + Number(discussion.participant_count || 0) + ' УЧАСТН.';
+    discussionChatTitlePrefix.textContent = international ? 'ТРАНСКРИБАЦИЯ СОБРАНИЯ' : 'ВНУТРЕННЯЯ СВЯЗЬ';
+    internationalModeBadge.hidden = !international;
+    discussionChatChannel.textContent = international
+      ? 'КАНАЛ МГД' + String(discussion.day || 1).padStart(4,'0') + ' ОТКРЫТ'
+      : 'КАНАЛ ОБСУЖДЕНИЯ · ' + Number(discussion.participant_count || 0) + ' УЧАСТН.';
+    discussionChat.classList.toggle('international',international);
     if (!force && signature === discussionChatRenderedSignature) return;
 
     const wasNearBottom = discussionChatMessages.scrollHeight - discussionChatMessages.scrollTop - discussionChatMessages.clientHeight < 80;
@@ -8427,7 +8737,8 @@
         const time = document.createElement('time');
         time.className = 'discussion-chat-time';
         time.textContent = discussionMessageTime(message.sent_at);
-        meta.append(name,color,sequence,time);
+        if (international) meta.append(name,sequence,time);
+        else meta.append(name,color,sequence,time);
 
         const body = document.createElement('div');
         body.className = 'discussion-chat-message-text';
@@ -8446,10 +8757,13 @@
     discussionChat.hidden = false;
     renderDiscussionChat(wasHidden);
     const inputAvailable = discussionSystemIntroComplete && !discussionSystemIntroRunning;
-    discussionChatInput.disabled = !inputAvailable;
-    discussionChatSend.disabled = !inputAvailable;
+    const international = gameStateData.mode === 'international';
+    discussionChatForm.hidden = international;
+    discussionChatInput.disabled = !inputAvailable || international;
+    discussionChatSend.disabled = !inputAvailable || international;
+    renderInternationalControls();
     if (inputAvailable) startDiscussionTimer();
-    if (wasHidden && inputAvailable) requestAnimationFrame(function(){ discussionChatInput.focus(); });
+    if (wasHidden && inputAvailable && !international) requestAnimationFrame(function(){ discussionChatInput.focus(); });
   }
 
   function closeDiscussionChat(){
@@ -8458,6 +8772,11 @@
     gameScreen.classList.remove('discussion-locked');
     gameScreen.inert = false;
     discussionChat.hidden = true;
+    discussionChat.classList.remove('international');
+    discussionChatForm.hidden = false;
+    internationalControls.hidden = true;
+    signalPreviewToken++;
+    signalDraft = {step:'action',action:null,sub:null,player1:null,player2:null,location:null,phrase:'',variant:null,error:''};
     discussionChatBoot.hidden = true;
     discussionChatBoot.replaceChildren();
     discussionChatRenderedSignature = '';
@@ -8601,12 +8920,14 @@
     loadingLine.remove();
     discussionSystemIntroRunning = false;
     discussionSystemIntroComplete = true;
+    if (gameStateData && gameStateData.mode === 'international') discussionChatSystem.replaceChildren();
     discussionChatCaret.hidden = false;
-    discussionChatInput.disabled = false;
-    discussionChatSend.disabled = false;
+    discussionChatInput.disabled = gameStateData && gameStateData.mode === 'international';
+    discussionChatSend.disabled = gameStateData && gameStateData.mode === 'international';
     startDiscussionTimer();
     discussionChatMessages.scrollTop = discussionChatMessages.scrollHeight;
-    discussionChatInput.focus();
+    renderInternationalControls();
+    if (!gameStateData || gameStateData.mode !== 'international') discussionChatInput.focus();
   }
 
   async function revealDiscussionChatAfterIntro(_variant,sequenceToken){
@@ -8637,6 +8958,7 @@
 
   discussionChatForm.addEventListener('submit',async function(event){
     event.preventDefault();
+    if (gameStateData && gameStateData.mode === 'international') return;
     if (discussionChatSending) return;
     const text = discussionChatInput.value.trim();
     if (!text) return;
