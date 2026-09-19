@@ -2442,14 +2442,18 @@
   .crew-vote-footer{ padding-top:16px; border-top:1px solid #263029; }
   .crew-vote-confirm{ width:100%; height:44px; border:1px solid #79eba9; background:transparent; color:#83efb1; cursor:pointer; font:13px 'IBM VGA 8x16','Courier New',monospace; letter-spacing:.22em; }
   .crew-vote-confirm:disabled{ border-color:#34443a; color:#65796a; cursor:default; }
-  .crew-vote-notice{ position:fixed; inset:0; z-index:1201; display:grid; place-items:center; padding:24px; background:#050706; color:#dbe5dd; text-align:center; font:clamp(18px,3vw,30px)/1.4 'IBM VGA 8x16','Courier New',monospace; }
-  .crew-vote-result{ z-index:1202; background:#000; display:grid; place-items:center; padding:24px; box-sizing:border-box; }
-  .crew-vote-result-copy{ position:relative; z-index:1; max-width:850px; text-align:center; font-size:clamp(18px,2.7vw,29px); line-height:1.5; letter-spacing:.05em; }
+  .crew-vote-notice{ position:fixed; inset:0; z-index:1201; display:grid; place-items:center; padding:24px; background:#050706; color:#dbe5dd; text-align:center; font:clamp(18px,3vw,30px)/1.4 'IBM VGA 8x16','Courier New',monospace; opacity:0; transition:opacity .65s ease; }
+  .crew-vote-notice.shown{ opacity:1; }
+  .crew-vote-result{ z-index:1202; background:#000; display:grid; place-items:center; padding:24px; box-sizing:border-box; opacity:1; transition:opacity 1s ease; }
+  .crew-vote-result.leaving{ opacity:0; }
+  .crew-vote-result-copy{ position:relative; z-index:1; max-width:850px; text-align:center; font-size:clamp(18px,2.7vw,29px); line-height:1.5; letter-spacing:.05em; opacity:0; transform:translateY(10px); transition:opacity .85s ease,transform .85s ease; }
+  .crew-vote-result.revealed .crew-vote-result-copy{ opacity:1; transform:translateY(0); }
   .crew-vote-result-copy p{ margin:0 0 24px; }
   .crew-vote-result-member{ font-weight:bold; }
   .crew-vote-result-role{ font-size:clamp(34px,6vw,70px); font-weight:bold; }
   .crew-vote-result-role.staff{ color:#8ad9ff; }.crew-vote-result-role.liquidator{ color:#ff747e; }
-  .crew-vote-result-emblem{ position:absolute; top:50%; left:50%; width:min(80vw,680px); height:min(80vh,680px); transform:translate(-50%,-50%); opacity:.24; color:#8ad9ff; pointer-events:none; }
+  .crew-vote-result-emblem{ position:absolute; top:50%; left:50%; width:min(80vw,680px); height:min(80vh,680px); transform:translate(-50%,-50%); opacity:0; color:#8ad9ff; pointer-events:none; transition:opacity .85s ease; }
+  .crew-vote-result.revealed .crew-vote-result-emblem{ opacity:.24; }
   .crew-vote-result-emblem.liquidator{ color:#ff747e; }
   .crew-vote-result-emblem svg{ width:100%; height:100%; display:none; overflow:visible; }
   .crew-vote-result-emblem.staff .role-reveal-emblem-svg--staff, .crew-vote-result-emblem.liquidator .role-reveal-emblem-svg--liquidator{ display:block; }
@@ -2646,7 +2650,7 @@
     font:700 1.5cqw/1 'IBM VGA 8x16',monospace; letter-spacing:.06em;
   }
   .admin-role-btn.danger{ border-color:rgba(190,91,91,.72); background:rgba(128,42,42,.18); color:#dc9696; }
-  .admin-role-btn.discussion{ border-color:rgba(212,180,58,.72); background:rgba(113,88,22,.18); color:#e5cb72; }
+  .admin-role-btn.exile{ border-color:rgba(212,180,58,.72); background:rgba(113,88,22,.18); color:#e5cb72; }
   .admin-role-btn:hover{ filter:brightness(1.18); }
   .admin-role-btn:disabled{ opacity:.45; cursor:wait; }
   .admin-sandbox-status{ min-height:1.4em; margin-top:1cqw; color:var(--scr-text-dim); font-size:1.4cqw; }
@@ -3894,15 +3898,14 @@
             <div class="profile-section-label">АДМИНИСТРАТОР</div>
             <div class="admin-sandbox-card">
               <div class="admin-sandbox-kicker">ТЕСТОВАЯ СМЕНА // DEV</div>
-              <p class="admin-sandbox-copy">Открыть «Астрал-1» с 11 неподвижными ботами в Центральном узле. Перед запуском можно выбрать роль или сценарий интро.</p>
+              <p class="admin-sandbox-copy">Открыть «Астрал-1» с 11 неподвижными ботами в Центральном узле. Перед запуском можно выбрать роль или сцену изгнания.</p>
               <button class="admin-sandbox-btn" id="adminSandboxStart" type="button">▸ НАЧАТЬ В ПОЛНОМ ОДИНОЧЕСТВЕ</button>
               <div class="admin-role-choice" id="adminRoleChoice" hidden>
                 <div class="admin-role-choice-title">ВЫБЕРИТЕ ТЕСТОВЫЙ СЦЕНАРИЙ</div>
                 <div class="admin-role-choice-buttons">
                   <button class="admin-role-btn" type="button" data-role="staff">ПЕРСОНАЛ</button>
                   <button class="admin-role-btn danger" type="button" data-role="liquidator">ЛИКВИДАТОР</button>
-                  <button class="admin-role-btn discussion" type="button" data-role="discussion1">ДИСКУССИЯ1</button>
-                  <button class="admin-role-btn discussion" type="button" data-role="discussion2">ДИСКУССИЯ2</button>
+                  <button class="admin-role-btn exile" type="button" data-role="exile">ИЗГНАНИЕ</button>
                 </div>
               </div>
               <div class="admin-sandbox-status" id="adminSandboxStatus" aria-live="polite"></div>
@@ -7035,7 +7038,7 @@
         demo._killCooldownEnd = selectedRole === 'liquidator' ? now + 30000 : now;
         delete demo.kill_event;
         demo.liquidator_ui.kill_cooldown_seconds = selectedRole === 'liquidator' ? 30 : 0;
-        if (selectedRole === 'staff' || selectedRole === 'witness') demo.static_crew[0].role = 'liquidator';
+        if (selectedRole === 'staff' || selectedRole === 'witness' || selectedRole === 'exile') demo.static_crew[0].role = 'liquidator';
         if (selectedRole === 'witness') {
           const killer = demo.static_crew[0];
           const victim = demo.static_crew[1];
@@ -7046,6 +7049,15 @@
             victim_id:victim.id,victim_name:victim.name,victim_color:victim.color,victim_emoji:victim.color_emoji,victim_role:victim.role,
             room_id:'central_hub'
           }];
+        }
+        if (selectedRole === 'exile') {
+          const exiled = demo.static_crew[Math.floor(Math.random() * demo.static_crew.length)];
+          exiled.alive = false;
+          const finishedAt = Date.now() / 1000;
+          demo.vote_result = {
+            meeting_started_at:finishedAt,finished_at:finishedAt,kind:'exiled',
+            exiled:{id:exiled.id,name:exiled.name,color:exiled.color,role:exiled.role}
+          };
         }
         demo.nearby_crew = demo.static_crew.filter(function(bot){ return bot.alive; });
         if (demo.discussion.active) {
@@ -9018,7 +9030,9 @@
     crewVotePending = false;
     crewVote.hidden = true;
     crewVoteNotice.hidden = true;
+    crewVoteNotice.classList.remove('shown');
     crewVoteResult.hidden = true;
+    crewVoteResult.classList.remove('revealed','leaving');
   }
 
   function renderCrewVote(){
@@ -9092,14 +9106,21 @@
       crewVoteStartedAt = startedAt;
       crewVoteSelected = undefined;
       const token = ++crewVoteToken;
+      gameScreen.inert = true;
+      crewVoteNotice.hidden = false;
+      requestAnimationFrame(function(){ crewVoteNotice.classList.add('shown'); });
+      await delay(650);
+      if (token !== crewVoteToken) return;
       closeDiscussionChat();
       closeDiscussionIntro();
       gameScreen.inert = true;
-      crewVoteNotice.hidden = false;
-      await delay(2000);
+      await delay(1350);
       if (token !== crewVoteToken || !gameStateData || !gameStateData.voting.active) return;
-      crewVoteNotice.hidden = true;
       crewVote.hidden = false;
+      crewVoteNotice.classList.remove('shown');
+      await delay(650);
+      if (token !== crewVoteToken) return;
+      crewVoteNotice.hidden = true;
     }
     renderCrewVote();
   }
@@ -9110,10 +9131,12 @@
     const token = ++crewVoteToken;
     crewVote.hidden = true;
     crewVoteNotice.hidden = true;
+    crewVoteNotice.classList.remove('shown');
     closeDiscussionChat();
     closeDiscussionIntro();
     gameScreen.inert = true;
     crewVoteResult.hidden = false;
+    crewVoteResult.classList.remove('revealed','leaving');
     crewVoteResultCopy.replaceChildren();
     crewVoteResultEmblem.replaceChildren();
     crewVoteResultEmblem.className = 'crew-vote-result-emblem';
@@ -9131,6 +9154,11 @@
         : 'Голосование экипажа завершено без определённого результата. Дисциплинарный контур не активирован.';
     }
     crewVoteResultCopy.appendChild(paragraph);
+    await delay(500);
+    if (token !== crewVoteToken) return;
+    crewVoteResult.classList.add('revealed');
+    await delay(850);
+    if (token !== crewVoteToken) return;
     if (result.kind === 'exiled' && result.exiled) {
       await delay(2000);
       if (token !== crewVoteToken) return;
@@ -9151,7 +9179,11 @@
       await delay(4000);
     }
     if (token !== crewVoteToken) return;
+    crewVoteResult.classList.add('leaving');
+    await delay(1000);
+    if (token !== crewVoteToken) return;
     crewVoteResult.hidden = true;
+    crewVoteResult.classList.remove('revealed','leaving');
     gameScreen.inert = false;
     if (gameStateData && gameStateData.player) {
       renderGameMap();
@@ -9221,11 +9253,8 @@
     adminRoleButtons.forEach(function(button){ button.disabled = true; });
     adminSandboxStatus.classList.remove('error');
     adminSandboxStatus.textContent = 'ПОДГОТОВКА ТЕСТОВОЙ СМЕНЫ...';
-    const discussionVariant = role === 'discussion1' || role === 'discussion2' ? role : null;
-    const apiRole = role === 'discussion1' ? 'witness' : (role === 'discussion2' ? 'staff' : role);
     const result = await gameApiRequest('/api/game/admin-solo/start','POST',{
-      role:apiRole,
-      discussion_mode:discussionVariant || ''
+      role:role
     });
     adminSandboxStart.disabled = false;
     adminRoleButtons.forEach(function(button){ button.disabled = false; });
@@ -9239,9 +9268,7 @@
     discussionIntroDay = 0;
     showGame(result.data);
     discussionHandledStartedAt = Number(result.data.discussion && result.data.discussion.started_at) || 0;
-    if (discussionVariant) {
-      beginLiveDiscussionSequence();
-    }
+    if (role === 'exile') handleDiscussionStateChange();
   }
 
   adminSandboxStart.addEventListener('click',function(){
