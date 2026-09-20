@@ -2463,6 +2463,51 @@
   .crew-vote-result-emblem.staff .role-reveal-emblem-svg--staff, .crew-vote-result-emblem.liquidator .role-reveal-emblem-svg--liquidator{ display:block; }
   @media(max-width:700px){ .crew-vote-shell{padding:16px;} .crew-vote-heading{font-size:11px;} .crew-vote-row{min-height:54px;} }
 
+  /* ================= RESPONSIBILITY ================= */
+  .responsibility-screen{ position:fixed; inset:0; z-index:1203; overflow:auto; background:#0d0d0c; color:#e9e0df; font-family:'IBM VGA 8x16','Courier New',monospace; }
+  .responsibility-screen[hidden],.responsibility-modal[hidden]{ display:none; }
+  .responsibility-shell{ width:min(100%,760px); min-height:100dvh; margin:auto; box-sizing:border-box; padding:20px 30px 45px; border-left:1px solid #34201f; border-right:1px solid #34201f; background:repeating-linear-gradient(to bottom,rgba(255,255,255,.018) 0 1px,transparent 1px 4px),linear-gradient(180deg,#1b100f 0%,#100d0c 70%,#291311 100%); }
+  .responsibility-top{ display:flex; justify-content:space-between; gap:12px; color:#80625f; font-size:11px; letter-spacing:.23em; }
+  .responsibility-top span:last-child{ color:#ee7477; white-space:nowrap; }
+  .responsibility-heading{ max-width:660px; margin:22px auto 20px; color:#fff0ef; text-align:center; text-transform:uppercase; font-size:clamp(23px,3vw,33px); line-height:1.2; letter-spacing:.13em; }
+  .responsibility-clock{ color:#ff676d; text-align:center; font-size:clamp(40px,5vw,52px); letter-spacing:.17em; font-variant-numeric:tabular-nums; }
+  .responsibility-subtitle{ margin:4px 0 18px; color:#8b6e6b; text-align:center; font-size:11px; letter-spacing:.29em; }
+  .responsibility-copy{ margin:0 10px 20px; text-align:center; color:#c9bab8; font-size:14px; line-height:1.55; letter-spacing:.025em; }
+  .responsibility-member-inline{ color:var(--member-color); font-weight:bold; }
+  .responsibility-member-inline::before{ content:''; display:inline-block; width:.65em; height:.65em; margin-right:.35em; border:1px solid currentColor; background:currentColor; vertical-align:.02em; }
+  .responsibility-member-inline.dark{ -webkit-text-stroke:.5px #abb5b5; }
+  .responsibility-row{ margin:0 0 14px; border:1px solid #9a4142; background:rgba(9,8,8,.46); }
+  .responsibility-row.used{ border-color:#51312f; opacity:.65; }
+  .responsibility-member{ min-height:60px; box-sizing:border-box; padding:12px 16px; display:flex; align-items:center; gap:12px; }
+  .responsibility-avatar{ width:32px; height:32px; flex:0 0 32px; display:grid; place-items:center; border:1px solid var(--member-color); color:var(--member-color); }
+  .responsibility-name{ min-width:0; overflow-wrap:anywhere; color:var(--member-color); font-size:15px; }
+  .responsibility-name.dark{ -webkit-text-stroke:.5px #abb5b5; }
+  .responsibility-color-text{ margin-left:auto; color:#927a77; font-size:11px; }
+  .responsibility-state{ color:#927a77; font-size:10px; letter-spacing:.12em; }
+  .responsibility-actions{ display:grid; grid-template-columns:1fr 1fr; border-top:1px solid #35201e; }
+  .responsibility-actions button{ min-height:40px; border:0; background:transparent; color:#d8ad62; cursor:pointer; font:13px 'IBM VGA 8x16','Courier New',monospace; letter-spacing:.18em; }
+  .responsibility-actions button:last-child{ background:rgba(137,35,39,.42); color:#f0d9d8; }
+  .responsibility-actions button:disabled{ color:#695653; background:transparent; cursor:default; }
+  .responsibility-actions button:not(:disabled):hover{ filter:brightness(1.3); }
+  .responsibility-footnote{ margin:30px 0 0; color:#77615e; text-align:center; text-transform:uppercase; font-size:12px; letter-spacing:.09em; }
+  .responsibility-error{ min-height:1.3em; margin-top:12px; color:#ff8589; text-align:center; font-size:12px; }
+  .responsibility-modal{ position:fixed; inset:0; z-index:1204; display:grid; place-items:center; box-sizing:border-box; padding:22px; background:rgba(0,0,0,.82); backdrop-filter:blur(3px); font-family:'IBM VGA 8x16','Courier New',monospace; }
+  .responsibility-dialog{ width:min(100%,620px); border:1px solid #66413d; background:#171211; color:#d6cecc; box-shadow:0 20px 70px #000; }
+  .responsibility-dialog-head{ display:flex; justify-content:space-between; gap:10px; padding:17px 20px; border-bottom:1px solid #3d2926; font-size:13px; letter-spacing:.16em; }
+  .responsibility-dialog-person{ color:var(--member-color); }
+  .responsibility-dialog-head time{ color:#ff777b; white-space:nowrap; }
+  .responsibility-dialog-body{ padding:16px 20px 22px; }
+  .responsibility-dialog-note{ margin:0 0 16px; color:#8d7772; font-size:11px; line-height:1.45; letter-spacing:.12em; }
+  .responsibility-dialog-label{ margin:0 0 7px; color:#a9dbb2; font-size:11px; letter-spacing:.15em; }
+  .responsibility-dialog-message{ margin:0 0 16px; padding-left:12px; border-left:2px solid #7fbe91; font-size:15px; line-height:1.45; overflow-wrap:anywhere; }
+  .responsibility-dialog-wait{ color:#bda09d; font-size:12px; letter-spacing:.12em; }
+  .responsibility-form{ display:flex; gap:8px; margin-top:12px; }
+  .responsibility-form[hidden]{ display:none; }
+  .responsibility-form input{ flex:1; min-width:0; padding:10px; border:1px solid #624340; background:#100d0c; color:#eee5e3; font:14px 'IBM VGA 8x16','Courier New',monospace; }
+  .responsibility-form button{ padding:0 15px; border:1px solid #9e655d; background:#40201e; color:#f8ded9; cursor:pointer; font:12px 'IBM VGA 8x16','Courier New',monospace; }
+  .responsibility-dialog-error{ min-height:1em; color:#ff8589; font-size:12px; }
+  @media(max-width:700px){ .responsibility-shell{padding:18px 16px 36px;} .responsibility-top{font-size:9px;} .responsibility-heading{margin-top:34px;} .responsibility-copy{margin-left:0;margin-right:0;} .responsibility-member{padding:10px;} .responsibility-color-text{font-size:9px;} .responsibility-actions button{font-size:11px;} }
+
   /* ================= LIVE DISCUSSION CHAT ================= */
   .discussion-chat{
     position:fixed; inset:0; z-index:1190;
@@ -3944,6 +3989,7 @@
                 <div class="admin-role-choice-buttons">
                   <button class="admin-role-btn" type="button" data-role="classic">КЛАССИКА</button>
                   <button class="admin-role-btn" type="button" data-role="international">МЕЖДУНАРОДНЫЙ</button>
+                  <button class="admin-role-btn" type="button" data-role="responsibility">ОТВЕТСТВЕННОСТЬ</button>
                 </div>
               </div>
               <div class="admin-sandbox-status" id="adminSandboxStatus" aria-live="polite"></div>
@@ -5398,6 +5444,29 @@
     <p class="crew-vote-result-role" id="crewVoteRoleText" hidden></p>
   </div>
 </section>
+<section class="responsibility-screen" id="responsibilityScreen" aria-label="Ответственность" hidden>
+  <div class="responsibility-shell">
+    <div class="responsibility-top"><span>СТАНЦИЯ «<span id="responsibilityStation">АСТРАЛ-1</span>»</span><span>● ОТВЕТСТВЕННОСТЬ</span></div>
+    <h1 class="responsibility-heading" id="responsibilityHeading">Вы - ответственный за жизнь одного из Персонала...</h1>
+    <div class="responsibility-clock" id="responsibilityClock" role="timer">02:00</div>
+    <div class="responsibility-subtitle" id="responsibilitySubtitle">РЕШАЕТЕ ТОЛЬКО ВЫ</div>
+    <p class="responsibility-copy" id="responsibilityCopy"></p>
+    <div id="responsibilityList"></div>
+    <p class="responsibility-footnote">Один допрос на каждого без возможности повторить.</p>
+    <div class="responsibility-error" id="responsibilityError" role="alert"></div>
+  </div>
+</section>
+<div class="responsibility-modal" id="responsibilityModal" hidden>
+  <div class="responsibility-dialog" role="dialog" aria-modal="true" aria-labelledby="responsibilityDialogTitle">
+    <div class="responsibility-dialog-head"><span id="responsibilityDialogTitle">🔒 ЗАКРЫТЫЙ КАНАЛ · ДОПРОС</span><time id="responsibilityModalClock">00:30</time></div>
+    <div class="responsibility-dialog-body">
+      <p class="responsibility-dialog-note">ЭТОТ ОБМЕН НЕ УВИДИТ НИКТО, КРОМЕ ВАС ДВОИХ. ВОПРОС — ОДИН. ОТВЕТ — ОДИН.</p>
+      <div id="responsibilityDialogContent"></div>
+      <form class="responsibility-form" id="responsibilityForm" hidden><input id="responsibilityInput" type="text" maxlength="500" autocomplete="off" aria-label="Сообщение допроса"><button type="submit">ОТПРАВИТЬ</button></form>
+      <div class="responsibility-dialog-error" id="responsibilityDialogError" role="alert"></div>
+    </div>
+  </div>
+</div>
 
 <script src="international_signal_catalog.js"></script>
 <script>
@@ -6677,6 +6746,18 @@
   const crewVoteResultEmblem = document.getElementById('crewVoteResultEmblem');
   const crewVoteRoleStage = document.getElementById('crewVoteRoleStage');
   const crewVoteRoleText = document.getElementById('crewVoteRoleText');
+  const responsibilityScreen = document.getElementById('responsibilityScreen');
+  const responsibilityClock = document.getElementById('responsibilityClock');
+  const responsibilityCopy = document.getElementById('responsibilityCopy');
+  const responsibilityList = document.getElementById('responsibilityList');
+  const responsibilityError = document.getElementById('responsibilityError');
+  const responsibilityModal = document.getElementById('responsibilityModal');
+  const responsibilityDialogTitle = document.getElementById('responsibilityDialogTitle');
+  const responsibilityModalClock = document.getElementById('responsibilityModalClock');
+  const responsibilityDialogContent = document.getElementById('responsibilityDialogContent');
+  const responsibilityDialogError = document.getElementById('responsibilityDialogError');
+  const responsibilityForm = document.getElementById('responsibilityForm');
+  const responsibilityInput = document.getElementById('responsibilityInput');
 
   if (IS_DESKTOP) {
     gameScreen.classList.add('game-desktop');
@@ -6728,6 +6809,10 @@
   let crewVoteResultHandledAt = 0;
   let crewVoteDeadlineMs = 0;
   let crewVotePending = false;
+  let responsibilityDeadlineMs = 0;
+  let responsibilityModalDeadlineMs = 0;
+  let responsibilityPending = false;
+  let responsibilityModalSignature = '';
   const gameAcknowledgedTaskIds = new Set();
   let gameHandledTaskEvents = new WeakSet();
   let gameTaskSabotageWasActive = false;
@@ -8355,6 +8440,7 @@
     closeDiscussionIntro();
     closeDiscussionChat();
     closeCrewVote();
+    closeResponsibility();
     discussionHandledStartedAt = 0;
     gameDiscussionNotice.hidden = true;
     gameScreen.classList.remove('discussion-locked');
@@ -9428,6 +9514,167 @@
     crewVoteRoleText.hidden = true;
   }
 
+  function closeResponsibility(){
+    responsibilityScreen.hidden = true;
+    responsibilityModal.hidden = true;
+    responsibilityModalSignature = '';
+    responsibilityError.textContent = '';
+    responsibilityDialogError.textContent = '';
+    responsibilityPending = false;
+  }
+
+  function responsibilityMemberNode(member){
+    const span = document.createElement('span');
+    span.className = 'responsibility-member-inline' + (member.color === 'Чёрный' ? ' dark' : '');
+    span.style.setProperty('--member-color',gameColorHex(member.color));
+    span.textContent = String(member.name || 'Неизвестный');
+    return span;
+  }
+
+  async function responsibilityAction(action,targetId,textValue){
+    if (responsibilityPending) return;
+    responsibilityPending = true;
+    responsibilityError.textContent = '';
+    responsibilityDialogError.textContent = '';
+    const payload = {action:action};
+    if (targetId != null) payload.target_id = targetId;
+    if (textValue != null) payload.text = textValue;
+    const result = await gameApiRequest('/api/game/responsibility','POST',payload);
+    responsibilityPending = false;
+    if (!result.ok) {
+      const errorText = gameErrorText(result);
+      (action === 'question' || action === 'answer' ? responsibilityDialogError : responsibilityError).textContent = errorText;
+      return;
+    }
+    gameStateData = result.data;
+    if (action === 'question' || action === 'answer') responsibilityInput.value = '';
+    handleDiscussionStateChange();
+  }
+
+  function renderResponsibility(){
+    const state = gameStateData && gameStateData.responsibility;
+    if (!state || !state.active) return;
+    if (!crewVote.hidden || !crewVoteNotice.hidden) closeCrewVote();
+    if (!discussionChat.hidden) closeDiscussionChat();
+    responsibilityScreen.hidden = false;
+    document.getElementById('responsibilityHeading').textContent = state.role === 'responsible'
+      ? 'Вы - ответственный за жизнь одного из Персонала...'
+      : 'ВАША СУДЬБА В РУКАХ ОТВЕТСТВЕННОГО...';
+    document.getElementById('responsibilitySubtitle').textContent = state.role === 'responsible' ? 'РЕШАЕТЕ ТОЛЬКО ВЫ' : 'ОЖИДАНИЕ РЕШЕНИЯ';
+    document.getElementById('responsibilityStation').textContent = String(gameStateData.station || 'АСТРАЛ-1').toUpperCase();
+    const serverNow = Number(gameStateData.server_time) || Date.now() / 1000;
+    responsibilityDeadlineMs = Date.now() + Math.max(0,Number(state.remaining_seconds) || 0) * 1000;
+    responsibilityClock.textContent = discussionCountdownText((responsibilityDeadlineMs - Date.now()) / 1000);
+    const accused = (state.accused || []).filter(Boolean);
+    responsibilityCopy.replaceChildren();
+    if (accused.length === 2 && state.role === 'responsible') {
+      responsibilityCopy.append(responsibilityMemberNode(accused[0]),' и ',responsibilityMemberNode(accused[1]));
+      responsibilityCopy.append(gameStateData.player.role === 'liquidator'
+        ? ' проголосовали друг против друга. Единственный голос остаётся за вами. Удивите их...'
+        : ' проголосовали друг против друга. Единственный голос остаётся за вами: кто-то из них - Ликвидатор. В случае воздержания от голоса вы даёте большой шанс на победу противника');
+    } else if (state.role === 'accused') {
+      responsibilityCopy.textContent = 'Ожидайте решения. Если вас вызовут на допрос, ответьте на один вопрос.';
+    }
+    responsibilityList.replaceChildren();
+    accused.forEach(function(member){
+      const used = (state.interrogated_ids || []).includes(member.id);
+      const row = document.createElement('div');
+      row.className = 'responsibility-row' + (used ? ' used' : '');
+      const person = document.createElement('div');
+      person.className = 'responsibility-member';
+      person.style.setProperty('--member-color',gameColorHex(member.color));
+      const avatar = document.createElement('span');
+      avatar.className = 'responsibility-avatar';
+      avatar.textContent = String(member.color || '?').charAt(0).toUpperCase();
+      const name = document.createElement('span');
+      name.className = 'responsibility-name' + (member.color === 'Чёрный' ? ' dark' : '');
+      name.textContent = String(member.name || 'Неизвестный').toUpperCase();
+      const color = document.createElement('span');
+      color.className = 'responsibility-color-text';
+      color.textContent = String(member.color || '');
+      person.append(avatar,name,color);
+      if (used) {
+        const mark = document.createElement('span');
+        mark.className = 'responsibility-state';
+        mark.textContent = 'ДОПРОШЕН';
+        person.appendChild(mark);
+      }
+      const actions = document.createElement('div');
+      actions.className = 'responsibility-actions';
+      const ask = document.createElement('button');
+      ask.type = 'button';
+      ask.textContent = used ? 'ДОПРОШЕН' : 'ДОПРОСИТЬ';
+      ask.disabled = used || !!state.interrogation || responsibilityPending || state.role !== 'responsible';
+      ask.addEventListener('click',function(){ responsibilityAction('interrogate',member.id); });
+      const exile = document.createElement('button');
+      exile.type = 'button';
+      exile.textContent = 'ИЗГНАТЬ ' + String(member.name || '').toUpperCase();
+      exile.disabled = !!state.interrogation || responsibilityPending || state.role !== 'responsible';
+      exile.addEventListener('click',function(){ responsibilityAction('exile',member.id); });
+      actions.append(ask,exile);
+      row.append(person,actions);
+      responsibilityList.appendChild(row);
+    });
+    const interrogation = state.interrogation;
+    const showModal = interrogation && (state.role === 'responsible' || interrogation.target_id === gameStateData.player.id);
+    responsibilityModal.hidden = !showModal;
+    if (!showModal) { responsibilityModalSignature = ''; return; }
+    const target = accused.find(function(member){ return member.id === interrogation.target_id; }) || {};
+    const dialogPerson = document.createElement('span');
+    dialogPerson.className = 'responsibility-dialog-person';
+    dialogPerson.style.setProperty('--member-color',gameColorHex(target.color));
+    dialogPerson.textContent = String(target.name || '').toUpperCase() + ' (' + String(target.color || '') + ')';
+    responsibilityDialogTitle.replaceChildren('🔒 ЗАКРЫТЫЙ КАНАЛ · ДОПРОС: ',dialogPerson);
+    responsibilityModalDeadlineMs = Date.now() + Math.max(0,(Number(interrogation.deadline) - serverNow) * 1000);
+    responsibilityModalClock.textContent = discussionCountdownText((responsibilityModalDeadlineMs - Date.now()) / 1000);
+    const signature = [interrogation.stage,interrogation.target_id,interrogation.question,interrogation.answer,state.role].join('|');
+    if (signature === responsibilityModalSignature) return;
+    responsibilityModalSignature = signature;
+    responsibilityDialogContent.replaceChildren();
+    if (interrogation.question) {
+      const label = document.createElement('p');
+      label.className = 'responsibility-dialog-label';
+      label.textContent = state.role === 'responsible' ? 'ВЫ СПРОСИЛИ' : 'ВАС СПРОСИЛИ';
+      const message = document.createElement('p');
+      message.className = 'responsibility-dialog-message';
+      message.textContent = interrogation.question;
+      responsibilityDialogContent.append(label,message);
+    }
+    if (interrogation.answer) {
+      const label = document.createElement('p');
+      label.className = 'responsibility-dialog-label';
+      label.textContent = 'ОТВЕТ';
+      const message = document.createElement('p');
+      message.className = 'responsibility-dialog-message';
+      message.textContent = interrogation.answer;
+      responsibilityDialogContent.append(label,message);
+    }
+    const wait = document.createElement('p');
+    wait.className = 'responsibility-dialog-wait';
+    wait.textContent = interrogation.stage === 'awaiting_responsible' ? 'ЗАДАЙТЕ ОДИН ВОПРОС.'
+      : interrogation.stage === 'awaiting_accused' ? (state.role === 'responsible' ? String(target.name || '').toUpperCase() + ' ФОРМУЛИРУЕТ ОТВЕТ●' : 'ДАЙТЕ ОДИН ОТВЕТ.')
+      : interrogation.stage === 'timed_out' ? 'ВРЕМЯ ДОПРОСА ИСТЕКЛО.' : 'ДОПРОС ЗАВЕРШЁН.';
+    responsibilityDialogContent.appendChild(wait);
+    const canWrite = (interrogation.stage === 'awaiting_responsible' && state.role === 'responsible')
+      || (interrogation.stage === 'awaiting_accused' && state.role === 'accused');
+    responsibilityForm.hidden = !canWrite;
+    responsibilityInput.placeholder = state.role === 'responsible' ? 'ВАШ ВОПРОС…' : 'ВАШ ОТВЕТ…';
+    if (canWrite) requestAnimationFrame(function(){ responsibilityInput.focus(); });
+  }
+
+  responsibilityForm.addEventListener('submit',function(event){
+    event.preventDefault();
+    const textValue = responsibilityInput.value.trim();
+    if (!textValue || !gameStateData || !gameStateData.responsibility) return;
+    const stage = gameStateData.responsibility.interrogation && gameStateData.responsibility.interrogation.stage;
+    responsibilityAction(stage === 'awaiting_responsible' ? 'question' : 'answer',null,textValue);
+  });
+  setInterval(function(){
+    if (responsibilityScreen.hidden) return;
+    responsibilityClock.textContent = discussionCountdownText((responsibilityDeadlineMs - Date.now()) / 1000);
+    if (!responsibilityModal.hidden) responsibilityModalClock.textContent = discussionCountdownText((responsibilityModalDeadlineMs - Date.now()) / 1000);
+  },250);
+
   function renderCrewVote(){
     const voting = gameStateData && gameStateData.voting;
     if (!voting || !voting.active) return;
@@ -9598,6 +9845,9 @@
   }
 
   function handleDiscussionStateChange(){
+    const responsibility = gameStateData && gameStateData.responsibility;
+    if (responsibility && responsibility.active) { renderResponsibility(); return; }
+    if (!responsibilityScreen.hidden) closeResponsibility();
     const voting = gameStateData && gameStateData.voting;
     if (voting && voting.active) { openCrewVote(); return; }
     if (gameStateData && gameStateData.vote_result && gameStateData.vote_result.meeting_started_at !== crewVoteResultHandledAt) {
@@ -9680,7 +9930,7 @@
     discussionIntroDay = 0;
     showGame(result.data);
     discussionHandledStartedAt = Number(result.data.discussion && result.data.discussion.started_at) || 0;
-    if (role === 'exile') handleDiscussionStateChange();
+    if (role === 'exile' || role === 'responsibility') handleDiscussionStateChange();
   }
 
   adminSandboxStart.addEventListener('click',function(){
@@ -9713,6 +9963,7 @@
     closeDiscussionIntro();
     closeDiscussionChat();
     closeCrewVote();
+    closeResponsibility();
     gameKillTargeting = false;
     gameKillPending = false;
     if (gameWitnessTimeout) clearTimeout(gameWitnessTimeout);
@@ -9911,7 +10162,7 @@
       return;
     }
     if (discussionTransitionPending && !(result.data.discussion && result.data.discussion.active)
-        && !(result.data.voting && result.data.voting.active) && !result.data.vote_result) {
+        && !(result.data.voting && result.data.voting.active) && !result.data.responsibility && !result.data.vote_result) {
       // Ответ GET мог быть сформирован до POST тревожной кнопки.
       return;
     }
