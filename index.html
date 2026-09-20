@@ -7236,6 +7236,12 @@
       const demo = offlineGameState();
       advanceOfflineMeeting(demo);
       updateOfflineSabotage(demo);
+      if (path === '/api/game/solo/start') {
+        const choice = payload && payload.role;
+        payload = {role:choice === 'random'
+          ? (Math.random() < 0.1 ? 'liquidator' : 'staff') : choice};
+        path = '/api/game/admin-solo/start';
+      }
       if (path === '/api/game/vote') {
         if (!demo.voting || !demo.voting.active || demo.voting.voted) return {ok:false,status:409,data:{error:'voting_unavailable'}};
         const target = payload && payload.target_id;
@@ -7884,6 +7890,19 @@
         addGameLog('ПРЕДУПРЕЖДЕНИЕ: выполняя задания, Ликвидатор приближает Персонал к победе.',{warning:true});
         return;
       }
+      if (event.type === 'bot_banter') {
+        addGameLog([
+          {colorSquare:event.color || ''},
+          {text:(event.color || '') + ' ',className:'game-color-text'},
+          {text:event.name || 'Игрок',bold:true},
+          {text:': ' + (event.text || '')}
+        ]);
+        return;
+      }
+      if (event.type === 'player_killed') {
+        addGameLog('ВАС УБИЛИ. ВЫ МОЖЕТЕ НАБЛЮДАТЬ ЗА СТАНЦИЕЙ ДО КОНЦА СМЕНЫ.',{warning:true});
+        return;
+      }
       if (event.type === 'task_completed') {
         const actor = event.player || {};
         const room = gameRoom(event.room_id);
@@ -7932,7 +7951,7 @@
   }
 
   function openGameMoveCard(roomId,event){
-    if (!gameStateData || !gameStateData.neighbors.includes(roomId)) return;
+    if (!gameStateData || gameStateData.player.alive === false || !gameStateData.neighbors.includes(roomId)) return;
     selectedGameRoomId = roomId;
     const room = gameRoom(roomId);
     gameMoveTitle.textContent = room.name.toUpperCase();
@@ -7969,7 +7988,7 @@
     gameIdentityMask.title = 'Режим отображения интерфейса';
     gamePlayerTasks.replaceChildren();
     (player.tasks || []).forEach(function(task){
-      const actionable = !cameraMode && task.available_here === true && !gameTaskPending;
+      const actionable = player.alive !== false && !cameraMode && task.available_here === true && !gameTaskPending;
       const item = document.createElement(actionable ? 'button' : 'div');
       if (actionable) item.type = 'button';
       item.className = 'game-player-task';
@@ -10365,6 +10384,7 @@
     const previousNeighbors = (gameStateData.neighbors || []).slice().sort().join('|');
     const previousIsolation = gameStateData.player && gameStateData.player.isolated === true;
     gameStateData = result.data;
+    if (gameStateData.player && gameStateData.player.alive === false) gameMoveCard.hidden = true;
     handleDiscussionStateChange();
     const currentNeighbors = (gameStateData.neighbors || []).slice().sort().join('|');
     const isolationChanged = (gameStateData.player.isolated === true) !== previousIsolation;
@@ -11269,6 +11289,7 @@
   }
 
   function startCrewShiftSequence(role){
+    if (shiftSequenceBusy) return;
     stopCrewPolling();
     currentLobby = null;
     crewLobbyScreen.classList.remove('reveal');
@@ -11276,7 +11297,7 @@
     resetShiftStartSequence();
     shiftDocumentScreen.hidden = false;
     shiftDocumentScreen.classList.add('reveal');
-    startSoloShiftSequence(role);
+    startSoloShiftSequence(role,true);
   }
 
   function handleLobbyStatus(data){
@@ -11314,7 +11335,12 @@
   }
 
   async function resumeActiveLobby(){
-    if (!(tg && tg.initData) || !crewLobbyScreen.hidden) return;
+    if (!(tg && tg.initData) || !crewLobbyScreen.hidden || shiftSequenceBusy) return;
+    const activeGame = await gameApiRequest('/api/game/state','GET',null,8000);
+    if (activeGame.ok && activeGame.data && activeGame.data.status === 'active') {
+      showGame(activeGame.data);
+      return;
+    }
     const result = await lobbyRequest('/api/lobby/status', null, 'GET');
     if (result.ok && ['lobby','pending','starting','started','kicked','cancelled','declined','launch_failed','host_cancelled'].includes(result.data.status)) {
       handleLobbyStatus(result.data);
@@ -11481,13 +11507,6 @@
     },
   };
 
-  // "НА УСМОТРЕНИЕ ДИСПЕТЧЕРСКОЙ" — сервера для реального распределения
-  // пока нет, поэтому назначение здесь просто разыгрывается на клиенте.
-  function resolveAssignedRole(roleValue){
-    if (roleValue === 'random') return Math.random() < 0.5 ? 'staff' : 'liquidator';
-    return roleValue;
-  }
-
   const docWrapEl = shiftDocumentScreen.querySelector('.doc-wrap');
   const shiftDocumentBackBtn = document.getElementById('shiftDocumentBack');
   const docProgress = document.getElementById('docProgress');
@@ -11503,6 +11522,7 @@
   const roleRevealTitle = document.getElementById('roleRevealTitle');
   const roleRevealTag = document.getElementById('roleRevealTag');
   const roleRevealGoal = document.getElementById('roleRevealGoal');
+  let shiftSequenceBusy = false;
 
   function resetShiftStartSequence(){
     docWrapEl.hidden = false;
@@ -11541,11 +11561,11 @@
     });
   }
 
-  async function startSoloShiftSequence(roleValue){
+  async function startSoloShiftSequence(roleValue, crewStarted){
+    if (shiftSequenceBusy) return;
+    shiftSequenceBusy = true;
+    docSubmitBtn.disabled = true;
     try {
-      const assignedRole = resolveAssignedRole(roleValue);
-      const info = ROLE_REVEAL_INFO[assignedRole];
-
       // Этап 1 — бланк исчезает, остаётся шапка/подвал терминала; в центре —
       // вращающийся спиннер и статус "ОЖИДАЙТЕ".
       docWrapEl.hidden = true;
@@ -11555,7 +11575,24 @@
       docProgressText.textContent = 'ОЖИДАЙТЕ';
       docProgress.hidden = false;
 
+      const startRequest = crewStarted
+        ? gameApiRequest('/api/game/state','GET',null,10000)
+        : gameApiRequest('/api/game/solo/start','POST',{role:roleValue},10000);
       await randDelay(3000, 5000);
+      let result = await startRequest;
+      if (crewStarted && (!result.ok || result.data.status !== 'active')) {
+        // Сообщение о запуске лобби и доступность партии могут прийти в
+        // разном порядке. Даём серверу короткое время завершить запуск.
+        for (let attempt = 0; attempt < 3 && (!result.ok || result.data.status !== 'active'); attempt++) {
+          await delay(1000);
+          result = await gameApiRequest('/api/game/state','GET',null,10000);
+        }
+      }
+      if (!result.ok || !result.data || result.data.status !== 'active'
+          || !result.data.player || !ROLE_REVEAL_INFO[result.data.player.role]) {
+        throw new Error(lobbyErrorMessage(result.status,result.data || {}));
+      }
+      const info = ROLE_REVEAL_INFO[result.data.player.role];
       // Спиннер сменяется статичной галочкой — без анимации, просто факт.
       docProgressSpinner.hidden = true;
       docProgressCheck.hidden = false;
@@ -11569,9 +11606,7 @@
       fullscreenFade.classList.add('shown');
       await delay(1700); // должно совпадать с CSS-transition у .fullscreen-fade
 
-      // Этап 3 — пауза/загрузка партии. Сейчас чисто по времени; когда
-      // появится реальная загрузка (сервер, ассеты сессии), await здесь
-      // заменится на ожидание её фактического завершения.
+      // Этап 3 — короткая пауза перед объявлением уже назначенной сервером роли.
       await delay(1800);
 
       // Этап 4 — объявление роли. Текст роли выставляется здесь же, ДО показа
@@ -11605,14 +11640,25 @@
       roleRevealScene2.classList.add('shown');
       roleRevealScene1.classList.remove('shown');
       roleRevealEmblem.classList.remove('shown');
+      await delay(3500);
+      roleRevealScene2.classList.remove('shown');
+      await delay(1800);
+      roleReveal.hidden = true;
+      showGame(result.data);
+      shiftDocumentScreen.classList.remove('reveal');
+      shiftDocumentScreen.hidden = true;
+      fullscreenFade.classList.remove('shown');
+      await delay(1700);
+      fullscreenFade.hidden = true;
     } catch (err) {
-      // Если что-то в середине последовательности сломалось (например,
-      // неожиданное значение роли) — экран не должен зависать на полпути:
-      // затемнение форсированно доводится до конца, а ошибка уходит в
-      // консоль для отладки, а не проглатывается молча.
       console.error('startSoloShiftSequence failed:', err);
-      fullscreenFade.hidden = false;
-      fullscreenFade.classList.add('shown');
+      resetShiftStartSequence();
+      shiftDocumentScreen.hidden = false;
+      shiftDocumentScreen.classList.add('reveal');
+      showCrewNotice(err && err.message ? err.message : 'НЕ УДАЛОСЬ НАЧАТЬ СМЕНУ. ПОПРОБУЙТЕ ЕЩЁ РАЗ.');
+    } finally {
+      shiftSequenceBusy = false;
+      docSubmitBtn.disabled = false;
     }
   }
 
