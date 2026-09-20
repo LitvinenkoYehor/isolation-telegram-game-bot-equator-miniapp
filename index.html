@@ -2573,6 +2573,8 @@
     color:#c8d2ce; font-size:clamp(16px,1.5vw,20px);
     line-height:1.48; white-space:pre-wrap; overflow-wrap:anywhere;
   }
+  .international-member-reference{ color:var(--member-color); font-weight:700; }
+  .international-member-reference.dark{ -webkit-text-stroke:.6px #b3bcc5; }
   .discussion-chat-caret-line{
     display:flex; align-items:center; gap:10px;
     min-height:18px; margin:4px 0 0 48px;
@@ -6897,9 +6899,10 @@
     const second = catalog.players.find(function(entry){ return entry.id === payload.player2; });
     const room = catalog.rooms.find(function(entry){ return entry.id === payload.location; });
     let phrase = String(sub.label || '');
-    [first,second].forEach(function(member){ if (member) phrase = phrase.replace('👤',member.name); });
-    if (sub.id === 'f9') phrase = 'Я раньше видел ' + (first && first.name || 'игрока') + ' в ' + (room && room.name || 'комнате') + '.';
-    else if (sub.id === 'f10') phrase = 'Я изменил мнение о ' + (first && first.name || 'игроке') + '.';
+    function label(member){ return member ? member.color + ' ' + member.name : 'игрока'; }
+    [first,second].forEach(function(member){ if (member) phrase = phrase.replace('👤',label(member)); });
+    if (sub.id === 'f9') phrase = 'Я раньше видел ' + label(first) + ' в ' + (room && room.name || 'комнате') + '.';
+    else if (sub.id === 'f10') phrase = 'Я изменил мнение о ' + label(first) + '.';
     else {
       phrase = phrase.replaceAll('👤','игрока');
       if (room) phrase += ' В ' + room.name + '.';
@@ -7030,7 +7033,7 @@
       meeting.active = false;
       meeting.phase = 'voting';
       demo.voting = {
-        active:true,started_at:now,timer_seconds:45,voted:false,choice:null,
+        active:true,started_at:now,timer_seconds:45,ends_at:now + 45,voted:false,choice:null,
         roster:[demo.player].concat(demo.static_crew.filter(function(bot){ return bot.alive; })).map(function(member){
           return {id:member.id,name:member.name,color:member.color,color_emoji:member.color_emoji,votes:0};
         }),abstained:0,ballots:[]
@@ -7046,7 +7049,11 @@
       voting.ballots.push({voter_id:entry.bot.id,target_id:null,color:entry.bot.color});
       voting.abstained++;
     });
-    if (now < voting.started_at + voting.timer_seconds) return;
+    if (!voting.all_voted_at && voting.ballots.length >= voting.roster.length) {
+      voting.all_voted_at = now;
+      voting.ends_at = now + 5;
+    }
+    if (now < voting.ends_at) return;
     const counts = voting.roster.map(function(member){ return {id:member.id,count:member.votes}; });
     counts.push({id:null,count:voting.abstained});
     counts.sort(function(a,b){ return b.count - a.count; });
@@ -7083,6 +7090,10 @@
         demo.voting.ballots.push({voter_id:demo.player.id,target_id:target,color:demo.player.color});
         if (target === null) demo.voting.abstained++;
         else demo.voting.roster.find(function(member){ return member.id === target; }).votes++;
+        if (!demo.voting.all_voted_at && demo.voting.ballots.length >= demo.voting.roster.length) {
+          demo.voting.all_voted_at = Date.now() / 1000;
+          demo.voting.ends_at = demo.voting.all_voted_at + 5;
+        }
       }
       if (path === '/api/game/admin-solo/start') {
         const selectedRole = payload && payload.role;
@@ -8564,6 +8575,43 @@
     renderDiscussionChat(true);
     renderInternationalControls();
   }
+  function renderSignalPhrase(container,phrase,players){
+    const text = String(phrase || '');
+    const mentions = (players || []).flatMap(function(member){
+      if (!member.color || !member.name) return [];
+      const label = String(member.color) + ' ' + String(member.name);
+      return [{member:member,label:label}].concat(member.color_emoji ? [{member:member,label:String(member.color_emoji) + ' ' + label}] : []);
+    });
+    container.replaceChildren();
+    let position = 0;
+    while (position < text.length) {
+      let next = null;
+      let nextAt = text.length;
+      mentions.forEach(function(entry){
+        const at = text.indexOf(entry.label,position);
+        if (at >= 0 && (at < nextAt || (at === nextAt && next && entry.label.length > next.label.length))) {
+          next = entry;
+          nextAt = at;
+        }
+      });
+      if (!next) {
+        container.appendChild(document.createTextNode(text.slice(position)));
+        break;
+      }
+      if (nextAt > position) container.appendChild(document.createTextNode(text.slice(position,nextAt)));
+      const colored = document.createElement('span');
+      colored.className = 'international-member-reference' + (next.member.color === 'Чёрный' ? ' dark' : '');
+      colored.style.setProperty('--member-color',gameColorHex(next.member.color));
+      const square = document.createElement('span');
+      square.className = 'game-crew-color game-log-color';
+      square.style.setProperty('--crew-color',gameColorHex(next.member.color));
+      square.setAttribute('aria-label',next.member.color);
+      colored.appendChild(square);
+      colored.appendChild(document.createTextNode(String(next.member.color) + ' ' + String(next.member.name)));
+      container.appendChild(colored);
+      position = nextAt + next.label.length;
+    }
+  }
   function renderInternationalControls(){
     const catalog = signalCatalog();
     const available = gameStateData && gameStateData.mode === 'international' && catalog && discussionSystemIntroComplete && !discussionSystemIntroRunning;
@@ -8661,7 +8709,7 @@
       label.textContent = 'ВАША РЕПЛИКА';
       const preview = document.createElement('div');
       preview.className = 'international-preview';
-      preview.textContent = signalDraft.phrase || 'ФОРМИРОВАНИЕ СИГНАЛА...';
+      renderSignalPhrase(preview,signalDraft.phrase || 'ФОРМИРОВАНИЕ СИГНАЛА...',catalog.players);
       internationalControlBody.append(label,preview);
       if (signalDraft.error) {
         const error = document.createElement('div');
@@ -8722,7 +8770,8 @@
 
         const body = document.createElement('div');
         body.className = 'discussion-chat-message-text';
-        body.textContent = message.text || '';
+        if (international) renderSignalPhrase(body,message.text || '',discussion.signals && discussion.signals.players);
+        else body.textContent = message.text || '';
         copy.append(meta,body);
         row.append(avatar,copy);
         discussionChatPlayerMessages.appendChild(row);
@@ -9412,7 +9461,8 @@
       : crewVoteSelected === undefined ? 'ВЫБЕРИТЕ УЧАСТНИКА'
       : 'ПОДТВЕРДИТЬ ВЫБОР: ' + (crewVoteSelected === null ? 'ПРОПУСТИТЬ' : String((voting.roster || []).find(function(member){ return member.id === crewVoteSelected; })?.name || '').toUpperCase());
     const serverNow = Number(gameStateData.server_time) || Date.now() / 1000;
-    crewVoteDeadlineMs = Date.now() + Math.max(0,(Number(voting.started_at) + Number(voting.timer_seconds) - serverNow) * 1000);
+    const voteEndsAt = Number(voting.ends_at) || Number(voting.started_at) + Number(voting.timer_seconds);
+    crewVoteDeadlineMs = Date.now() + Math.max(0,(voteEndsAt - serverNow) * 1000);
     updateCrewVoteClock();
   }
 
