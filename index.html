@@ -2508,6 +2508,46 @@
   .responsibility-dialog-error{ min-height:1em; color:#ff8589; font-size:12px; }
   @media(max-width:700px){ .responsibility-shell{padding:18px 16px 36px;} .responsibility-top{font-size:9px;} .responsibility-heading{margin-top:34px;} .responsibility-copy{margin-left:0;margin-right:0;} .responsibility-member{padding:10px;} .responsibility-color-text{font-size:9px;} .responsibility-actions button{font-size:11px;} }
 
+  /* ================= VICTORY ================= */
+  .game-victory{ position:fixed; inset:0; z-index:1210; overflow:hidden; background:radial-gradient(circle at 50% 46%,#101820 0%,#050708 58%,#020303 100%); color:#f0f2f2; font-family:'IBM VGA 8x16','Courier New',monospace; }
+  .game-victory[hidden],.victory-stats-overlay[hidden]{ display:none; }
+  .game-victory.liquidator{ background:radial-gradient(circle at 50% 46%,#211014 0%,#090607 58%,#020202 100%); }
+  .game-victory-emblem{ position:absolute; left:50%; top:47%; width:min(74vw,670px); height:min(74vh,670px); transform:translate(-50%,-50%); opacity:.24; color:#8ad9ff; filter:drop-shadow(0 0 34px currentColor); pointer-events:none; }
+  .game-victory.liquidator .game-victory-emblem{ color:#ff747e; opacity:.27; }
+  .game-victory-emblem svg{ width:100%; height:100%; display:none; overflow:visible; }
+  .game-victory.staff .role-reveal-emblem-svg--staff,.game-victory.liquidator .role-reveal-emblem-svg--liquidator{ display:block; }
+  .game-victory-title{ position:absolute; z-index:1; top:45%; left:50%; width:min(90vw,880px); transform:translate(-50%,-50%); margin:0; text-align:center; font-size:clamp(32px,5vw,70px); line-height:1.3; letter-spacing:.18em; text-shadow:0 2px 22px #000; }
+  .game-victory-title span{ display:block; font-size:clamp(38px,6.2vw,86px); color:#8ad9ff; }
+  .game-victory.liquidator .game-victory-title span{ color:#ff747e; }
+  .game-victory-actions{ position:absolute; z-index:2; left:50%; bottom:6vh; transform:translateX(-50%); width:min(86vw,440px); display:grid; gap:12px; }
+  .game-victory-actions button{ min-height:52px; padding:10px 16px; border:1px solid #6f9bb1; background:rgba(8,17,24,.78); color:#dcf0f8; cursor:pointer; font:15px 'IBM VGA 8x16','Courier New',monospace; letter-spacing:.08em; }
+  .game-victory.liquidator .game-victory-actions button{ border-color:#a15a5c; background:rgba(27,10,12,.8); color:#ffe0e0; }
+  .game-victory-actions button:hover{ filter:brightness(1.2); }
+  .game-victory-actions button:disabled{ opacity:.55; cursor:wait; }
+  .game-victory-error{ min-height:1.2em; color:#ff8389; text-align:center; font-size:12px; }
+  .victory-stats-overlay{ position:fixed; inset:0; z-index:1211; display:grid; place-items:center; padding:20px; box-sizing:border-box; background:rgba(0,0,0,.82); backdrop-filter:blur(3px); font-family:'IBM VGA 8x16','Courier New',monospace; }
+  .victory-stats-dialog{ width:min(100%,720px); max-height:min(82dvh,760px); display:grid; grid-template-rows:auto minmax(0,1fr); border:1px solid #52626b; background:#101719; color:#d9e0e1; box-shadow:0 24px 90px #000; }
+  .victory-stats-dialog.liquidator{ border-color:#73494b; background:#191112; }
+  .victory-stats-head{ display:flex; justify-content:space-between; align-items:center; gap:12px; padding:16px 20px; border-bottom:1px solid #354347; font-size:16px; letter-spacing:.13em; }
+  .victory-stats-close{ border:0; background:transparent; color:#d9e0e1; cursor:pointer; font:22px 'IBM VGA 8x16','Courier New',monospace; }
+  .victory-stats-body{ min-height:0; overflow-y:auto; padding:18px 20px 26px; scrollbar-color:#62757a #101719; }
+  .victory-stats-group{ margin:0 0 25px; }
+  .victory-stats-group h3{ margin:0 0 11px; color:#8ad9ff; font-size:14px; letter-spacing:.13em; }
+  .victory-stats-group.liquidator h3{ color:#ff747e; }
+  .victory-stats-member{ display:grid; grid-template-columns:24px minmax(0,1fr); gap:8px 10px; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.09); }
+  .victory-stats-avatar{ width:22px; height:22px; display:grid; place-items:center; border:1px solid var(--member-color); color:var(--member-color); font-size:10px; }
+  .victory-stats-name{ color:var(--member-color); overflow-wrap:anywhere; font-size:14px; }
+  .victory-stats-name.dark{ -webkit-text-stroke:.5px #c8d2d8; }
+  .victory-stats-color{ color:#9aa5a6; font-size:11px; }
+  .victory-stats-death{ grid-column:2; color:#aa9d9c; font-size:12px; line-height:1.4; }
+  .victory-xp{ padding-top:18px; border-top:1px solid #52626b; }
+  .victory-xp h3{ margin:0 0 13px; color:#dce5e7; font-size:15px; }
+  .victory-xp-note{ margin:0 0 12px; color:#8f9ca0; font-size:11px; line-height:1.4; }
+  .victory-xp-row{ display:flex; justify-content:space-between; gap:12px; padding:7px 0; color:#b6c4c8; font-size:13px; }
+  .victory-xp-total{ display:flex; justify-content:space-between; gap:12px; margin-top:12px; padding-top:14px; border-top:1px solid #52626b; color:#8ad9ff; font-size:16px; }
+  .victory-stats-dialog.liquidator .victory-xp-total{ color:#ff8c94; }
+  @media(max-width:700px){ .game-victory-title{ top:42%; } .game-victory-actions{ bottom:4vh; } .victory-stats-body{padding:14px;} .victory-stats-head{padding:13px 14px;} }
+
   /* ================= LIVE DISCUSSION CHAT ================= */
   .discussion-chat{
     position:fixed; inset:0; z-index:1190;
@@ -3990,6 +4030,8 @@
                   <button class="admin-role-btn" type="button" data-role="classic">КЛАССИКА</button>
                   <button class="admin-role-btn" type="button" data-role="international">МЕЖДУНАРОДНЫЙ</button>
                   <button class="admin-role-btn" type="button" data-role="responsibility">ОТВЕТСТВЕННОСТЬ</button>
+                  <button class="admin-role-btn" type="button" data-role="win_liquidator">П. ЛИКВИДАТОР</button>
+                  <button class="admin-role-btn" type="button" data-role="win_staff">П. ПЕРСОНАЛА</button>
                 </div>
               </div>
               <div class="admin-sandbox-status" id="adminSandboxStatus" aria-live="polite"></div>
@@ -5467,6 +5509,21 @@
     </div>
   </div>
 </div>
+<section class="game-victory" id="gameVictory" aria-label="Победа" hidden>
+  <div class="game-victory-emblem" id="gameVictoryEmblem" aria-hidden="true"></div>
+  <h1 class="game-victory-title">ПОБЕДА<span id="gameVictoryWinner">ПЕРСОНАЛА</span></h1>
+  <div class="game-victory-actions">
+    <button id="gameVictoryStatsBtn" type="button">ПОСМОТРЕТЬ СТАТИСТИКУ</button>
+    <button id="gameVictoryExitBtn" type="button">ВЫХОД ИЗ СТАНЦИИ</button>
+    <div class="game-victory-error" id="gameVictoryError" role="alert"></div>
+  </div>
+</section>
+<div class="victory-stats-overlay" id="victoryStatsOverlay" hidden>
+  <div class="victory-stats-dialog" id="victoryStatsDialog" role="dialog" aria-modal="true" aria-labelledby="victoryStatsTitle">
+    <div class="victory-stats-head"><span id="victoryStatsTitle">СТАТИСТИКА ПАРТИИ</span><button class="victory-stats-close" id="victoryStatsClose" type="button" aria-label="Закрыть статистику">✕</button></div>
+    <div class="victory-stats-body" id="victoryStatsBody"></div>
+  </div>
+</div>
 
 <script src="international_signal_catalog.js"></script>
 <script>
@@ -6758,6 +6815,16 @@
   const responsibilityDialogError = document.getElementById('responsibilityDialogError');
   const responsibilityForm = document.getElementById('responsibilityForm');
   const responsibilityInput = document.getElementById('responsibilityInput');
+  const gameVictory = document.getElementById('gameVictory');
+  const gameVictoryEmblem = document.getElementById('gameVictoryEmblem');
+  const gameVictoryWinner = document.getElementById('gameVictoryWinner');
+  const gameVictoryStatsBtn = document.getElementById('gameVictoryStatsBtn');
+  const gameVictoryExitBtn = document.getElementById('gameVictoryExitBtn');
+  const gameVictoryError = document.getElementById('gameVictoryError');
+  const victoryStatsOverlay = document.getElementById('victoryStatsOverlay');
+  const victoryStatsDialog = document.getElementById('victoryStatsDialog');
+  const victoryStatsClose = document.getElementById('victoryStatsClose');
+  const victoryStatsBody = document.getElementById('victoryStatsBody');
 
   if (IS_DESKTOP) {
     gameScreen.classList.add('game-desktop');
@@ -6813,6 +6880,7 @@
   let responsibilityModalDeadlineMs = 0;
   let responsibilityPending = false;
   let responsibilityModalSignature = '';
+  let gameVictoryRenderedAt = 0;
   const gameAcknowledgedTaskIds = new Set();
   let gameHandledTaskEvents = new WeakSet();
   let gameTaskSabotageWasActive = false;
@@ -8441,6 +8509,7 @@
     closeDiscussionChat();
     closeCrewVote();
     closeResponsibility();
+    closeGameVictory();
     discussionHandledStartedAt = 0;
     gameDiscussionNotice.hidden = true;
     gameScreen.classList.remove('discussion-locked');
@@ -9523,6 +9592,127 @@
     responsibilityPending = false;
   }
 
+  function closeGameVictory(){
+    gameVictory.hidden = true;
+    victoryStatsOverlay.hidden = true;
+    gameVictoryRenderedAt = 0;
+    gameVictoryError.textContent = '';
+    gameVictoryExitBtn.disabled = false;
+  }
+
+  function renderGameVictory(){
+    const victory = gameStateData && gameStateData.victory;
+    if (!victory) return;
+    closeDiscussionIntro();
+    closeDiscussionChat();
+    closeCrewVote();
+    closeResponsibility();
+    gameScreen.inert = false;
+    gameVictory.hidden = false;
+    const winner = victory.winner === 'liquidator' ? 'liquidator' : 'staff';
+    gameVictory.classList.toggle('liquidator',winner === 'liquidator');
+    gameVictory.classList.toggle('staff',winner === 'staff');
+    gameVictoryWinner.textContent = winner === 'liquidator' ? 'ЛИКВИДАТОРОВ' : 'ПЕРСОНАЛА';
+    if (gameVictoryRenderedAt === victory.finished_at) return;
+    gameVictoryRenderedAt = victory.finished_at;
+    gameVictoryEmblem.replaceChildren(...Array.from(document.querySelectorAll('#roleRevealEmblem svg')).map(function(svg){ return svg.cloneNode(true); }));
+    victoryStatsDialog.classList.toggle('liquidator',winner === 'liquidator');
+    victoryStatsBody.replaceChildren();
+    ['liquidator','staff'].forEach(function(role){
+      const group = document.createElement('section');
+      group.className = 'victory-stats-group' + (role === 'liquidator' ? ' liquidator' : '');
+      const heading = document.createElement('h3');
+      heading.textContent = role === 'liquidator' ? 'ЛИКВИДАТОРЫ' : 'ПЕРСОНАЛ';
+      group.appendChild(heading);
+      (victory.members || []).filter(function(member){ return member.role === role; }).forEach(function(member){
+        const row = document.createElement('div');
+        row.className = 'victory-stats-member';
+        row.style.setProperty('--member-color',gameColorHex(member.color));
+        const avatar = document.createElement('span');
+        avatar.className = 'victory-stats-avatar';
+        avatar.textContent = String(member.color || '?').charAt(0).toUpperCase();
+        const identity = document.createElement('div');
+        const name = document.createElement('strong');
+        name.className = 'victory-stats-name' + (member.color === 'Чёрный' ? ' dark' : '');
+        name.textContent = String(member.name || 'Неизвестный');
+        const color = document.createElement('span');
+        color.className = 'victory-stats-color';
+        color.textContent = ' · ' + String(member.color || '');
+        identity.append(name,color);
+        row.append(avatar,identity);
+        if (role === 'staff') {
+          const death = document.createElement('div');
+          death.className = 'victory-stats-death';
+          death.textContent = member.death || 'Выжил';
+          row.appendChild(death);
+        }
+        group.appendChild(row);
+      });
+      victoryStatsBody.appendChild(group);
+    });
+    const xp = document.createElement('section');
+    xp.className = 'victory-xp';
+    const xpTitle = document.createElement('h3');
+    xpTitle.textContent = 'ПОЛУЧЕННЫЙ ОПЫТ';
+    xp.appendChild(xpTitle);
+    if (victory.preview) {
+      const note = document.createElement('p');
+      note.className = 'victory-xp-note';
+      note.textContent = 'Тестовая смена: опыт в профиль не начисляется.';
+      xp.appendChild(note);
+    }
+    const award = victory.xp;
+    if (award) {
+      (award.items || []).forEach(function(item){
+        const row = document.createElement('div');
+        row.className = 'victory-xp-row';
+        const label = document.createElement('span');
+        label.textContent = item.label;
+        const value = document.createElement('span');
+        value.textContent = '+' + String(item.xp) + ' XP';
+        row.append(label,value);
+        xp.appendChild(row);
+      });
+      const total = document.createElement('div');
+      total.className = 'victory-xp-total';
+      const totalLabel = document.createElement('span');
+      totalLabel.textContent = 'ИТОГО';
+      const totalValue = document.createElement('span');
+      totalValue.textContent = '+' + String(award.total) + ' XP';
+      total.append(totalLabel,totalValue);
+      xp.appendChild(total);
+    } else {
+      const none = document.createElement('p');
+      none.textContent = 'Опыт не начислен.';
+      xp.appendChild(none);
+    }
+    victoryStatsBody.appendChild(xp);
+  }
+
+  gameVictoryStatsBtn.addEventListener('click',function(){
+    victoryStatsOverlay.hidden = false;
+    victoryStatsBody.scrollTop = 0;
+  });
+  victoryStatsClose.addEventListener('click',function(){ victoryStatsOverlay.hidden = true; });
+  victoryStatsOverlay.addEventListener('click',function(event){
+    if (event.target === victoryStatsOverlay) victoryStatsOverlay.hidden = true;
+  });
+  document.addEventListener('keydown',function(event){
+    if (event.key === 'Escape' && !victoryStatsOverlay.hidden) victoryStatsOverlay.hidden = true;
+  });
+  gameVictoryExitBtn.addEventListener('click',async function(){
+    if (gameVictoryExitBtn.disabled) return;
+    gameVictoryExitBtn.disabled = true;
+    gameVictoryError.textContent = '';
+    const result = await gameApiRequest('/api/game/victory/exit','POST',{game_id:gameStateData && gameStateData.game_id});
+    if (!result.ok) {
+      gameVictoryExitBtn.disabled = false;
+      gameVictoryError.textContent = gameErrorText(result);
+      return;
+    }
+    exitGameToMenu();
+  });
+
   function responsibilityMemberNode(member){
     const span = document.createElement('span');
     span.className = 'responsibility-member-inline' + (member.color === 'Чёрный' ? ' dark' : '');
@@ -9845,6 +10035,8 @@
   }
 
   function handleDiscussionStateChange(){
+    if (gameStateData && gameStateData.victory) { renderGameVictory(); return; }
+    if (!gameVictory.hidden) closeGameVictory();
     const responsibility = gameStateData && gameStateData.responsibility;
     if (responsibility && responsibility.active) { renderResponsibility(); return; }
     if (!responsibilityScreen.hidden) closeResponsibility();
@@ -9930,7 +10122,7 @@
     discussionIntroDay = 0;
     showGame(result.data);
     discussionHandledStartedAt = Number(result.data.discussion && result.data.discussion.started_at) || 0;
-    if (role === 'exile' || role === 'responsibility') handleDiscussionStateChange();
+    if (role === 'exile' || role === 'responsibility' || role === 'win_liquidator' || role === 'win_staff') handleDiscussionStateChange();
   }
 
   adminSandboxStart.addEventListener('click',function(){
@@ -9964,6 +10156,7 @@
     closeDiscussionChat();
     closeCrewVote();
     closeResponsibility();
+    closeGameVictory();
     gameKillTargeting = false;
     gameKillPending = false;
     if (gameWitnessTimeout) clearTimeout(gameWitnessTimeout);
@@ -10162,7 +10355,7 @@
       return;
     }
     if (discussionTransitionPending && !(result.data.discussion && result.data.discussion.active)
-        && !(result.data.voting && result.data.voting.active) && !result.data.responsibility && !result.data.vote_result) {
+        && !(result.data.voting && result.data.voting.active) && !result.data.responsibility && !result.data.victory && !result.data.vote_result) {
       // Ответ GET мог быть сформирован до POST тревожной кнопки.
       return;
     }
