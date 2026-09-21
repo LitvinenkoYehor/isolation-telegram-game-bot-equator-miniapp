@@ -7866,13 +7866,6 @@
     addGameJournalEvents(data.journal_events);
     (data.witness_events || []).forEach(showGameWitness);
     (data.web_events || []).forEach(function(event){
-      // Перемещения персонала приходят той же очередью pending_web_events,
-      // что и остальные личные события (см. game/journal.py на сервере),
-      // но рисуются общим журнальным рендерером.
-      if (event.type === 'arrival' || event.type === 'departure' || event.type === 'corpse_discovered') {
-        addGameJournalEvents([event]);
-        return;
-      }
       if (event.type === 'sabotage_started' || event.type === 'sabotage_reminder') {
         const activeSabotage = data.sabotage || {};
         addGameSabotageLog({
@@ -8610,6 +8603,10 @@
     if (code === 'already_in_lobby') return 'СНАЧАЛА ПОКИНЬТЕ ТЕКУЩЕЕ ЛОББИ.';
     if (code === 'room_not_neighbor') return 'МАРШРУТ УЖЕ НЕДОСТУПЕН. ВЫБЕРИТЕ СОСЕДНЮЮ КОМНАТУ.';
     if (code === 'already_moving') return 'ПЕРЕХОД УЖЕ ВЫПОЛНЯЕТСЯ.';
+    if (code === 'movement_cooldown') {
+      const seconds = Math.max(1, Number(result.data.remaining_seconds) || 1);
+      return `ПОСЛЕ ПРИБЫТИЯ НУЖНО ПОДОЖДАТЬ ЕЩЁ ${seconds} СЕК.`;
+    }
     if (code === 'camera_active') return 'СНАЧАЛА ВЫЙДИТЕ ИЗ РЕЖИМА ВИДЕОНАБЛЮДЕНИЯ.';
     if (code === 'camera_unavailable') return 'КАМЕРА ДОСТУПНА ТОЛЬКО В БЕЗОПАСНОСТИ И КОНТРОЛЕ.';
     if (code === 'bad_camera_room') return 'ЭТА ЛОКАЦИЯ НЕ ПОДКЛЮЧЕНА К ВИДЕОНАБЛЮДЕНИЮ.';
