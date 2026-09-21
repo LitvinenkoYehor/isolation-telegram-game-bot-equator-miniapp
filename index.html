@@ -7866,6 +7866,13 @@
     addGameJournalEvents(data.journal_events);
     (data.witness_events || []).forEach(showGameWitness);
     (data.web_events || []).forEach(function(event){
+      // Перемещения персонала приходят той же очередью pending_web_events,
+      // что и остальные личные события (см. game/journal.py на сервере),
+      // но рисуются общим журнальным рендерером.
+      if (event.type === 'arrival' || event.type === 'departure' || event.type === 'corpse_discovered') {
+        addGameJournalEvents([event]);
+        return;
+      }
       if (event.type === 'sabotage_started' || event.type === 'sabotage_reminder') {
         const activeSabotage = data.sabotage || {};
         addGameSabotageLog({
