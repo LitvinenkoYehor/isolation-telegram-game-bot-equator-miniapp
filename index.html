@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>ISOLATION — Equator Station</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
@@ -114,6 +114,434 @@
     width:44.8%; height:80.85%;
     container-type: inline-size;
   }
+
+  /* =========================================================
+     MOBILE NATIVE VARIANT — real phone (Telegram iOS/Android, or
+     a narrow/touch browser tab, i.e. any .stage WITHOUT the .pc
+     class — see detectIsMobile()/IS_DESKTOP above). On a real
+     phone the game no longer lives inside the small embedded
+     "monitor" rectangle of the phone-in-hand bezel photo: that
+     photo made sense as art direction, but it means every cqw/cqh
+     used throughout .screen-content only ever had a ~370×370px
+     box to scale against, however big the actual device is — the
+     entire reason the UI reads as cramped/hard to see on phones.
+     Here the bezel photo is hidden and .screen simply becomes the
+     full viewport, so all of that existing cqw/cqh-based sizing
+     scales against the real device width/height instead. Nothing
+     inside .screen-content changes structurally — the layout
+     (topbar/HUD/tile-grid/etc.) is unchanged, it's just no longer
+     shrunk into a postage stamp.
+     PC keeps the original bezel-photo presentation exactly as
+     before (.stage.pc above is untouched) — this block only ever
+     matches a .stage that does NOT have .pc, i.e. a real phone.
+     ========================================================= */
+  .stage:not(.pc){
+    max-width:none;
+    width:100vw;
+    height:100vh;
+    height:calc(var(--tg-vh, 1vh) * 100);
+    aspect-ratio:auto;
+  }
+  .stage:not(.pc) > .bg{
+    display:none;
+  }
+  .stage:not(.pc) .screen{
+    left:0; top:0;
+    width:100%; height:100%;
+    border-radius:0;
+    box-shadow:none;
+    /* Real device notches / Dynamic Island / home-indicator gesture bar
+       sit right at the true screen edges now that .screen IS the full
+       viewport — inset by the safe area so .screen-content (which fills
+       .screen via inset:0) never renders under them. Requires
+       viewport-fit=cover on the <meta name="viewport"> tag above. */
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  /* =========================================================
+     MOBILE NATIVE VARIANT — GAME SCREEN (map / journal / dock).
+     Desktop lays this out as a 2-column CSS grid — map on the
+     left, a fixed ~330-480px "location+crew" column on the
+     right, journal spanning the full width underneath — with
+     the tasks list, the Liquidator's abilities, and the zoom
+     controls floating ON TOP of the map as absolutely-positioned
+     panels sized in cqw against that wide desktop map column.
+     On a real phone .stage is the full device width (see the
+     .stage:not(.pc) block above), so that same 2-column grid
+     would squeeze the map into a sliver next to an oversized
+     side column, and the floating panels — sized in cqw against
+     what used to be a ~700-1000px-wide map column — shrink down
+     to a barely-legible fraction of that. Below, the workspace
+     becomes a single vertical stack (map → location/crew →
+     journal, matching reading order) and every floating panel
+     gets an explicit, phone-safe width instead of inheriting
+     desktop's cqw sizing. Nothing here changes what any element
+     IS or does — same DOM, same IDs, same JS, same interactions
+     (the Liquidator's panel is still the same collapsible
+     floating panel, just correctly sized) — only where/how big
+     it renders. PC (.stage.pc) is completely untouched.
+     ========================================================= */
+  .stage:not(.pc) .game-workspace{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    padding:8px 8px 6px;
+  }
+  .stage:not(.pc) .game-map-panel{
+    flex:1 1 auto;
+    min-height:200px;
+    width:100%;
+  }
+  .stage:not(.pc) .game-side-panel{
+    flex:0 0 auto;
+    width:100%;
+    max-height:28vh;
+  }
+  .stage:not(.pc) .game-log{
+    flex:0 0 auto;
+    width:100%;
+    height:min(22vh,190px);
+  }
+  /* floating panels anchored inside .game-map-panel: give each an
+     explicit phone-safe width instead of desktop's cqw (which now
+     resolves against the full — but still much narrower than a
+     desktop map column — mobile screen width). */
+  .stage:not(.pc) .game-map-label{
+    width:min(70vw,320px);
+    font-size:13px;
+    padding:8px 10px;
+  }
+  .stage:not(.pc) .game-classification-role{
+    font-size:17px;
+    margin:4px 0 0;
+  }
+  .stage:not(.pc) .game-tasks-panel{
+    width:min(84vw,360px);
+    left:6px;
+    top:60px;
+  }
+  .stage:not(.pc) .game-player-tasks{
+    font-size:13px;
+  }
+  .stage:not(.pc) .game-floating-panel-head{
+    font-size:13px;
+    min-height:36px;
+  }
+  .stage:not(.pc) .game-move-card{
+    width:min(84vw,320px);
+  }
+  .stage:not(.pc) .game-move-card-title{
+    font-size:16px;
+  }
+  .stage:not(.pc) .game-move-card-copy{
+    font-size:13px;
+  }
+  .stage:not(.pc) .game-move-confirm{
+    font-size:14px;
+    padding:11px;
+  }
+  /* Liquidator abilities: same floating/collapsible panel as
+     desktop, just given a width that actually fits a phone
+     screen so the icon + label + timer on all four abilities
+     stay readable instead of being crushed into ~80px. */
+  .stage:not(.pc) .game-liquidator-panel:not([hidden]){
+    top:auto;
+    bottom:8px;
+    left:6px;
+    right:6px;
+    width:auto;
+    transform:none;
+    padding:8px 10px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:6px 10px;
+    max-height:50vh;
+    overflow-y:auto;
+  }
+  .stage:not(.pc) .game-ability-item{
+    min-height:40px;
+  }
+  .stage:not(.pc) .game-ability-icon{
+    width:38px;
+    height:38px;
+    font-size:16px;
+  }
+  .stage:not(.pc) .game-ability-copy strong{
+    font-size:11px;
+  }
+  .stage:not(.pc) .game-ability-timer{
+    font-size:10px;
+  }
+  .stage:not(.pc) .game-liquidator-collapse{
+    left:50%;
+    top:-32px;
+    width:56px;
+    height:26px;
+    font-size:16px;
+    transform:translateX(-50%) rotate(90deg);
+  }
+  .stage:not(.pc) .game-zoom-controls{
+    right:6px;
+    top:6px;
+    gap:5px;
+  }
+  /* An existing narrow-window rule further below (written for a
+     shrunk desktop browser tab, not a real phone) drops these two
+     back to raw cqw, which on an actual ~390px-wide phone comes
+     out under 6px. This block is scoped more specifically
+     (.stage:not(.pc) .game-screen ...) so it wins regardless of
+     source order and restores a readable, phone-safe size. */
+  .stage:not(.pc) .game-log-line{
+    font-size:13px;
+    line-height:1.4;
+  }
+  .stage:not(.pc) .game-side-desc{
+    font-size:13px;
+  }
+  .stage:not(.pc) .game-log-head{
+    font-size:12px;
+    padding:8px 10px;
+  }
+  .stage:not(.pc) .game-side-title{
+    font-size:18px;
+  }
+  .stage:not(.pc) .game-side-kicker{
+    font-size:11px;
+  }
+  .stage:not(.pc) .game-crew-color{
+    width:18px;
+    height:18px;
+  }
+
+  /* =========================================================
+     MOBILE NATIVE VARIANT — STATIONS SCREEN. The legend panel,
+     the "pinch to zoom" hint and the three bottom buttons are all
+     sized in pure cqw with no px floor (unlike most of the rest
+     of the UI, which has clamp()-based safe minimums) — on a real
+     ~390px-wide phone that computes to a 6-7px font, unreadable at
+     any zoom level a phone screen is actually held at. Everything
+     else about this screen (the map itself, panning/pinch-zoom)
+     already works well on mobile since it's driven by JS against
+     the container's real pixel size — this block only fixes text
+     size and the panel's width so it doesn't clip.
+     ========================================================= */
+  .stage:not(.pc) .station-info-panel{
+    max-width:78vw;
+    padding:10px 12px;
+  }
+  .stage:not(.pc) .station-info-title{
+    font-size:14px;
+    white-space:normal;
+    margin-bottom:8px;
+  }
+  .stage:not(.pc) .station-info-row{
+    font-size:12px;
+    white-space:normal;
+    padding:3px 0;
+  }
+  .stage:not(.pc) .station-map-hint{
+    font-size:11px;
+    padding:7px 12px;
+    max-width:86vw;
+  }
+  .stage:not(.pc) .station-bar-btn{
+    font-size:10.5px;
+    padding:10px 6px;
+    gap:5px;
+  }
+  .stage:not(.pc) .station-bar-btn svg{
+    width:20px;
+    height:20px;
+  }
+  .stage:not(.pc) .danger-item-title{
+    font-size:15px;
+  }
+  .stage:not(.pc) .danger-item .rename-warn-text{
+    font-size:13px;
+    line-height:1.5;
+  }
+  .stage:not(.pc) .danger-row{
+    flex-direction:column;
+    gap:14px;
+  }
+
+  /* New mobile-only controls (back buttons + compose FAB): hidden
+     unconditionally by default since they have no desktop styling
+     of their own — only .stage:not(.pc) below ever shows them, but
+     without this base rule they'd render as bare, unstyled browser
+     buttons on PC. */
+  .mail-mobile-back, .mail-mobile-fab{ display:none; }
+
+  /* =========================================================
+     MOBILE NATIVE VARIANT — MAIL. Desktop shows the list and the
+     reader/composer side by side in .mail-split (each roughly
+     half-width) — on a real phone that's two unreadably narrow
+     columns. Below, only one side of .mail-split is visible at a
+     time: the list, full width, until a letter is opened or a new
+     one is started, then that view takes over the full width with
+     a back control — the .mail-panel.mail-reading class (toggled
+     by the small script near the end of <body>) is what switches
+     between them. Nothing about how mail is loaded, read, sent or
+     deleted changes — same DOM, same functions — this only adds
+     which of the two panes is visible and adds back/compose
+     controls that were never needed side-by-side on desktop.
+     ========================================================= */
+  .stage:not(.pc) .mail-tabs{
+    gap:8px;
+  }
+  .stage:not(.pc) .mail-tab{
+    font-size:12px;
+    padding:10px 4px;
+  }
+  .stage:not(.pc) .mail-split{
+    position:relative;
+    min-height:0;
+    overflow:hidden;
+  }
+  .stage:not(.pc) .mail-list{
+    position:absolute;
+    inset:0;
+    width:100%;
+  }
+  .stage:not(.pc) .mail-reader,
+  .stage:not(.pc) .mail-compose{
+    position:absolute;
+    inset:0;
+    width:100%;
+    display:none;
+  }
+  .stage:not(.pc) .mail-panel.mail-reading .mail-list{
+    display:none;
+  }
+  .stage:not(.pc) .mail-panel.mail-reading .mail-reader,
+  .stage:not(.pc) .mail-panel.mail-reading .mail-compose{
+    display:flex;
+    flex-direction:column;
+    padding-top:56px;
+  }
+  .stage:not(.pc) .mail-mobile-back{
+    display:none;
+    position:absolute;
+    left:0;
+    right:0;
+    top:0;
+    z-index:4;
+    flex:none;
+    align-items:center;
+    gap:8px;
+    padding:11px 12px;
+    border:1px solid var(--scr-line);
+    border-radius:7px;
+    background:var(--scr-bg-2,#28323e);
+    color:var(--scr-text);
+    font-family:'IBM VGA 8x16',monospace;
+    font-size:12px;
+    letter-spacing:.04em;
+  }
+  .stage:not(.pc) .mail-mobile-back svg{
+    width:15px;
+    height:15px;
+    color:var(--scr-cyan);
+  }
+  .stage:not(.pc) .mail-panel.mail-reading .mail-mobile-back{
+    display:flex;
+  }
+  .stage:not(.pc) .mail-mobile-fab{
+    display:none;
+    position:absolute;
+    right:12px;
+    bottom:12px;
+    z-index:6;
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    border:1.4px solid var(--scr-cyan);
+    background:linear-gradient(135deg,rgba(143,214,255,.28),rgba(143,214,255,.08));
+    color:#eaf5ff;
+    box-shadow:0 0 16px rgba(143,214,255,.35),0 10px 22px rgba(0,0,0,.4);
+    align-items:center;
+    justify-content:center;
+  }
+  .stage:not(.pc) .mail-mobile-fab svg{
+    width:22px;
+    height:22px;
+  }
+  .stage:not(.pc) #mailSendPanel:not(.mail-reading) .mail-mobile-fab{
+    display:flex;
+  }
+  .stage:not(.pc) .mail-row{
+    padding:12px;
+    margin-bottom:8px;
+    border-radius:9px;
+  }
+  .stage:not(.pc) .mail-row-from{
+    font-size:13px;
+  }
+  .stage:not(.pc) .mail-row-subject{
+    font-size:12px;
+  }
+  .stage:not(.pc) .mail-field-label,
+  .stage:not(.pc) .mail-field-value{
+    font-size:12px;
+  }
+  .stage:not(.pc) .mail-subject{
+    font-size:16px;
+  }
+  .stage:not(.pc) .mail-body{
+    font-size:13px;
+    line-height:1.55;
+  }
+  .stage:not(.pc) .mail-compose-label{
+    font-size:11px;
+  }
+  .stage:not(.pc) .mail-compose-input,
+  .stage:not(.pc) .mail-compose-static,
+  .stage:not(.pc) .mail-compose-textarea{
+    font-size:13px;
+  }
+
+  /* Topbar: the active (non-dead) rule is ".game-screen .topbar{
+     display:grid; grid-template-columns:minmax(0,1fr) 27cqw; }" — a
+     ~105px-wide right column on a real phone, trying to fit the
+     journal toggle, the settings button AND the clock. Rebuilt as
+     its own small grid: brand mark/name, toggle, settings and clock
+     on one row, the task progress bar as a full-width row under it.
+     .brand and .topbar-right are wrapper <div>s with no visual
+     styling of their own beyond flex — display:contents removes
+     their box so their children can be placed directly into this
+     grid without moving anything in the actual markup. */
+  .stage:not(.pc) .game-screen .topbar{
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr) auto auto auto;
+    grid-template-areas:
+      "mark text toggles settings clock"
+      "task task task    task     task";
+    align-items:center;
+    column-gap:8px;
+    row-gap:6px;
+    padding-bottom:8px;
+  }
+  .stage:not(.pc) .game-screen .brand,
+  .stage:not(.pc) .game-screen .topbar-right{
+    display:contents;
+  }
+  .stage:not(.pc) .game-screen .brand-mark{ grid-area:mark; }
+  .stage:not(.pc) .game-screen .brand-text{ grid-area:text; min-width:0; }
+  .stage:not(.pc) .game-screen .brand-text .b1{ font-size:13px; }
+  .stage:not(.pc) .game-screen .brand-text .b2{ font-size:8px; }
+  .stage:not(.pc) .game-screen .game-panel-toggles{ grid-area:toggles; }
+  .stage:not(.pc) .game-screen #gameMenuBtn{ grid-area:settings; }
+  .stage:not(.pc) .game-screen .clock{ grid-area:clock; font-size:14px; }
+  .stage:not(.pc) .game-screen .game-topbar-action{
+    padding:6px 9px;
+    font-size:10px;
+  }
+  .stage:not(.pc) .game-screen .game-task-header{
+    grid-area:task;
+    margin-left:0;
+  }
+  .stage:not(.pc) .game-screen .game-task-header-row{ font-size:11px; }
+
   @keyframes powerOn{
     0%{ filter:brightness(0.2) saturate(0); opacity:0.4; }
     12%{ filter:brightness(2.2) saturate(0.4); opacity:1; }
@@ -4503,6 +4931,10 @@
 
         <div class="mail-panel active" id="mailInboxPanel">
           <div class="mail-split">
+            <button type="button" class="mail-mobile-back" id="mailInboxBackBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 18l-6-6 6-6"/></svg>
+              <span>К СПИСКУ ПИСЕМ</span>
+            </button>
             <div class="mail-list" id="mailList"></div>
             <div class="mail-reader" id="mailReader">
               <div class="mail-reader-empty">ВЫБЕРИТЕ ПИСЬМО ИЗ СПИСКА СЛЕВА</div>
@@ -4512,6 +4944,13 @@
 
         <div class="mail-panel mail-send-panel" id="mailSendPanel">
           <div class="mail-split">
+            <button type="button" class="mail-mobile-back" id="mailSendBackBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 18l-6-6 6-6"/></svg>
+              <span>ОТМЕНИТЬ ПИСЬМО</span>
+            </button>
+            <button type="button" class="mail-mobile-fab" id="mailComposeFab" title="Новое письмо">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4.6L16.4 4 20 7.6 8.6 19 4 20z"/><path d="M14.2 5.8L18 9.6"/></svg>
+            </button>
             <div class="mail-list" id="mailSentList"></div>
             <div class="mail-compose" id="mailCompose">
               <!-- Шаг 1, только для администратора (currentProfile.is_admin,
@@ -12731,6 +13170,40 @@
     }, wait);
   }
   scheduleNextGlitch();
+</script>
+
+<script>
+  /* =========================================================
+     MOBILE NATIVE VARIANT — MAIL single-pane navigation. Purely
+     additive: no existing function is modified, this only listens
+     for clicks already handled elsewhere and toggles a class the
+     new CSS above (search "MOBILE NATIVE VARIANT — MAIL") reacts
+     to. On PC this class is simply never styled, so it's inert.
+     ========================================================= */
+  (function(){
+    function setReading(panelId, on){
+      var panel = document.getElementById(panelId);
+      if (panel) panel.classList.toggle('mail-reading', on);
+    }
+    var mailList = document.getElementById('mailList');
+    if (mailList){
+      mailList.addEventListener('click', function(e){
+        if (e.target.closest('.mail-row')) setReading('mailInboxPanel', true);
+      });
+    }
+    var inboxBack = document.getElementById('mailInboxBackBtn');
+    if (inboxBack) inboxBack.addEventListener('click', function(){ setReading('mailInboxPanel', false); });
+
+    var composeFab = document.getElementById('mailComposeFab');
+    if (composeFab) composeFab.addEventListener('click', function(){ setReading('mailSendPanel', true); });
+    var sendBack = document.getElementById('mailSendBackBtn');
+    if (sendBack) sendBack.addEventListener('click', function(){ setReading('mailSendPanel', false); });
+
+    var tabInbox = document.getElementById('mailTabInbox');
+    var tabSend = document.getElementById('mailTabSend');
+    if (tabInbox) tabInbox.addEventListener('click', function(){ setReading('mailSendPanel', false); });
+    if (tabSend) tabSend.addEventListener('click', function(){ setReading('mailInboxPanel', false); });
+  })();
 </script>
 
 </body>
